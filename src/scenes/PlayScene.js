@@ -7,14 +7,15 @@ export default class PlayScene extends Phaser.Scene {
     }
 
     preload() {
-        this.load.image('background', '/assets/space/nebula.jpg');
+        this.load.image('background-play', '/assets/space/nebula.jpg');
         this.load.image('stars', '/assets/space/stars.png');
         this.load.image('ship', '/assets/space/ship.png');
         this.load.atlas('space', '/assets/space/space.png', '/assets/space/space.json');
     }
 
     create() {
-        this.bg = this.add.tileSprite(400, 300, 800, 600, 'background').setScrollFactor(0);
+        this.bg = this.add.tileSprite(400, 300, 800, 600, 'background-play').setScrollFactor(0);
+
         const emitter = this.add.particles(0, 0, 'space', {
             frame: 'red',
             speed: 100,

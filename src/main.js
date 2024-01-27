@@ -29,8 +29,8 @@ game.scene.add('hello-world', HelloWorldScene)
 game.scene.add('menu', MenuScene)
 game.scene.add('play', PlayScene)
 
-game.scene.start('play')
-// game.scene.start('splash')
+//game.scene.start('play')
+game.scene.start('splash')
 // game.scene.start('hello-world')
 
 export default game

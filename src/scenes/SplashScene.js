@@ -8,12 +8,12 @@ export default class SplashScene extends Phaser.Scene {
     }
 
     preload() {
-        this.load.image('background', '/public/assets/splash.png');
+        this.load.image('background-splash', '/public/assets/splash.png');
     }
 
 
     create() {
-        this.splashImage = this.add.sprite(0, 0, 'background');
+        this.splashImage = this.add.sprite(0, 0, 'background-splash');
         this.splashImage.setOrigin(0, 0);
         this.splashImage.alpha = 0.6;
         const scaleX = +this.sys.game.config.width / this.splashImage.width;
