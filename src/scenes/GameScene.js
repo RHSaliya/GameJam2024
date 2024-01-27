@@ -63,8 +63,6 @@ export default class HelloWorldScene extends Phaser.Scene {
 		this.anims.create({ key: 'asteroid3-anim', frames: this.anims.generateFrameNumbers('asteroid3-sheet', { start: 0, end: 24 }), frameRate: 20, repeat: -1 });
 		this.anims.create({ key: 'asteroid4-anim', frames: this.anims.generateFrameNumbers('asteroid4-sheet', { start: 0, end: 23 }), frameRate: 20, repeat: -1 });
 
-		this.initHealthBar();
-
 		//  World size is 8000 x 6000
 		this.bg = this.add.tileSprite(400, 300, 800, 600, 'background').setScrollFactor(0);
 
@@ -165,89 +163,10 @@ export default class HelloWorldScene extends Phaser.Scene {
 			}
 		}
 
-		// Handle bullet-player collisions
-		this.physics.overlap(this.bullets, this.ship, this.handleBulletPlayerCollision, null, this);
-		
-		// Decrease player health over time (for testing)
-		 this.time.delayedCall(1000, () => {
-            this.decreaseHealth(10);
-        });
-
 		this.bg.tilePositionX += this.ship.body.deltaX() * 0.5;
 		this.bg.tilePositionY += this.ship.body.deltaY() * 0.5;
 
 		this.stars.tilePositionX += this.ship.body.deltaX() * 2;
 		this.stars.tilePositionY += this.ship.body.deltaY() * 2;
 	}
-
-	healthBar;
-	maxHealth = 100;
-	currentHealth = 100;
-
-	initHealthBar() {
-		// Calculate position based on camera viewport
-		const camera = this.cameras.main;
-		const x = camera.worldView.x + 20; // 20 pixels from the left edge of the viewport
-		const y = camera.worldView.y + 20; // 20 pixels from the top edge of the viewport
-		const width = 200;
-		const height = 20;
-	
-		// Draw the background of the health bar
-		const borderOffset = 2;
-		const borderFillColor = 0x000000;
-		const borderAlpha = 0.5;
-		const bgGraphics = this.add.graphics();
-		bgGraphics.fillStyle(borderFillColor, borderAlpha);
-		bgGraphics.fillRect(x - borderOffset, y - borderOffset, width + borderOffset * 2, height + borderOffset * 2);
-	
-		// Draw the actual health bar
-		const barGraphics = this.add.graphics();
-		const healthFillColor = 0x00ff00;
-		const healthAlpha = 0.8;
-		this.healthBar = barGraphics.fillStyle(healthFillColor, healthAlpha);
-		this.updateHealthBar();
-	
-		// Set the health bar to always stay on top
-		bgGraphics.setDepth(10);
-		barGraphics.setDepth(11);
-	}
-
-	updateHealthBar() {
-		// Calculate position based on camera viewport
-		const camera = this.cameras.main;
-		const x = camera.worldView.x + 20; // 20 pixels from the left edge of the viewport
-		const y = camera.worldView.y + 20; // 20 pixels from the top edge of the viewport
-		const width = 200;
-		const height = 20;
-		const healthPercentage = this.currentHealth / this.maxHealth;
-	
-		// Update the health bar's fill
-		this.healthBar.fillRect(x, y, width * healthPercentage, height);
-	}
-	
-	// Function to decrease health
-	decreaseHealth(amount) {
-		this.currentHealth -= amount;
-		if (this.currentHealth < 0) {
-			this.currentHealth = 0;
-		}
-		this.updateHealthBar();
-	}
-
-    // Function to increase health
-    increaseHealth(amount) {
-        this.currentHealth += amount;
-        if (this.currentHealth > this.maxHealth) {
-            this.currentHealth = this.maxHealth;
-        }
-        this.updateHealthBar();
-    }	
-
-	handleBulletPlayerCollision(bullet, player) {
-        // Decrease player health when hit by a bullet
-        this.decreaseHealth(10);
-
-        // Hide or deactivate the bullet
-        bullet.setActive(false).setVisible(false);
-    }
 }

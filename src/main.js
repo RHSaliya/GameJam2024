@@ -5,6 +5,7 @@ import SplashScene from './scenes/SplashScene'
 import MenuScene from './scenes/MenuScene'
 import PlayScene from './scenes/PlayScene'
 import CreditScene from './scenes/Credits'
+import EndScene from './scenes/EndScene'
 
 const config = {
 	type: Phaser.AUTO,
@@ -24,12 +25,15 @@ const config = {
 }
 
 const game = new Phaser.Game(config)
+const totalScore = 69;
 
 game.scene.add('splash', SplashScene)
 game.scene.add('hello-world', HelloWorldScene)
 game.scene.add('menu', MenuScene)
 game.scene.add('play', PlayScene)
 game.scene.add('credits',CreditScene)
+game.scene.add('end', EndScene)
+//game.scene.start('end', {totalScore})
 
 //game.scene.start('play')
 game.scene.start('splash')
