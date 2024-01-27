@@ -48,6 +48,7 @@ export default class EndScene extends Phaser.Scene {
             color: '#ff0' // Hover color yellow
         };
 
+        // @ts-ignore
         const restartButton = this.add.text(+this.sys.game.config.width / 2, +this.sys.game.config.height * 0.8, 'Restart', buttonStyle);
         restartButton.setOrigin(0.5);
         restartButton.setInteractive();
