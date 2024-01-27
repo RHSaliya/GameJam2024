@@ -7,9 +7,8 @@ export default class MenuScene extends Phaser.Scene {
     }
     preload() {
         this.load.image('menu', 'assets/menu.png');
-        this.load.image('titleImage','assets/spacetitle.png')
-        this.load.image('title','assets/title.png')
-        this.load.text('Caramel', 'assets/fonts/caramel_3/Caramel.ttf');
+        this.load.image('titleImage', 'assets/spacetitle.png')
+        this.load.image('title', 'assets/title.png')
         this.load.audio('titleMusic', 'assets/Sound/TitleTheme.wav');
     }
     create() {
@@ -49,29 +48,29 @@ export default class MenuScene extends Phaser.Scene {
 
         // Add the image
         const spacetitle = this.add.image(0, 0, 'titleImage');
-        
+
         // Set the origin to the center of the image
         spacetitle.setOrigin(0.5);
-        
+
         // Set the scale and scroll factor
         spacetitle.setScale(scaleTI).setScrollFactor(0);
-        
+
         // Calculate the x-coordinate to center the image horizontally
         const centerX = this.cameras.main.width / 2;
-        spacetitle.x = centerX;       
+        spacetitle.x = centerX;
         spacetitle.y = gameHeight * 210 / 600;
-        
-         // Add the image
-         const title = this.add.image(0, 0, 'title');
-        
-         // Set the origin to the center of the image
-         title.setOrigin(0.5);
-         
-         // Set the scale and scroll factor
-         title.setScale(scaleTI).setScrollFactor(0);
- 
-         title.x = centerX;       
-         title.y = gameHeight * 320 / 600;
+
+        // Add the image
+        const title = this.add.image(0, 0, 'title');
+
+        // Set the origin to the center of the image
+        title.setOrigin(0.5);
+
+        // Set the scale and scroll factor
+        title.setScale(scaleTI).setScrollFactor(0);
+
+        title.x = centerX;
+        title.y = gameHeight * 320 / 600;
 
         const buttonPoitionX = gameWidth / 2;
         const startButton = this.add.text(buttonPoitionX, firstButtonHeight, 'Start', buttonStyle)
@@ -101,5 +100,6 @@ export default class MenuScene extends Phaser.Scene {
             .on('pointerdown', () => {
                 titleMusic.stop(); this.scene.start('credits')
             });
+
     }
 }

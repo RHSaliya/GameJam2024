@@ -8,6 +8,7 @@ export default class SplashScene extends Phaser.Scene {
     }
 
     preload() {
+        this.load.text('Caramel', 'assets/fonts/caramel_3/Caramel.ttf');
         this.load.image('background-splash', '/public/assets/splash.png');
     }
 
@@ -20,6 +21,11 @@ export default class SplashScene extends Phaser.Scene {
         const scaleY = +this.sys.game.config.height / this.splashImage.height;
         const scale = Math.max(scaleX, scaleY);
         this.splashImage.setScale(scale).setScrollFactor(0);
+
+        const startButton = this.add.text(0, 0, '', {
+            fontFamily: 'Caramel',
+            fontSize: `0px`,
+        });
     }
 
     update(time, diff) {
