@@ -6,6 +6,7 @@ import MenuScene from './scenes/MenuScene'
 import PlayScene from './scenes/PlayScene'
 import CreditScene from './scenes/Credits'
 import EndScene from './scenes/EndScene'
+import OptionsScene from './scenes/OptionsScene'
 
 const config = {
 	type: Phaser.AUTO,
@@ -33,6 +34,7 @@ game.scene.add('menu', MenuScene)
 game.scene.add('play', PlayScene)
 game.scene.add('credits', CreditScene)
 game.scene.add('end', EndScene)
+game.scene.add('options',OptionsScene)
 //game.scene.start('end', {totalScore})
 
 game.scene.start('play')

@@ -1,0 +1,13 @@
+@font-face {
+    font-family: 'DankDuck';
+    src: url('assets/fonts/dankduck/Dankos/Dankos.ttf') format('truetype');
+    font-weight: bold; 
+}
+
+@font-face {
+    font-family: 'Caramel';
+    src: url('assets/fonts/caramel_3/Caramel.ttf') format('truetype');
+    font-weight: bold; /* Specify bold font weight */
+    font-style: normal; /* Specify normal font style */
+}
+

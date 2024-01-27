@@ -1,5 +1,5 @@
 import Phaser from 'phaser'
-
+import '../../public/font.css';
 export default class CreditScene extends Phaser.Scene {
     constructor() {
         super('credits');
@@ -25,12 +25,12 @@ export default class CreditScene extends Phaser.Scene {
         const buttonStyle = {
             fill: '#ffffff',
             fontSize: 25,
-            fontFamily: 'sans-serif',
+            fontFamily: 'Caramel',
         }
 
         const buttonHoverStyle = {
             fill: '#ff0',
-            fontFamily: 'sans-serif',
+            fontFamily: 'Caramel',
         }
     
         // Create the credits text
@@ -44,7 +44,7 @@ export default class CreditScene extends Phaser.Scene {
             "Artist Name: Carlos \n\n" +
             "Developers name:\nLoki\nRachit\nHarshpreet\nRahul";
     
-        var text = this.add.text(200, +this.sys.game.config.height, creditsText, { fontFamily: 'Arial', fontSize: 24, color: '#ffffff' });
+        var text = this.add.text(200, +this.sys.game.config.height, creditsText, { fontFamily: 'Caramel', fontSize: 24, color: '#ffffff' });
     
         // Calculate the height of the text
         var textHeight = text.height;
