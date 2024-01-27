@@ -4,6 +4,7 @@ export default class OptionsScene extends Phaser.Scene {
     constructor() {
         super('options');
         this.optionsImage = null;
+
     }
     preload() {
         // Load any assets like images or fonts if required
@@ -19,6 +20,25 @@ export default class OptionsScene extends Phaser.Scene {
         const scaleY = +this.sys.game.config.height / this.optionImage.height;
         const scale = Math.max(scaleX, scaleY);
         this.optionImage.setScale(scale).setScrollFactor(0);
-        const fontSize = +this.sys.game.config.height * 24 / 800;
+        const buttonStyle = {
+            fill: '#ffffff',
+            fontSize: 45,
+            fontFamily: 'Caramel',
+        }
+
+        const buttonHoverStyle = {
+            fill: '#ff0',
+            fontFamily: 'Caramel',
+        }
+        // Add a button to skip the credits animation and return to the main menu
+        var BackButton = this.add.text(70, +this.sys.game.config.height - 100, 'Back', buttonStyle);
+        BackButton.setInteractive(); // Enable button interactivity
+        BackButton.on('pointerover', () => BackButton.setStyle(buttonHoverStyle))
+        BackButton.on('pointerout', () => BackButton.setStyle(buttonStyle))
+        BackButton.on('pointerdown', function () {
+            // Transition back to the main menu
+            this.scene.start('menu');
+        }, this);
     }
+
 }
