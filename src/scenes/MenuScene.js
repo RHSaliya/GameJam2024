@@ -9,7 +9,7 @@ export default class MenuScene extends Phaser.Scene {
         this.load.image('menu', 'assets/menu.png');
         this.load.image('titleImage','assets/spacetitle.png')
         this.load.image('title','assets/title.png')
-        this.load.text('Caramel', '../../public/font.css');
+        this.load.text('Caramel', 'assets/fonts/caramel_3/Caramel.ttf');
         this.load.audio('titleMusic', 'assets/Sound/TitleTheme.wav');
     }
     create() {
