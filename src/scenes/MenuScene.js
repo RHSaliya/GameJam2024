@@ -10,8 +10,13 @@ export default class MenuScene extends Phaser.Scene {
         this.load.image('titleImage','assets/spacetitle.png')
         this.load.image('title','assets/title.png')
         this.load.text('Caramel', '../../public/font.css');
+        this.load.audio('titleMusic', 'assets/Sound/TitleTheme.wav');
     }
     create() {
+        //Playing music title
+        const titleMusic = this.sound.add('titleMusic', { loop: true });
+        titleMusic.play();
+
         const background = this.add.image(0, 0, 'menu');
         background.setOrigin(0);
         const scaleX = +this.sys.game.config.width / background.width;
@@ -74,20 +79,27 @@ export default class MenuScene extends Phaser.Scene {
             .setOrigin(0.5)
             .on('pointerover', () => startButton.setStyle(buttonHoverStyle))
             .on('pointerout', () => startButton.setStyle(buttonStyle))
-            .on('pointerdown', () => this.scene.start('play'));
+            .on('pointerdown', () => {
+                titleMusic.stop();
+                this.scene.start('play')
+            });
         // options button
         const optionsButton = this.add.text(buttonPoitionX, startButton.y + startButton.height, 'Options', buttonStyle)
             .setInteractive()
             .setOrigin(0.5)
             .on('pointerover', () => optionsButton.setStyle(buttonHoverStyle))
             .on('pointerout', () => optionsButton.setStyle(buttonStyle))
-            .on('pointerdown', () => this.scene.start('options'));
+            .on('pointerdown', () => {
+                titleMusic.stop(); this.scene.start('options')
+            });
         // credits button
         const creditsButton = this.add.text(buttonPoitionX, optionsButton.y + optionsButton.height, 'Credits', buttonStyle)
             .setInteractive()
             .setOrigin(0.5)
             .on('pointerover', () => creditsButton.setStyle(buttonHoverStyle))
             .on('pointerout', () => creditsButton.setStyle(buttonStyle))
-            .on('pointerdown', () => this.scene.start('credits'));
+            .on('pointerdown', () => {
+                titleMusic.stop(); this.scene.start('credits')
+            });
     }
 }

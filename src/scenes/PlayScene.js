@@ -14,6 +14,8 @@ export default class PlayScene extends Phaser.Scene {
         this.load.image('stars', '/assets/space/stars.png');
         this.load.image('ship', '/assets/space/ship.png');
         this.load.atlas('space', '/assets/space/space.png', '/assets/space/space.json');
+        this.load.audio('shootingSound', 'assets/Sound/HitSound.wav');
+        this.load.audio('accelerationSound', 'assets/Sound/ShipAccelerate.wav');
     }
 
     create() {
@@ -88,10 +90,19 @@ export default class PlayScene extends Phaser.Scene {
 
         if (up.isDown || up_w.isDown) {
             this.physics.velocityFromRotation(this.ship.rotation, 600, this.ship.body.acceleration);
+            // Play acceleration sound if it's not already playing
+            if (!this.accelerationSound || !this.accelerationSound.isPlaying) {
+                this.accelerationSound = this.sound.add('accelerationSound');
+                this.accelerationSound.play();
+            }
         }
         else {
             this.ship.body.setVelocity(0);
             this.physics.velocityFromRotation(0, 0, this.ship.body.acceleration);
+                    // Stop the acceleration sound
+                    if (this.accelerationSound && this.accelerationSound.isPlaying) {
+                        this.accelerationSound.stop();
+                    }
         }
 
 
@@ -101,6 +112,9 @@ export default class PlayScene extends Phaser.Scene {
 
             if (bullet) {
                 bullet.fire(this.ship);
+
+                //Playing shooting sound
+                this.sound.play('shootingSound');
 
                 this.lastFired = time + 100;
             }
