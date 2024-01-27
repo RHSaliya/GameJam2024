@@ -29,8 +29,8 @@ export default class MenuScene extends Phaser.Scene {
 
         const gameWidth = +this.sys.game.config.width;
         const gameHeight = +this.sys.game.config.height;
-        const fontSize = gameWidth * 45 / 800;
-        const firstButtonHeight = gameHeight * 450 / 600;
+        const fontSize = gameWidth * 55 / 800;
+        const firstButtonHeight = gameHeight * 445 / 600;
 
         const buttonStyle = {
             fontFamily: 'Caramel',
@@ -54,12 +54,12 @@ export default class MenuScene extends Phaser.Scene {
         spacetitle.setOrigin(0.5);
 
         // Set the scale and scroll factor
-        spacetitle.setScale(scaleTI).setScrollFactor(0);
+        spacetitle.setScale(0.85).setScrollFactor(0);
 
         // Calculate the x-coordinate to center the image horizontally
         const centerX = this.cameras.main.width / 2;
         spacetitle.x = centerX;
-        spacetitle.y = gameHeight * 210 / 600;
+        spacetitle.y = gameHeight * 125 / 600;
 
         // Add the image
         const title = this.add.image(0, 0, 'title');
@@ -71,12 +71,13 @@ export default class MenuScene extends Phaser.Scene {
         title.setScale(scaleTI).setScrollFactor(0);
 
         title.x = centerX;
-        title.y = gameHeight * 320 / 600;
+        title.y = gameHeight * 325 / 600;
 
         const buttonPoitionX = gameWidth / 2;
         const startButton = this.add.text(buttonPoitionX, firstButtonHeight, 'Start', buttonStyle)
             .setInteractive()
             .setOrigin(0.5)
+            .setPadding(7)
             .on('pointerover', () => startButton.setStyle(buttonHoverStyle))
             .on('pointerout', () => startButton.setStyle(buttonStyle))
             .on('pointerdown', () => {
@@ -87,6 +88,7 @@ export default class MenuScene extends Phaser.Scene {
         const optionsButton = this.add.text(buttonPoitionX, startButton.y + startButton.height, 'Options', buttonStyle)
             .setInteractive()
             .setOrigin(0.5)
+            .setPadding(7)
             .on('pointerover', () => optionsButton.setStyle(buttonHoverStyle))
             .on('pointerout', () => optionsButton.setStyle(buttonStyle))
             .on('pointerdown', () => {
@@ -96,6 +98,7 @@ export default class MenuScene extends Phaser.Scene {
         const creditsButton = this.add.text(buttonPoitionX, optionsButton.y + optionsButton.height, 'Credits', buttonStyle)
             .setInteractive()
             .setOrigin(0.5)
+            .setPadding(7)
             .on('pointerover', () => creditsButton.setStyle(buttonHoverStyle))
             .on('pointerout', () => creditsButton.setStyle(buttonStyle))
             .on('pointerdown', () => {
