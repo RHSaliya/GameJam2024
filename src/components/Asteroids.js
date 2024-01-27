@@ -1,13 +1,16 @@
 export default class Asteroids extends Phaser.Physics.Arcade.Image {
     constructor(scene) {
-        super(scene, 0, 0, 'space', 'blue');
-        this.setBlendMode(1);
-        this.setDepth(1);
-        this.speed = 100;
-        this._temp = new Phaser.Math.Vector2();
+        super(scene, 0, 0, 'asteroid1');
+        this.setDepth(100);
+        this.minSpeed = 100;
+        this.maxSpeed = 200;
     }
 
     show(ship) {
+        // random scale between 0.3 to 0.5
+        this.scale = 0.3 + Math.random() * 0.2;
+        this.speed = this.minSpeed + Math.random() * (this.maxSpeed - this.minSpeed);
+
         const shipX = ship.x;
         const shipY = ship.y;
 

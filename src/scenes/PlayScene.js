@@ -13,6 +13,7 @@ export default class PlayScene extends Phaser.Scene {
 
     preload() {
         this.load.image('background-play', '/assets/space/nebula.jpg');
+        this.load.image('asteroid1', '/assets/asteroid1.png');
         this.load.image('stars', '/assets/space/stars.png');
         this.load.image('ship', '/assets/space/ship.png');
         this.load.atlas('space', '/assets/space/space.png', '/assets/space/space.json');
@@ -63,7 +64,6 @@ export default class PlayScene extends Phaser.Scene {
             enter: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER)
         }
 
-        this.healthBar.decreaseHealth(0.1);
         this.cameras.main.addListener(Phaser.Cameras.Scene2D.Events.FOLLOW_UPDATE, () => {
             this.healthBar.updateHealthBar();
         }, this);
@@ -79,6 +79,19 @@ export default class PlayScene extends Phaser.Scene {
             classType: Asteroids,
             maxSize: 20,
             runChildUpdate: true
+        });
+
+        this.physics.add.collider(this.bullets, this.asteroids, (bullet, asteroid) => {
+            bullet.destroy();
+            asteroid.destroy();
+        });
+
+        this.physics.add.collider(this.ship, this.asteroids, (ship, asteroid) => {
+            this.healthBar.decreaseHealth(25);
+            asteroid.destroy();
+            if (this.healthBar.getHealth() <= 0) {
+                this.scene.start('end', { totalScore: 0 });
+            }
         });
     }
 
@@ -106,9 +119,7 @@ export default class PlayScene extends Phaser.Scene {
 
 
         if ((enter.isDown || space.isDown) && time > this.lastFired) {
-            console.log("fire");
             const bullet = this.bullets.get();
-
             if (bullet) {
                 bullet.fire(this.ship);
 
