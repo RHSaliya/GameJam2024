@@ -57,5 +57,13 @@ export default class MenuScene extends Phaser.Scene {
             .on('pointerover', () => creditsButton.setStyle(buttonHoverStyle))
             .on('pointerout', () => creditsButton.setStyle(buttonStyle))
             .on('pointerdown', () => this.scene.start('credits'));
+
+        const asteroidButton = this.add.text(buttonPoitionX, creditsButton.y + creditsButton.height, 'Asteroid', buttonStyle)
+            .setInteractive()
+            .setOrigin(0.5)
+            .setPadding(10)
+            .on('pointerover', () => asteroidButton.setStyle(buttonHoverStyle))
+            .on('pointerout', () => asteroidButton.setStyle(buttonStyle))
+            .on('pointerdown', () => this.scene.start('asteroid'));
     }
 }
