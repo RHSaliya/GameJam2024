@@ -41,7 +41,7 @@ export default class MenuScene extends Phaser.Scene {
             .setPadding(10)
             .on('pointerover', () => startButton.setStyle(buttonHoverStyle))
             .on('pointerout', () => startButton.setStyle(buttonStyle))
-            .on('pointerdown', () => this.scene.start('hello-world'));
+            .on('pointerdown', () => this.scene.start('play'));
         // options button
         const optionsButton = this.add.text(buttonPoitionX, startButton.y + startButton.height, 'Options', buttonStyle)
             .setInteractive()
