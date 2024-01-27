@@ -6,7 +6,8 @@ import PlayerScore from '../components/PlayerScore';
 
 export default class PlayScene extends Phaser.Scene {
     lastFired = 0;
-    fireChange = -1
+    fireChange = -1;
+    totalBullets = 50;
     bulletSoundIndex = 0;
     bulletSoundTimes = [0, 3000, 6000];
 
@@ -26,7 +27,9 @@ export default class PlayScene extends Phaser.Scene {
     }
 
     create() {
+        this.scoreStartTime = this.game.getTime();
         this.lastAsteroid = this.game.getTime() + 3000;
+        this.totalBullets = 50;
         this.bg = this.add.tileSprite(400, 300, 800, 600, 'background-play').setScrollFactor(0);
 
         const emitter = this.add.particles(0, 0, 'space', {
@@ -93,6 +96,8 @@ export default class PlayScene extends Phaser.Scene {
         this.physics.add.collider(this.bullets, this.asteroids, (bullet, asteroid) => {
             bullet.destroy();
             asteroid.destroy();
+            this.totalBullets += 4;
+            this.refreshBulletText();
             this.playerScore.addScore(10);
         });
 
@@ -126,6 +131,13 @@ export default class PlayScene extends Phaser.Scene {
             this.scene.start('menu');
         }, this);
 
+
+        this.bulletText = this.add.text(30, 60, 'Bullets: ' + this.totalBullets, {
+            fontFamily: 'Caramel',
+            fontSize: '30px',
+            fill: '#ffffff'
+        });
+        this.bulletText.setScrollFactor(0);
     }
 
     update(time, delta) {
@@ -133,6 +145,11 @@ export default class PlayScene extends Phaser.Scene {
         this.visibleRect = this.cameras.main.worldView;
 
         const timeSinceLastFire = time - this.fireChange;
+
+        if (time - this.scoreStartTime > 1000) {
+            this.playerScore.addScore(1);
+            this.scoreStartTime = time;
+        }
 
         // Update bullet sound index based on time
         if (timeSinceLastFire < this.bulletSoundTimes[1]) {
@@ -177,7 +194,9 @@ export default class PlayScene extends Phaser.Scene {
             if (this.fireChange == -1) {
                 this.fireChange = time;
             }
-            if (bullet) {
+            if (bullet && this.totalBullets > 0) {
+                this.totalBullets--;
+                this.refreshBulletText();
                 bullet.fire(this.ship);
 
                 // Play shooting sound based on bullet sound index
@@ -204,5 +223,12 @@ export default class PlayScene extends Phaser.Scene {
             }
         }
 
+
     }
+
+    refreshBulletText() {
+        this.bulletText.setText('Bullets: ' + this.totalBullets);
+    }
+
 }
+
