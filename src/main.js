@@ -4,6 +4,7 @@ import HelloWorldScene from './HelloWorldScene'
 import SplashScene from './scenes/SplashScene'
 import MenuScene from './scenes/MenuScene'
 import PlayScene from './scenes/PlayScene'
+import CreditScene from './scenes/Credits'
 
 const config = {
 	type: Phaser.AUTO,
@@ -28,6 +29,7 @@ game.scene.add('splash', SplashScene)
 game.scene.add('hello-world', HelloWorldScene)
 game.scene.add('menu', MenuScene)
 game.scene.add('play', PlayScene)
+game.scene.add('credits',CreditScene)
 
 //game.scene.start('play')
 game.scene.start('splash')
