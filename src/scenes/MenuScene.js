@@ -20,21 +20,22 @@ export default class MenuScene extends Phaser.Scene {
 
         const gameWidth = +this.sys.game.config.width;
         const gameHeight = +this.sys.game.config.height;
+        const fontSize = gameWidth * 24 / 800;
+        const firstButtonHeight = gameHeight * 250 / 600;
 
         const buttonStyle = {
             fill: '#0f0',
-            fontSize: '24px',
+            fontSize: `${fontSize}px`,
             fontFamily: 'sans-serif',
         }
 
         const buttonHoverStyle = {
             fill: '#ff0',
-            fontSize: '24px',
             fontFamily: 'sans-serif',
         }
 
         const buttonPoitionX = gameWidth / 2;
-        const startButton = this.add.text(buttonPoitionX, 250, 'Start', buttonStyle)
+        const startButton = this.add.text(buttonPoitionX, firstButtonHeight, 'Start', buttonStyle)
             .setInteractive()
             .setOrigin(0.5)
             .setPadding(10)
