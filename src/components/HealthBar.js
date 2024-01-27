@@ -1,5 +1,8 @@
 
 export default class HealthBar {
+    getHealth() {
+        return this.currentHealth;
+    }
     constructor(scene) {
         this.scene = scene;
         this.initHealthBar();
