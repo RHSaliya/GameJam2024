@@ -17,8 +17,8 @@ export default class HealthBar {
         this.healthBar = this.scene.add.graphics();
 
         // Set the health bar to always stay on top
-        this.bgGraphics.setDepth(10);
-        this.healthBar.setDepth(11);
+        this.bgGraphics.setDepth(1000);
+        this.healthBar.setDepth(1001);
     }
 
     updateHealthBar() {
