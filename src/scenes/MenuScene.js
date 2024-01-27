@@ -9,7 +9,6 @@ export default class MenuScene extends Phaser.Scene {
         this.load.audio('titleMusic', 'assets/Sound/TitleTheme.wav');
     }
     create() {
-        
         //Playing music title
         const titleMusic = this.sound.add('titleMusic', { loop: true });
         titleMusic.play();
@@ -47,7 +46,10 @@ export default class MenuScene extends Phaser.Scene {
             .setPadding(10)
             .on('pointerover', () => startButton.setStyle(buttonHoverStyle))
             .on('pointerout', () => startButton.setStyle(buttonStyle))
-            .on('pointerdown', () => this.scene.start('play'));
+            .on('pointerdown', () => {
+                titleMusic.stop();
+                this.scene.start('play')
+            });
         // options button
         const optionsButton = this.add.text(buttonPoitionX, startButton.y + startButton.height, 'Options', buttonStyle)
             .setInteractive()
@@ -55,7 +57,9 @@ export default class MenuScene extends Phaser.Scene {
             .setPadding(10)
             .on('pointerover', () => optionsButton.setStyle(buttonHoverStyle))
             .on('pointerout', () => optionsButton.setStyle(buttonStyle))
-            .on('pointerdown', () => this.scene.start('options'));
+            .on('pointerdown', () => {
+                titleMusic.stop(); this.scene.start('options')
+            });
         // credits button
         const creditsButton = this.add.text(buttonPoitionX, optionsButton.y + optionsButton.height, 'Credits', buttonStyle)
             .setInteractive()
@@ -63,6 +67,8 @@ export default class MenuScene extends Phaser.Scene {
             .setPadding(10)
             .on('pointerover', () => creditsButton.setStyle(buttonHoverStyle))
             .on('pointerout', () => creditsButton.setStyle(buttonStyle))
-            .on('pointerdown', () => this.scene.start('credits'));
+            .on('pointerdown', () => {
+                titleMusic.stop(); this.scene.start('credits')
+            });
     }
 }
