@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import HealthBar from '../components/HealthBar';
 import Bullet from '../components/Bullet';
 import Asteroids from '../components/Asteroids';
+import PlayerScore from '../components/PlayerScore';
 
 export default class PlayScene extends Phaser.Scene {
     lastFired = 0;
@@ -54,6 +55,7 @@ export default class PlayScene extends Phaser.Scene {
         emitter.startFollow(this.ship);
 
         this.healthBar = new HealthBar(this);
+        this.playerScore = new PlayerScore(this);
 
         this.keys = {
             left: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT),
@@ -68,6 +70,7 @@ export default class PlayScene extends Phaser.Scene {
 
         this.cameras.main.addListener(Phaser.Cameras.Scene2D.Events.FOLLOW_UPDATE, () => {
             this.healthBar.updateHealthBar();
+            this.playerScore.drawScore();
         }, this);
 
         this.bullets = this.physics.add.group({
@@ -86,13 +89,17 @@ export default class PlayScene extends Phaser.Scene {
         this.physics.add.collider(this.bullets, this.asteroids, (bullet, asteroid) => {
             bullet.destroy();
             asteroid.destroy();
+            this.playerScore.addScore(10);
         });
 
         this.physics.add.collider(this.ship, this.asteroids, (ship, asteroid) => {
             this.healthBar.decreaseHealth(25);
             asteroid.destroy();
             if (this.healthBar.getHealth() <= 0) {
-                this.scene.start('end', { totalScore: 0 });
+                this.scene.start('end', {
+                    totalScore:
+                        this.playerScore.getScore()
+                });
             }
         });
     }
@@ -120,12 +127,12 @@ export default class PlayScene extends Phaser.Scene {
             }
         }
         else {
-            this.ship.body.setVelocity(0);
-            this.physics.velocityFromRotation(0, 0, this.ship.body.acceleration);
-                    // Stop the acceleration sound
-                    if (this.accelerationSound && this.accelerationSound.isPlaying) {
-                        this.accelerationSound.stop();
-                    }
+            this.ship.body.setVelocity(50);
+            this.physics.velocityFromRotation(this.ship.rotation, 0, this.ship.body.acceleration);
+            // Stop the acceleration sound
+            if (this.accelerationSound && this.accelerationSound.isPlaying) {
+                this.accelerationSound.stop();
+            }
         }
 
 
