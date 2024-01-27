@@ -14,6 +14,7 @@ export default class PlayScene extends Phaser.Scene {
         this.load.image('stars', '/assets/space/stars.png');
         this.load.image('ship', '/assets/space/ship.png');
         this.load.atlas('space', '/assets/space/space.png', '/assets/space/space.json');
+        this.load.audio('shootingSound', 'assets/Sound/HitSound.wav');
     }
 
     create() {
@@ -101,6 +102,9 @@ export default class PlayScene extends Phaser.Scene {
 
             if (bullet) {
                 bullet.fire(this.ship);
+
+                //Playing shooting sound
+                this.sound.play('shootingSound');
 
                 this.lastFired = time + 100;
             }
