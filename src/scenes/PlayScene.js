@@ -155,12 +155,12 @@ export default class PlayScene extends Phaser.Scene {
         if ((enter.isDown || space.isDown) && time > this.lastFired) {
             const bullet = this.bullets.get();
 
-            if(this.fireChange == -1){
+            if (this.fireChange == -1) {
                 this.fireChange = time;
             }
             if (bullet) {
                 bullet.fire(this.ship);
-                
+
                 // Play shooting sound based on bullet sound index
                 const bulletSoundKey = `Pew${this.bulletSoundIndex + 1}`;
                 this.sound.play(bulletSoundKey);
@@ -170,7 +170,7 @@ export default class PlayScene extends Phaser.Scene {
 
                 this.lastFired = time + 100;
             }
-        } else if(enter.isUp && space.isUp){
+        } else if (enter.isUp && space.isUp) {
             this.fireChange = -1
         }
 

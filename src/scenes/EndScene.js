@@ -12,6 +12,12 @@ export default class EndScene extends Phaser.Scene {
     create(data) {
         const totalScore = data.totalScore || 0; // Default to 0 if totalScore is not provided
 
+        const maxScore = localStorage.getItem('maxScore') || 0;
+
+        if (totalScore > maxScore) {
+            localStorage.setItem('maxScore', totalScore);
+        }
+
         // Add the menu background
         const background = this.add.image(0, 0, 'endGameScene').setOrigin(0);
         const scaleX = +this.sys.game.config.width / background.width;
@@ -26,7 +32,7 @@ export default class EndScene extends Phaser.Scene {
             color: '#fff'
         });
         gameOverText.setOrigin(0.5);
-        
+
         // Display total score
         const totalScoreText = this.add.text(+this.sys.game.config.width / 2, +this.sys.game.config.height / 2, `Total Score: ${totalScore}`, {
             fontSize: '24px',

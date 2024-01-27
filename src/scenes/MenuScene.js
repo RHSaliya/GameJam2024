@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import '../../public/font.css';
+import PlayerScore from "../components/PlayerScore";
 
 export default class MenuScene extends Phaser.Scene {
     constructor() {
@@ -101,5 +102,15 @@ export default class MenuScene extends Phaser.Scene {
                 titleMusic.stop(); this.scene.start('credits')
             });
 
+
+        this.showMaxScore();
+    }
+
+
+    showMaxScore() {
+        this.playerScore = new PlayerScore(this);
+        const maxScore = localStorage.getItem('maxScore') || 0;
+        this.playerScore.addScore(maxScore);
+        this.playerScore.drawScore("Max Score");
     }
 }
