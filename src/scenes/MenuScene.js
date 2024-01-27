@@ -6,8 +6,14 @@ export default class MenuScene extends Phaser.Scene {
     }
     preload() {
         this.load.image('menu', 'assets/menu.png');
+        this.load.audio('titleMusic', 'assets/Sound/TitleTheme.wav');
     }
     create() {
+        
+        //Playing music title
+        const titleMusic = this.sound.add('titleMusic', { loop: true });
+        titleMusic.play();
+
         const background = this.add.image(0, 0, 'menu');
         background.setOrigin(0);
         const scaleX = +this.sys.game.config.width / background.width;
