@@ -8,24 +8,26 @@ export default class SplashScene extends Phaser.Scene {
     }
 
     preload() {
-        // this.load.image('background', '/public/assets/splash.png');
+        this.load.image('background', '/public/assets/splash.png');
     }
 
 
     create() {
-        this.cameras.main.setBackgroundColor('#FFFFFF');
-        this.splashImage = this.add.image(0, 0, 'background');
+        this.splashImage = this.add.sprite(0, 0, 'background');
         this.splashImage.setOrigin(0, 0);
         this.splashImage.alpha = 0.6;
-        this.splashImage.setDisplaySize(+this.game.config.width, +this.game.config.height);
+        const scaleX = +this.sys.game.config.width / this.splashImage.width;
+        const scaleY = +this.sys.game.config.height / this.splashImage.height;
+        const scale = Math.max(scaleX, scaleY);
+        this.splashImage.setScale(scale).setScrollFactor(0);
     }
 
     update(time, diff) {
         if (this.splashImage.alpha < 1) {
             this.splashImage.alpha += 0.01;
-        } else {
+        } else if (time > 3000) {
             this.splashImage.destroy();
-            this.scene.start('hello-world');
+            this.scene.switch('menu');
         }
     }
 }
