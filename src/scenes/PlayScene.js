@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import HealthBar from '../components/HealthBar';
 import Bullet from '../components/Bullet';
-import Asteroids from '../components/Asteroids';
+import Asteroid from '../components/Asteroid';
 import PlayerScore from '../components/PlayerScore';
 
 export default class PlayScene extends Phaser.Scene {
@@ -55,8 +55,8 @@ export default class PlayScene extends Phaser.Scene {
         });
 
         this.ship = this.physics.add.image(10, 10, 'ship')
-        .setDepth(20)
-        .setScale(0.5);
+            .setDepth(20)
+            .setScale(0.5);
         this.ship.body.allowGravity = false;
         this.ship.body.setMaxVelocity(200);
         this.cameras.main.startFollow(this.ship);
@@ -89,7 +89,7 @@ export default class PlayScene extends Phaser.Scene {
 
 
         this.asteroids = this.physics.add.group({
-            classType: Asteroids,
+            classType: Asteroid,
             maxSize: 20,
             runChildUpdate: true
         });
@@ -217,6 +217,7 @@ export default class PlayScene extends Phaser.Scene {
             const asteroid = this.asteroids.get();
 
             if (asteroid) {
+                asteroid.minSpeed = Math.min(asteroid.minSpeed + this.playerScore.getScore() / 50, 500);
                 asteroid.show(this.ship);
                 asteroid.body.allowGravity = false;
 
