@@ -31,12 +31,12 @@ game.scene.add('splash', SplashScene)
 game.scene.add('hello-world', HelloWorldScene)
 game.scene.add('menu', MenuScene)
 game.scene.add('play', PlayScene)
-game.scene.add('credits',CreditScene)
+game.scene.add('credits', CreditScene)
 game.scene.add('end', EndScene)
 //game.scene.start('end', {totalScore})
 
-//game.scene.start('play')
-game.scene.start('splash')
+game.scene.start('play')
+// game.scene.start('splash')
 // game.scene.start('hello-world')
 
 export default game

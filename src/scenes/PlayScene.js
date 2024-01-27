@@ -1,9 +1,11 @@
 import Phaser from 'phaser';
 import HealthBar from '../components/HealthBar';
 import Bullet from '../components/Bullet';
+import Asteroids from '../components/Asteroids';
 
 export default class PlayScene extends Phaser.Scene {
     lastFired = 0;
+    lastAsteroid = 3000;
 
     constructor() {
         super('play');
@@ -73,10 +75,18 @@ export default class PlayScene extends Phaser.Scene {
             maxSize: 30,
             runChildUpdate: true
         });
+
+
+        this.asteroids = this.physics.add.group({
+            classType: Asteroids,
+            maxSize: 20,
+            runChildUpdate: true
+        });
     }
 
     update(time, delta) {
         const { left, right, up, left_a, right_d, up_w, enter, space } = this.keys;
+        this.visibleRect = this.cameras.main.worldView;
 
         if (left.isDown || left_a.isDown) {
             this.ship.setAngularVelocity(-150);
@@ -117,6 +127,17 @@ export default class PlayScene extends Phaser.Scene {
                 this.sound.play('shootingSound');
 
                 this.lastFired = time + 100;
+            }
+        }
+
+        if (time > this.lastAsteroid) {
+            const asteroid = this.asteroids.get();
+
+            if (asteroid) {
+                asteroid.show(this.ship);
+                asteroid.body.allowGravity = false;
+
+                this.lastAsteroid = time + 3000;
             }
         }
 
