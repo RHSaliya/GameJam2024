@@ -6,7 +6,6 @@ import PlayerScore from '../components/PlayerScore';
 
 export default class PlayScene extends Phaser.Scene {
     lastFired = 0;
-    lastAsteroid = 3000;
     fireChange = -1
     bulletSoundIndex = 0;
     bulletSoundTimes = [0, 3000, 6000];
@@ -14,7 +13,6 @@ export default class PlayScene extends Phaser.Scene {
     constructor() {
         super('play');
     }
-
     preload() {
         this.load.image('background-play', '/assets/space/nebula.jpg');
         this.load.image('asteroid1', '/assets/asteroid1.png');
@@ -28,6 +26,7 @@ export default class PlayScene extends Phaser.Scene {
     }
 
     create() {
+        this.lastAsteroid = this.game.getTime() + 3000;
         this.bg = this.add.tileSprite(400, 300, 800, 600, 'background-play').setScrollFactor(0);
 
         const emitter = this.add.particles(0, 0, 'space', {
@@ -164,7 +163,7 @@ export default class PlayScene extends Phaser.Scene {
             }
         }
         else {
-            this.ship.body.setVelocity(50);
+            this.ship.body.setVelocity(0);
             this.physics.velocityFromRotation(this.ship.rotation, 0, this.ship.body.acceleration);
             // Stop the acceleration sound
             if (this.accelerationSound && this.accelerationSound.isPlaying) {
