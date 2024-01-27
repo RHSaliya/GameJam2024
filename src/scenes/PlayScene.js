@@ -1,7 +1,10 @@
 import Phaser from 'phaser';
 import HealthBar from '../components/HealthBar';
+import Bullet from '../components/Bullet';
 
 export default class PlayScene extends Phaser.Scene {
+    lastFired = 0;
+
     constructor() {
         super('play');
     }
@@ -54,16 +57,24 @@ export default class PlayScene extends Phaser.Scene {
             left_a: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A),
             right_d: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D),
             up_w: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W),
+            space: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE),
+            enter: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER)
         }
 
         this.healthBar.decreaseHealth(0.1);
         this.cameras.main.addListener(Phaser.Cameras.Scene2D.Events.FOLLOW_UPDATE, () => {
             this.healthBar.updateHealthBar();
         }, this);
+
+        this.bullets = this.physics.add.group({
+            classType: Bullet,
+            maxSize: 30,
+            runChildUpdate: true
+        });
     }
 
     update(time, delta) {
-        const { left, right, up, left_a, right_d, up_w } = this.keys;
+        const { left, right, up, left_a, right_d, up_w, enter, space } = this.keys;
 
         if (left.isDown || left_a.isDown) {
             this.ship.setAngularVelocity(-150);
@@ -81,6 +92,18 @@ export default class PlayScene extends Phaser.Scene {
         else {
             this.ship.body.setVelocity(0);
             this.physics.velocityFromRotation(0, 0, this.ship.body.acceleration);
+        }
+
+
+        if ((enter.isDown || space.isDown) && time > this.lastFired) {
+            console.log("fire");
+            const bullet = this.bullets.get();
+
+            if (bullet) {
+                bullet.fire(this.ship);
+
+                this.lastFired = time + 100;
+            }
         }
 
     }
