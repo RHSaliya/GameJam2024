@@ -5,7 +5,7 @@ export default class Bullet extends Phaser.Physics.Arcade.Image {
         this.setBlendMode(1);
         this.setDepth(1);
 
-        this.speed = 600;
+        this.speed = 1000;
         this.lifespan = 1000;
 
         this._temp = new Phaser.Math.Vector2();
