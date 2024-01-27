@@ -26,7 +26,6 @@ const config = {
 }
 
 const game = new Phaser.Game(config)
-const totalScore = 69;
 
 game.scene.add('splash', SplashScene)
 game.scene.add('hello-world', HelloWorldScene)
@@ -35,7 +34,6 @@ game.scene.add('play', PlayScene)
 game.scene.add('credits', CreditScene)
 game.scene.add('end', EndScene)
 game.scene.add('options', OptionsScene)
-//game.scene.start('end', {totalScore})
 
 //game.scene.start('play')
 game.scene.start('splash')

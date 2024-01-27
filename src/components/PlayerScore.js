@@ -16,7 +16,7 @@ export default class PlayerScore {
             fontSize: `${fontSize}px`,
         }
 
-        this.scoreText = this.scene.add.text(0, 0, `Score: ${this.score}`, buttonStyle);
+        this.scoreText = this.scene.add.text(0, 0, `Score: ${this.score}`, buttonStyle).setScrollFactor(0);
     }
 
     addScore(amount) {
@@ -28,15 +28,14 @@ export default class PlayerScore {
     }
 
     drawScore(label = "") {
-        const startX = this.scene.cameras.main.worldView.x;
-        const startY = this.scene.cameras.main.worldView.y;
-        const endX = startX + +this.scene.sys.game.config.width - 20;
+        const margin = 20;
+        const endX = +this.scene.sys.game.config.width - margin;
 
         if (label) {
             this.scoreText.setText(`${label}: ${this.score}`);
         } else {
             this.scoreText.setText(`Score: ${this.score}`);
         }
-        this.scoreText.setPosition(endX - this.scoreText.width, startY + 20);
+        this.scoreText.setPosition(endX - this.scoreText.width, margin);
     }
 }
