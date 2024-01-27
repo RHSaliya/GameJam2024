@@ -7,6 +7,9 @@ import PlayerScore from '../components/PlayerScore';
 export default class PlayScene extends Phaser.Scene {
     lastFired = 0;
     lastAsteroid = 3000;
+    fireChange = -1
+    bulletSoundIndex = 0;
+    bulletSoundTimes = [0, 3000, 6000];
 
     constructor() {
         super('play');
@@ -18,7 +21,9 @@ export default class PlayScene extends Phaser.Scene {
         this.load.image('stars', '/assets/space/stars.png');
         this.load.image('ship', '/assets/space/ship.png');
         this.load.atlas('space', '/assets/space/space.png', '/assets/space/space.json');
-        this.load.audio('shootingSound', 'assets/Sound/HitSound.wav');
+        this.load.audio('Pew1', 'assets/Sound/Pew1.wav');
+        this.load.audio('Pew2', 'assets/Sound/Pew2.wav');
+        this.load.audio('Pew3', 'assets/Sound/Pew3.wav');
         this.load.audio('accelerationSound', 'assets/Sound/ShipAccelerate.wav');
     }
 
@@ -108,6 +113,17 @@ export default class PlayScene extends Phaser.Scene {
         const { left, right, up, left_a, right_d, up_w, enter, space } = this.keys;
         this.visibleRect = this.cameras.main.worldView;
 
+        const timeSinceLastFire = time - this.fireChange;
+
+        // Update bullet sound index based on time
+        if (timeSinceLastFire < this.bulletSoundTimes[1]) {
+            this.bulletSoundIndex = 0; // Pew1
+        } else if (timeSinceLastFire < this.bulletSoundTimes[2]) {
+            this.bulletSoundIndex = 1; // Pew2
+        } else {
+            this.bulletSoundIndex = 2; // Pew3
+        }
+
         if (left.isDown || left_a.isDown) {
             this.ship.setAngularVelocity(-150);
         }
@@ -138,14 +154,24 @@ export default class PlayScene extends Phaser.Scene {
 
         if ((enter.isDown || space.isDown) && time > this.lastFired) {
             const bullet = this.bullets.get();
+
+            if(this.fireChange == -1){
+                this.fireChange = time;
+            }
             if (bullet) {
                 bullet.fire(this.ship);
+                
+                // Play shooting sound based on bullet sound index
+                const bulletSoundKey = `Pew${this.bulletSoundIndex + 1}`;
+                this.sound.play(bulletSoundKey);
 
                 //Playing shooting sound
-                this.sound.play('shootingSound');
+                //this.sound.play('shootingSound');
 
                 this.lastFired = time + 100;
             }
+        } else if(enter.isUp && space.isUp){
+            this.fireChange = -1
         }
 
         if (time > this.lastAsteroid) {
