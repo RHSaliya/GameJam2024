@@ -29,8 +29,8 @@ export default class MenuScene extends Phaser.Scene {
 
         const gameWidth = +this.sys.game.config.width;
         const gameHeight = +this.sys.game.config.height;
-        const fontSize = gameWidth * 50 / 800;
-        const firstButtonHeight = gameHeight * 455 / 600;
+        const fontSize = gameWidth * 55 / 800;
+        const firstButtonHeight = gameHeight * 445 / 600;
 
         const buttonStyle = {
             fontFamily: 'Caramel',
@@ -59,7 +59,7 @@ export default class MenuScene extends Phaser.Scene {
         // Calculate the x-coordinate to center the image horizontally
         const centerX = this.cameras.main.width / 2;
         spacetitle.x = centerX;
-        spacetitle.y = gameHeight * 155 / 600;
+        spacetitle.y = gameHeight * 125 / 600;
 
         // Add the image
         const title = this.add.image(0, 0, 'title');
@@ -71,7 +71,7 @@ export default class MenuScene extends Phaser.Scene {
         title.setScale(scaleTI).setScrollFactor(0);
 
         title.x = centerX;
-        title.y = gameHeight * 345 / 600;
+        title.y = gameHeight * 325 / 600;
 
         const buttonPoitionX = gameWidth / 2;
         const startButton = this.add.text(buttonPoitionX, firstButtonHeight, 'Start', buttonStyle)
