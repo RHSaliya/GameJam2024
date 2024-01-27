@@ -35,7 +35,7 @@ export default class EndScene extends Phaser.Scene {
 
         // Display total score
         const totalScoreText = this.add.text(+this.sys.game.config.width / 2, +this.sys.game.config.height / 2, `Total Score: ${totalScore}`, {
-            fontSize: '24px',
+            fontSize: '45px',
             fontFamily: 'Caramel',
             color: '#fff'
         });
@@ -44,7 +44,7 @@ export default class EndScene extends Phaser.Scene {
 
         // Add restart button
         const buttonStyle = {
-            fontSize: '24px',
+            fontSize: '45px',
             fontFamily: 'Caramel',
             color: '#ffffff', // Default color green
             padding: 10
