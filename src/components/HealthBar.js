@@ -29,8 +29,6 @@ export default class HealthBar {
 
         const borderOffset = 2;
 
-        console.log("coordinates: ", x, y, width, height, healthPercentage);
-
         this.bgGraphics.clear();
         this.healthBar.clear();
 

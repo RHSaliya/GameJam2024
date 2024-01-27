@@ -1,10 +1,11 @@
 import Phaser from 'phaser';
 import HealthBar from '../components/HealthBar';
 import Bullet from '../components/Bullet';
+import Asteroids from '../components/Asteroids';
 
 export default class PlayScene extends Phaser.Scene {
     lastFired = 0;
-    lastAsteroid = 0;
+    lastAsteroid = 3000;
 
     constructor() {
         super('play');
@@ -72,16 +73,18 @@ export default class PlayScene extends Phaser.Scene {
             maxSize: 30,
             runChildUpdate: true
         });
+
+
+        this.asteroids = this.physics.add.group({
+            classType: Asteroids,
+            maxSize: 20,
+            runChildUpdate: true
+        });
     }
 
     update(time, delta) {
         const { left, right, up, left_a, right_d, up_w, enter, space } = this.keys;
         this.visibleRect = this.cameras.main.worldView;
-
-        //console.log("visibleRect",this.visibleRect);
-        //this.asteroid1 = this.add.image(this.visibleRect.x, this.visibleRect.y, 'space', 'asteroid1');
-
-        
 
         if (left.isDown || left_a.isDown) {
             this.ship.setAngularVelocity(-150);
@@ -113,42 +116,16 @@ export default class PlayScene extends Phaser.Scene {
             }
         }
 
-        console.log("time", time);
-        if(time > this.lastAsteroid){
-            this.newAsteroid = this.add.image(Phaser.Math.Between(this.visibleRect.x, this.visibleRect.width), 
-            Phaser.Math.Between(this.visibleRect.y, this.visibleRect.height), 'space', 'blue');
-            this.lastAsteroid = time + 2000;
-            this.moveAsteroid(this.newAsteroid, 3);
-            this.resetAsteroidPosition(this.newAsteroid);
-        }
-        // this.moveAsteroid(this.lastAsteroid, 3);
-        // this.resetAsteroidPosition(this.lastAsteroid);
+        if (time > this.lastAsteroid) {
+            const asteroid = this.asteroids.get();
 
-    }
+            if (asteroid) {
+                asteroid.show(this.ship);
+                asteroid.body.allowGravity = false;
 
-    moveAsteroid(asteroid, speed) {
-
-        console.log("asteroid", asteroid);
-        // increase the position of the asteroid on the vertical axis
-        asteroid.y += speed;
-        // if the asteroid hits the bottom of the screen call the reset function
-        if (asteroid.y > this.visibleRect.height) {
-            // 2.1 call a reset position function
-            this.resetAsteroidPosition(asteroid);
-        }
-    }
-
-    resetAsteroidPosition(asteroid) {
-        if (asteroid.x > this.visibleRect.width) {
-            asteroid.x = 0;
-        } else if (asteroid.x < 0) {
-            asteroid.x = this.visibleRect.width;
+                this.lastAsteroid = time + 3000;
+            }
         }
 
-        if (asteroid.y > this.visibleRect.height) {
-            asteroid.y = 0;
-        } else if (asteroid.y < 0) {
-            asteroid.y = this.visibleRect.height;
-        }
     }
 }
