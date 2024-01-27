@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import HealthBar from '../components/HealthBar';
 
 export default class PlayScene extends Phaser.Scene {
     constructor() {
@@ -14,9 +15,8 @@ export default class PlayScene extends Phaser.Scene {
 
     create() {
         this.bg = this.add.tileSprite(400, 300, 800, 600, 'background').setScrollFactor(0);
-
         const emitter = this.add.particles(0, 0, 'space', {
-            frame: 'blue',
+            frame: 'red',
             speed: 100,
             lifespan: {
                 onEmit: (particle, key, t, value) => {
@@ -40,8 +40,11 @@ export default class PlayScene extends Phaser.Scene {
         this.ship = this.physics.add.image(10, 10, 'ship')
             .setDepth(20);
         this.ship.body.allowGravity = false;
+        this.ship.body.setMaxVelocity(200);
         this.cameras.main.startFollow(this.ship);
         emitter.startFollow(this.ship);
+
+        this.healthBar = new HealthBar(this);
 
         this.keys = {
             left: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT),
@@ -51,12 +54,15 @@ export default class PlayScene extends Phaser.Scene {
             right_d: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D),
             up_w: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W),
         }
+
+        this.healthBar.decreaseHealth(0.1);
+        this.cameras.main.addListener(Phaser.Cameras.Scene2D.Events.FOLLOW_UPDATE, () => {
+            this.healthBar.updateHealthBar();
+        }, this);
     }
 
     update(time, delta) {
-        console.log(this.ship.body.velocity);
         const { left, right, up, left_a, right_d, up_w } = this.keys;
-
 
         if (left.isDown || left_a.isDown) {
             this.ship.setAngularVelocity(-150);
@@ -73,6 +79,7 @@ export default class PlayScene extends Phaser.Scene {
         }
         else {
             this.ship.body.setVelocity(0);
+            this.physics.velocityFromRotation(0, 0, this.ship.body.acceleration);
         }
 
     }
