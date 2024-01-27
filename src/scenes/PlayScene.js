@@ -107,6 +107,26 @@ export default class PlayScene extends Phaser.Scene {
                 });
             }
         });
+        const buttonStyle = {
+            fill: '#ffffff',
+            fontSize: 45,
+            fontFamily: 'Caramel',
+        }
+
+        const buttonHoverStyle = {
+            fill: '#ff0',
+            fontFamily: 'Caramel',
+        }
+        var BackButton = this.add.text(30, +this.sys.game.config.height - 50, 'Back', buttonStyle);
+        BackButton.setInteractive(); // Enable button interactivity
+        BackButton.setScrollFactor(0);
+        BackButton.on('pointerover', () => BackButton.setStyle(buttonHoverStyle))
+        BackButton.on('pointerout', () => BackButton.setStyle(buttonStyle))
+        BackButton.on('pointerdown', function () {
+            // Transition back to the main menu
+            this.scene.start('menu');
+        }, this);
+
     }
 
     update(time, delta) {
