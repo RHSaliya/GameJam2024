@@ -7,7 +7,7 @@ class Bullet extends Phaser.Physics.Arcade.Image {
 		this.setBlendMode(1);
 		this.setDepth(1);
 
-		this.speed = 1000;
+		this.speed = 600;
 		this.lifespan = 1000;
 
 		this._temp = new Phaser.Math.Vector2();
@@ -45,9 +45,9 @@ export default class HelloWorldScene extends Phaser.Scene {
 	lastFired = 0;
 
 	preload() {
-		this.load.image('background', '/public/assets/space/nebula.jpg');
-		this.load.image('stars', '/public/assets/space/stars.png');
-		this.load.atlas('space', '/public/assets/space/space.png', '/public/assets/space/space.json');
+		this.load.image('background', '/assets/space/nebula.jpg');
+		this.load.image('stars', '/assets/space/stars.png');
+		this.load.atlas('space', '/assets/space/space.png', '/assets/space/space.json');
 	}
 	create() {
 		//  Prepare some spritesheets and animations
