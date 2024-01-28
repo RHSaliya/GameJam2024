@@ -21,6 +21,12 @@ export default class HealthBar {
         this.healthBar.setDepth(1001);
     }
 
+    greenColor = 0x00cc00;
+    yellowColor = 0xffff00;
+    orangeColor = 0xffa500;
+    darkOrangeColor = 0xff8c00;
+    redColor = 0xff0000;
+
     updateHealthBar() {
         // Calculate position based on camera viewport
         const width = 200;
@@ -35,7 +41,21 @@ export default class HealthBar {
 
         // Update the health bar's fill
         this.bgGraphics.fillStyle(0xffffff, 0.5);
-        this.healthBar.fillStyle(0x00ff00, 0.7);
+
+        if (healthPercentage > 0.8) {
+            this.healthBar.fillStyle(this.greenColor, 0.7);
+        } else if (healthPercentage > 0.6) {
+            this.healthBar.fillStyle(this.yellowColor, 0.7);
+        }
+        else if (healthPercentage > 0.4) {
+            this.healthBar.fillStyle(this.orangeColor, 0.7);
+        }
+        else if (healthPercentage > 0.2) {
+            this.healthBar.fillStyle(this.darkOrangeColor, 0.7);
+        }
+        else {
+            this.healthBar.fillStyle(this.redColor, 0.7);
+        }
         this.bgGraphics.fillRect(margin - borderOffset, margin - borderOffset, width + borderOffset * 2, height + borderOffset * 2);
         this.healthBar.fillRect(margin, margin, width * healthPercentage, height);
     }
