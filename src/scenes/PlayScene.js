@@ -21,14 +21,17 @@ export default class PlayScene extends Phaser.Scene {
         this.load.image('asteroid2', '/assets/asteroid2.png');
         this.load.image('asteroid3', '/assets/asteroid3.png');
         this.load.image('asteroid4', '/assets/asteroid4.png');
+        this.load.image('asteroid5', '/assets/asteroid5.png');
         this.load.image('destroy1', '/assets/destroy1.png');
         this.load.image('destroy2', '/assets/destroy2.png');
         this.load.image('destroy3', '/assets/destroy3.png');
         this.load.image('stars', '/assets/space/stars.png');
         this.load.image('ship', '/assets/space/Spaceship.png');
         this.load.image('projectiles', '/assets/projectiles.png');
-        this.load.image('astronaut1', '/assets/Astronaut.png');
-        this.load.image('astronaut2','/assets/Astronaut1.png');
+        this.load.image('astronaut1', '/assets/Astronaut1.png');
+        this.load.image('astronaut2', '/assets/Astronaut2.png');
+        this.load.image('astronaut3', '/assets/Astronaut3.png');
+        this.load.image('astronaut4', '/assets/Astronaut4.png');
         this.load.atlas('space', '/assets/space/space.png', '/assets/space/space.json');
         this.load.audio('Pew1', 'assets/Sound/Pew1.wav');
         this.load.audio('Pew2', 'assets/Sound/Pew2.wav');
@@ -117,6 +120,7 @@ export default class PlayScene extends Phaser.Scene {
         this.lastAstronautSpawn = this.time.now;
         this.physics.add.collider(this.bullets, this.asteroids, (bullet, asteroid) => {
             bullet.destroy();
+            // @ts-ignore
             asteroid.destroyMe();
             this.totalBullets += 3;
             this.refreshBulletText();
@@ -130,6 +134,7 @@ export default class PlayScene extends Phaser.Scene {
             this.totalBullets += 4;
             this.refreshBulletText();
             this.healthBar.decreaseHealth(20);
+            // @ts-ignore
             asteroid.destroyMe();
             //Play the hit sound
             if (this.healthBar.getHealth() >= 25) {
@@ -250,14 +255,11 @@ export default class PlayScene extends Phaser.Scene {
                 this.lastAsteroid = time + Math.max(1250 - this.playerScore.getScore() / 5 * this.multiplier, 800);
             }
         }
-        if (time > this.lastAstronautSpawn + 5000) { // Check if 10 seconds have passed
+        if (time > this.lastAstronautSpawn + 5000) { // Check if 5 seconds have passed
             const astronaut = this.astronaut.get();
             if (astronaut) {
-                // Randomly position the astronaut within the game's boundaries
-                const x = Phaser.Math.Between(0, +this.sys.game.config.width);
-                const y = Phaser.Math.Between(0, +this.sys.game.config.height);
-                astronaut.setPosition(x, y);
                 astronaut.show(this.ship); // Call show method to make astronaut visible and move towards the ship
+                astronaut.body.allowGravity = false;
                 this.lastAstronautSpawn = time; // Update last spawn time
             }
         }
