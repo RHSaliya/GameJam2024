@@ -119,6 +119,11 @@ export default class PlayScene extends Phaser.Scene {
             }
 
             if (this.healthBar.getHealth() <= 0) {
+                // Stop the acceleration sound if it's playing
+                if (this.accelerationSound && this.accelerationSound.isPlaying) {
+                    this.accelerationSound.stop();
+                }
+
                 this.sound.play('deathSound');
                 this.scene.start('end', {
                     totalScore:
