@@ -19,6 +19,7 @@ export default class PlayScene extends Phaser.Scene {
         this.load.image('asteroid1', '/assets/asteroid1.png');
         this.load.image('stars', '/assets/space/stars.png');
         this.load.image('ship', '/assets/space/Spaceship.png');
+        this.load.image('projectiles', '/assets/projectiles.png');
         this.load.atlas('space', '/assets/space/space.png', '/assets/space/space.json');
         this.load.audio('Pew1', 'assets/Sound/Pew1.wav');
         this.load.audio('Pew2', 'assets/Sound/Pew2.wav');
