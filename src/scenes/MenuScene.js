@@ -30,7 +30,7 @@ export default class MenuScene extends Phaser.Scene {
         const gameWidth = +this.sys.game.config.width;
         const gameHeight = +this.sys.game.config.height;
         const fontSize = gameWidth * 55 / 800;
-        const firstButtonHeight = gameHeight * 375 / 600;
+        const firstButtonHeight = gameHeight * 425 / 600;
 
         const buttonStyle = {
             fontFamily: 'Caramel',
@@ -45,7 +45,7 @@ export default class MenuScene extends Phaser.Scene {
             fontWeight: 800,
             fontSize: `${fontSize}px`,
         }
-        const scaleTI = 0.7; // Adjust scale as needed
+        const scaleTI = 0.9; // Adjust scale as needed
 
         // Add the image
         const spacetitle = this.add.image(0, 0, 'titleImage');
@@ -59,7 +59,7 @@ export default class MenuScene extends Phaser.Scene {
         // Calculate the x-coordinate to center the image horizontally
         const centerX = this.cameras.main.width / 2;
         spacetitle.x = centerX;
-        spacetitle.y = gameHeight * 100 / 600;
+        spacetitle.y = gameHeight * 120 / 600;
 
         // Add the image
         const title = this.add.image(0, 0, 'title');
@@ -71,7 +71,7 @@ export default class MenuScene extends Phaser.Scene {
         title.setScale(scaleTI).setScrollFactor(0);
 
         title.x = centerX;
-        title.y = gameHeight * 275 / 600;
+        title.y = gameHeight * 305 / 600;
 
         const buttonPoitionX = gameWidth / 2;
         const startButton = this.add.text(buttonPoitionX, firstButtonHeight, 'Start', buttonStyle)
@@ -85,17 +85,17 @@ export default class MenuScene extends Phaser.Scene {
                 this.scene.start('play')
             });
         // options button
-        const optionsButton = this.add.text(buttonPoitionX, startButton.y + startButton.height, 'Options', buttonStyle)
-            .setInteractive()
-            .setOrigin(0.5)
-            .setPadding(7)
-            .on('pointerover', () => optionsButton.setStyle(buttonHoverStyle))
-            .on('pointerout', () => optionsButton.setStyle(buttonStyle))
-            .on('pointerdown', () => {
-                titleMusic.stop(); this.scene.start('options')
-            });
+        // const optionsButton = this.add.text(buttonPoitionX, startButton.y + startButton.height, 'Options', buttonStyle)
+        //     .setInteractive()
+        //     .setOrigin(0.5)
+        //     .setPadding(7)
+        //     .on('pointerover', () => optionsButton.setStyle(buttonHoverStyle))
+        //     .on('pointerout', () => optionsButton.setStyle(buttonStyle))
+        //     .on('pointerdown', () => {
+        //         titleMusic.stop(); this.scene.start('options')
+        //     });
         // instructions button
-        const instructionsButton = this.add.text(buttonPoitionX, optionsButton.y + optionsButton.height, 'Instructions', buttonStyle)
+        const instructionsButton = this.add.text(buttonPoitionX, startButton.y + startButton.height, 'Instructions', buttonStyle)
             .setInteractive()
             .setOrigin(0.5)
             .setPadding(7)

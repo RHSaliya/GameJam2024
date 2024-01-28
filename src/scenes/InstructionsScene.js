@@ -13,7 +13,10 @@ export default class InstructionsScene extends Phaser.Scene {
                               Integer nec odio. Praesent libero. Sed cursus ante dapibus diam.
                               Sed nisi.`;
 
-        this.load.image('blue', '/assets/space/blue.png');
+        this.load.image('P_key', '/assets/P_Key.png');
+        this.load.image('Q_key', '/assets/Q_Key.png');
+        this.load.image('Space_key', '/assets/Space_Key.png');
+        this.load.image('W_key', '/assets/w_key.png');
     }
 
     create() {
@@ -92,16 +95,20 @@ export default class InstructionsScene extends Phaser.Scene {
         // });
 
         const controls_text = this.add.text(+this.sys.game.config.width / 2 - 50, 100, 'CONTROLS', buttonStyle);
-        const acceleration_text = this.add.text(+this.sys.game.config.width / 2 - 300, 150, 'Acceleration:', controlsButtonStyle);
-        const Rotate_text = this.add.text(+this.sys.game.config.width / 2 - 300, 190, 'Rotate:', controlsButtonStyle);
-        const Fire_text = this.add.text(+this.sys.game.config.width / 2 - 300, 230, 'Fire:', controlsButtonStyle);
+        const acceleration_text = this.add.text(+this.sys.game.config.width / 2 - 150, 150, 'Acceleration:', controlsButtonStyle);
+        const Rotate_text = this.add.text(+this.sys.game.config.width / 2 - 150, 190, 'Rotate:', controlsButtonStyle);
+        const Fire_text = this.add.text(+this.sys.game.config.width / 2 - 150, 230, 'Fire:', controlsButtonStyle);
 
-        const q_key = this.add.image(+this.sys.game.config.width / 2 + 200, 150, 'blue');
-        const w_key = this.add.image(+this.sys.game.config.width / 2 + 200 + 50, 150, 'blue');
-        const space_key = this.add.image(+this.sys.game.config.width / 2 + 200, 190, 'blue');
-        const up_arrow = this.add.image(+this.sys.game.config.width / 2 + 200, 230, 'blue');
+        const q_key = this.add.image(+this.sys.game.config.width / 2 + 100, 165, 'Q_key');
+        q_key.setScale(0.5);
+        const w_key = this.add.image(+this.sys.game.config.width / 2 + 100 + 50, 165, 'W_key');
+        w_key.setScale(0.5);
+        const space_key = this.add.image(+this.sys.game.config.width / 2 + 130, 205, 'Space_key');
+        space_key.setScale(0.5);
+        const up_arrow = this.add.image(+this.sys.game.config.width / 2 + 100, 245, 'P_key');
+        up_arrow.setScale(0.5);
 
-        const remember_text = this.add.text(+this.sys.game.config.width / 2 - 50, 280, 'REMEMBER:', buttonStyle);
+        const remember_text = this.add.text(+this.sys.game.config.width / 2 - 50, 280, 'REMEMBER', buttonStyle);
         const remember_text_line1 = this.add.text(+this.sys.game.config.width / 2 - 300, 340, 'Each control should be assigned to a different player', rememberTextStyle);
         const remember_text_line2 = this.add.text(+this.sys.game.config.width / 2 - 300, 380, 'Your mission is to survive for as long as possible and take down as many asteroids', rememberTextStyle);
         const remember_text_line3 = this.add.text(+this.sys.game.config.width / 2 - 300, 405, 'as you can.', rememberTextStyle);
