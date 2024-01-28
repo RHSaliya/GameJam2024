@@ -33,14 +33,14 @@ export default class PlayScene extends Phaser.Scene {
         this.load.image('astronaut2', '/assets/Astronaut2.png');
         this.load.image('astronaut3', '/assets/Astronaut3.png');
         this.load.image('astronaut4', '/assets/Astronaut4.png');
-        this.load.audio('Pew1', 'assets/Sound/Pew1.wav');
-        this.load.audio('Pew2', 'assets/Sound/Pew2.wav');
-        this.load.audio('Pew3', 'assets/Sound/Pew3.wav');
-        this.load.audio('accelerationSound', 'assets/Sound/ShipAccelerate.wav');
-        this.load.audio('hitSound', 'assets/Sound/HitSound.wav');
-        this.load.audio('deathSound', 'assets/Sound/DeathSound.wav');
-        this.load.audio('explosionSound', 'assets/Sound/Explosion.wav');
-        this.load.audio('gameTheme', 'assets/Sound/GameTheme.wav');
+        this.load.audio('Pew1', 'assets/Sound/Pew1.mp3');
+        this.load.audio('Pew2', 'assets/Sound/Pew2.mp3');
+        this.load.audio('Pew3', 'assets/Sound/Pew3.mp3');
+        this.load.audio('accelerationSound', 'assets/Sound/ShipAccelerate.mp3');
+        this.load.audio('hitSound', 'assets/Sound/HitSound.mp3');
+        this.load.audio('deathSound', 'assets/Sound/DeathSound.mp3');
+        this.load.audio('explosionSound', 'assets/Sound/Explosion.mp3');
+        this.load.audio('gameTheme', 'assets/Sound/GameTheme.mp3');
     }
 
     create() {
@@ -170,6 +170,7 @@ export default class PlayScene extends Phaser.Scene {
         BackButton.on('pointerout', () => BackButton.setStyle(buttonStyle))
         BackButton.on('pointerdown', function () {
             // Transition back to the main menu
+            themeMusic.stop();
             this.scene.start('menu');
         }, this);
 
