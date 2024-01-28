@@ -25,6 +25,8 @@ export default class PlayScene extends Phaser.Scene {
         this.load.audio('Pew2', 'assets/Sound/Pew2.wav');
         this.load.audio('Pew3', 'assets/Sound/Pew3.wav');
         this.load.audio('accelerationSound', 'assets/Sound/ShipAccelerate.wav');
+        this.load.audio('hitSound', 'assets/Sound/HitSound.wav')
+        this.load.audio('deathSound', 'assets/Sound/DeathSound.wav')
     }
 
     create() {
@@ -111,7 +113,14 @@ export default class PlayScene extends Phaser.Scene {
         this.physics.add.collider(this.ship, this.asteroids, (ship, asteroid) => {
             this.healthBar.decreaseHealth(25);
             asteroid.destroy();
+
+            //Play the hit sound
+            if (this.healthBar.getHealth() >= 25){
+                this.sound.play('hitSound');
+            }
+
             if (this.healthBar.getHealth() <= 0) {
+                this.sound.play('deathSound');
                 this.scene.start('end', {
                     totalScore:
                         this.playerScore.getScore()
