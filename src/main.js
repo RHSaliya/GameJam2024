@@ -26,7 +26,7 @@ const config = {
 }
 
 const game = new Phaser.Game(config)
-
+const totalScore = 0;
 game.scene.add('splash', SplashScene)
 game.scene.add('hello-world', HelloWorldScene)
 game.scene.add('menu', MenuScene)
