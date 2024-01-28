@@ -81,14 +81,10 @@ export default class PlayScene extends Phaser.Scene {
         this.playerScore = new PlayerScore(this);
 
         this.keys = {
-            left: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT),
-            right: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT),
-            up: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP),
-            left_a: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A),
-            right_d: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D),
-            up_w: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W),
-            space: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE),
-            enter: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER)
+            rotate_left: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Q),
+            rotate_right: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W),
+            accelerate: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.P),
+            fire: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE),
         }
 
         this.cameras.main.addListener(Phaser.Cameras.Scene2D.Events.FOLLOW_UPDATE, () => {
@@ -175,7 +171,7 @@ export default class PlayScene extends Phaser.Scene {
     multiplier = 1;
 
     update(time, delta) {
-        const { left, right, left_a, right_d, enter, space } = this.keys;
+        const { rotate_left, rotate_right, fire } = this.keys;
         this.visibleRect = this.cameras.main.worldView;
 
         const timeSinceLastFire = time - this.fireChange;
@@ -199,10 +195,10 @@ export default class PlayScene extends Phaser.Scene {
             this.bulletSoundIndex = 2; // Pew3
         }
 
-        if (left.isDown || left_a.isDown) {
+        if (rotate_left.isDown) {
             this.ship.setAngularVelocity(-150 * this.multiplier);
         }
-        else if (right.isDown || right_d.isDown) {
+        else if (rotate_right.isDown) {
             this.ship.setAngularVelocity(150 * this.multiplier);
         }
         else {
@@ -212,7 +208,7 @@ export default class PlayScene extends Phaser.Scene {
         this.handleAcceleration(time)
 
 
-        if ((enter.isDown || space.isDown) && time > this.lastFired) {
+        if (fire.isDown && time > this.lastFired) {
             const bullet = this.bullets.get();
 
             if (this.fireChange == -1) {
@@ -229,7 +225,7 @@ export default class PlayScene extends Phaser.Scene {
 
                 this.lastFired = time + 100;
             }
-        } else if (enter.isUp && space.isUp) {
+        } else if (fire.isUp && fire.isUp) {
             this.fireChange = -1
         }
 
@@ -257,8 +253,8 @@ export default class PlayScene extends Phaser.Scene {
     }
 
     handleAcceleration(time) {
-        const { up, up_w } = this.keys;
-        if (up.isDown || up_w.isDown) {
+        const { accelerate } = this.keys;
+        if (accelerate.isDown) {
             this.physics.velocityFromRotation(this.ship.rotation, 600, this.ship.body.acceleration);
             // Play acceleration sound if it's not already playing
             if (!this.accelerationSound || !this.accelerationSound.isPlaying) {
