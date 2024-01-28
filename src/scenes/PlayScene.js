@@ -20,6 +20,9 @@ export default class PlayScene extends Phaser.Scene {
         this.load.image('asteroid2', '/assets/asteroid2.png');
         this.load.image('asteroid3', '/assets/asteroid3.png');
         this.load.image('asteroid4', '/assets/asteroid4.png');
+        this.load.image('destroy1', '/assets/destroy1.png');
+        this.load.image('destroy2', '/assets/destroy2.png');
+        this.load.image('destroy3', '/assets/destroy3.png');
         this.load.image('stars', '/assets/space/stars.png');
         this.load.image('ship', '/assets/space/Spaceship.png');
         this.load.image('projectiles', '/assets/projectiles.png');
@@ -35,7 +38,7 @@ export default class PlayScene extends Phaser.Scene {
     create() {
         this.multiplierStartTime = this.game.getTime();
         this.scoreStartTime = this.multiplierStartTime;
-        this.lastAsteroid = this.multiplierStartTime + 3000;
+        this.lastAsteroid = this.multiplierStartTime + 2000;
         this.totalBullets = 50;
         this.bg = this.add.tileSprite(400, 300, 800, 600, 'background-play').setScrollFactor(0);
 
@@ -101,22 +104,23 @@ export default class PlayScene extends Phaser.Scene {
 
         this.asteroids = this.physics.add.group({
             classType: Asteroid,
-            maxSize: 20,
+            maxSize: 3,
             runChildUpdate: true
         });
 
         this.physics.add.collider(this.bullets, this.asteroids, (bullet, asteroid) => {
             bullet.destroy();
-            asteroid.destroy();
-            this.totalBullets += 4;
+            asteroid.destroyMe();
+            this.totalBullets += 3;
             this.refreshBulletText();
             this.playerScore.addScore(10);
         });
 
         this.physics.add.collider(this.ship, this.asteroids, (ship, asteroid) => {
+            this.totalBullets += 4;
+            this.refreshBulletText();
             this.healthBar.decreaseHealth(20);
-            asteroid.destroy();
-
+            asteroid.destroyMe();
             //Play the hit sound
             if (this.healthBar.getHealth() >= 25) {
                 this.sound.play('hitSound');
@@ -233,7 +237,7 @@ export default class PlayScene extends Phaser.Scene {
                 asteroid.show(this.ship);
                 asteroid.body.allowGravity = false;
 
-                this.lastAsteroid = time + Math.max(2000 - this.playerScore.getScore() / 5 * this.multiplier, 1000);
+                this.lastAsteroid = time + Math.max(1250 - this.playerScore.getScore() / 5 * this.multiplier, 800);
             }
         }
 

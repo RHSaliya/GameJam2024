@@ -6,9 +6,15 @@ export default class Asteroid extends Phaser.Physics.Arcade.Image {
     }
 
     show(ship) {
+        this.setActive(true);
+        this.setVisible(true);
+
         // random scale between 0.3 to 0.5
         this.scale = 0.3 + Math.random() * 0.2;
+        this.setMass(10 * this.scale);
         this.setTexture('asteroid' + (Math.floor(Math.random() * 4) + 1));
+        this.body.setOffset(0, 0);
+        // this.body.setCircle(this.height / 2, 0, 0);
         this.speed = this.minSpeed + Math.random() * 100;
 
         const shipX = ship.x;
@@ -40,8 +46,7 @@ export default class Asteroid extends Phaser.Physics.Arcade.Image {
         // calculate angle such that the asterpoid is always moving towards the ship
         var radius = Math.atan2(shipY - actualStartY, shipX - actualStartX) * 180 / Math.PI;
 
-        this.setActive(true);
-        this.setVisible(true);
+
         this.setAngle(radius);
         this.setPosition(actualStartX, actualStartY);
         this.body.reset(actualStartX, actualStartY);
@@ -60,10 +65,44 @@ export default class Asteroid extends Phaser.Physics.Arcade.Image {
             const endY = startY + +this.scene.sys.game.config.height;
 
             if (this.x < startX - 100 || this.x > endX + 100 || this.y < startY - 100 || this.y > endY + 100) {
-                this.setActive(false);
-                this.setVisible(false);
-                this.body.stop();
+                this.fadeAdRemove();
             }
         }
+    }
+
+    fadeAdRemove() {
+        this.scene.tweens.add({
+            targets: this,
+            alpha: 0,
+            duration: 1000,
+            ease: 'Power2',
+            onComplete: () => {
+                this.setActive(false);
+                this.setVisible(false);
+                this.destroy();
+            }
+        });
+    }
+
+    delay = 100
+    destroyMe() {
+        // delayed
+        // this.disableBody(false, false);
+        this.body.setOffset(9999, 9999);
+        this.scene.time.delayedCall(this.delay, () => {
+            this.setTexture('destroy1');
+            this.scene.time.delayedCall(this.delay, () => {
+                this.setTexture('destroy2');
+                this.scene.time.delayedCall(this.delay, () => {
+                    this.setTexture('destroy3');
+                    this.enableBody(false, 0, 0, true, true);
+                    this.scene.time.delayedCall(this.delay, () => {
+                        this.setActive(false);
+                        this.setVisible(false);
+                        this.destroy();
+                    }, [], this);
+                }, [], this);
+            }, [], this);
+        }, [], this);
     }
 }
