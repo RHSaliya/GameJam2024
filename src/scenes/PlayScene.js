@@ -15,7 +15,7 @@ export default class PlayScene extends Phaser.Scene {
         super('play');
     }
     preload() {
-        this.load.image('background-play', '/assets/space/nebula.jpg');
+        this.load.image('background-play', '/assets/menu.png');
         this.load.image('asteroid1', '/assets/asteroid1.png');
         this.load.image('stars', '/assets/space/stars.png');
         this.load.image('ship', '/assets/space/Spaceship.png');
@@ -33,6 +33,9 @@ export default class PlayScene extends Phaser.Scene {
         this.lastAsteroid = this.multiplierStartTime + 3000;
         this.totalBullets = 50;
         this.bg = this.add.tileSprite(400, 300, 800, 600, 'background-play').setScrollFactor(0);
+
+
+        this.stars = this.add.tileSprite(400, 300, 800, 600, 'stars').setScrollFactor(0);
 
         const emitter = this.add.particles(0, 0, 'space', {
             frame: 'muzzleflash7',
@@ -230,6 +233,12 @@ export default class PlayScene extends Phaser.Scene {
                 this.lastAsteroid = time + Math.max(3000 - this.playerScore.getScore() / 5 * this.multiplier, 1000);
             }
         }
+
+        this.bg.tilePositionX += this.ship.body.deltaX() * 0.5;
+        this.bg.tilePositionY += this.ship.body.deltaY() * 0.5;
+
+        this.stars.tilePositionX += this.ship.body.deltaX() * 2;
+        this.stars.tilePositionY += this.ship.body.deltaY() * 2;
 
 
     }
