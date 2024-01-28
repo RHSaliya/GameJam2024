@@ -95,9 +95,9 @@ export default class InstructionsScene extends Phaser.Scene {
         // });
 
         const controls_text = this.add.text(+this.sys.game.config.width / 2 - 50, 100, 'CONTROLS', buttonStyle);
-        const acceleration_text = this.add.text(+this.sys.game.config.width / 2 - 150, 150, 'Acceleration:', controlsButtonStyle);
-        const Rotate_text = this.add.text(+this.sys.game.config.width / 2 - 150, 190, 'Rotate:', controlsButtonStyle);
-        const Fire_text = this.add.text(+this.sys.game.config.width / 2 - 150, 230, 'Fire:', controlsButtonStyle);
+        const acceleration_text = this.add.text(+this.sys.game.config.width / 2 - 150, 150, 'Rotation:', controlsButtonStyle);
+        const Rotate_text = this.add.text(+this.sys.game.config.width / 2 - 150, 190, 'Fire:', controlsButtonStyle);
+        const Fire_text = this.add.text(+this.sys.game.config.width / 2 - 150, 230, 'Acceleration:', controlsButtonStyle);
 
         const q_key = this.add.image(+this.sys.game.config.width / 2 + 100, 165, 'Q_key');
         q_key.setScale(0.5);
