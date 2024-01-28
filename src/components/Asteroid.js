@@ -9,10 +9,17 @@ export default class Asteroid extends Phaser.Physics.Arcade.Image {
         this.setActive(true);
         this.setVisible(true);
 
-        // random scale between 0.3 to 0.5
-        this.scale = 0.3 + Math.random() * 0.2;
-        this.setMass(10 * this.scale);
-        this.setTexture('asteroid' + (Math.floor(Math.random() * 4) + 1));
+        const rareAsteroid = Math.random() < 0.1;
+        if (rareAsteroid) {
+            this.scale = 0.4;
+            this.speed = 90
+            this.setTexture('asteroid5');
+        } else {
+            // random scale between 0.3 to 0.5
+            this.scale = 0.3 + Math.random() * 0.2;
+            this.setMass(10 * this.scale);
+            this.setTexture('asteroid' + (Math.floor(Math.random() * 4) + 1));
+        }
         this.body.setOffset(0, 0);
         // this.body.setCircle(this.height / 2, 0, 0);
         this.speed = this.minSpeed + Math.random() * 100;
