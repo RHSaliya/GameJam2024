@@ -39,7 +39,7 @@ export default class PlayScene extends Phaser.Scene {
             speed: 100,
             lifespan: {
                 onEmit: (particle, key, t, value) => {
-                    return Phaser.Math.Percent(this.ship.body.speed, 0, 300) * 2000;
+                    return Phaser.Math.Percent(this.ship.body.speed, 0, 300) * 500;
                 }
             },
             alpha: {
@@ -52,7 +52,7 @@ export default class PlayScene extends Phaser.Scene {
                     return (this.ship.angle - 180) + Phaser.Math.Between(-10, 10);
                 }
             },
-            scale: { start: 0.6, end: 0 },
+            scale: { start: 0.3, end: 0 },
             blendMode: 'ADD'
         });
 
