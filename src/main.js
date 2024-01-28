@@ -37,8 +37,8 @@ game.scene.add('end', EndScene)
 game.scene.add('options', OptionsScene)
 game.scene.add('instructions', InstructionsScene)
 
-// game.scene.start('play')
-game.scene.start('splash')
+game.scene.start('play')
+// game.scene.start('splash')
 // game.scene.start('hello-world')
 
 export default game
