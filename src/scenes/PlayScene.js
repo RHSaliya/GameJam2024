@@ -9,7 +9,7 @@ export default class PlayScene extends Phaser.Scene {
     fireChange = -1;
     totalBullets = 50;
     bulletSoundIndex = 0;
-    bulletSoundTimes = [0, 3000, 6000];
+    bulletSoundTimes = [0, 200, 500];
 
     constructor() {
         super('play');
