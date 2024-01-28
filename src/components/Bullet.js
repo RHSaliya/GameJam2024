@@ -1,9 +1,10 @@
 export default class Bullet extends Phaser.Physics.Arcade.Image {
     constructor(scene) {
-        super(scene, 0, 0, 'space', 'blaster');
+        super(scene, 0, 0, 'projectiles');
 
         this.setBlendMode(1);
         this.setDepth(1);
+        this.setScale(0.5);
 
         this.speed = 1000;
         this.lifespan = 1000;

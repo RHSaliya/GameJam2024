@@ -19,6 +19,7 @@ export default class PlayScene extends Phaser.Scene {
         this.load.image('asteroid1', '/assets/asteroid1.png');
         this.load.image('stars', '/assets/space/stars.png');
         this.load.image('ship', '/assets/space/Spaceship.png');
+        this.load.image('projectiles', '/assets/projectiles.png');
         this.load.atlas('space', '/assets/space/space.png', '/assets/space/space.json');
         this.load.audio('Pew1', 'assets/Sound/Pew1.wav');
         this.load.audio('Pew2', 'assets/Sound/Pew2.wav');
@@ -27,8 +28,9 @@ export default class PlayScene extends Phaser.Scene {
     }
 
     create() {
-        this.scoreStartTime = this.game.getTime();
-        this.lastAsteroid = this.game.getTime() + 3000;
+        this.multiplierStartTime = this.game.getTime();
+        this.scoreStartTime = this.multiplierStartTime;
+        this.lastAsteroid = this.multiplierStartTime + 3000;
         this.totalBullets = 50;
         this.bg = this.add.tileSprite(400, 300, 800, 600, 'background-play').setScrollFactor(0);
 
@@ -113,13 +115,13 @@ export default class PlayScene extends Phaser.Scene {
             }
         });
         const buttonStyle = {
-            fill: '#ffffff',
+            color: '#ffffff',
             fontSize: 45,
             fontFamily: 'Caramel',
         }
 
         const buttonHoverStyle = {
-            fill: '#ff0',
+            color: '#ff0',
             fontFamily: 'Caramel',
         }
         var BackButton = this.add.text(30, +this.sys.game.config.height - 50, 'Back', buttonStyle);
@@ -141,14 +143,21 @@ export default class PlayScene extends Phaser.Scene {
         this.bulletText.setScrollFactor(0);
     }
 
+    multiplier = 1;
+
     update(time, delta) {
         const { left, right, up, left_a, right_d, up_w, enter, space } = this.keys;
         this.visibleRect = this.cameras.main.worldView;
 
         const timeSinceLastFire = time - this.fireChange;
 
+        if (time > this.multiplierStartTime + 60000) {
+            this.multiplier += 0.1;
+            this.multiplierStartTime = time;
+        }
+
         if (time - this.scoreStartTime > 1000) {
-            this.playerScore.addScore(1);
+            this.playerScore.addScore(1 * this.multiplier);
             this.scoreStartTime = time;
         }
 
@@ -162,10 +171,10 @@ export default class PlayScene extends Phaser.Scene {
         }
 
         if (left.isDown || left_a.isDown) {
-            this.ship.setAngularVelocity(-150);
+            this.ship.setAngularVelocity(-150 * this.multiplier);
         }
         else if (right.isDown || right_d.isDown) {
-            this.ship.setAngularVelocity(150);
+            this.ship.setAngularVelocity(150 * this.multiplier);
         }
         else {
             this.ship.setAngularVelocity(0);
@@ -204,9 +213,6 @@ export default class PlayScene extends Phaser.Scene {
                 const bulletSoundKey = `Pew${this.bulletSoundIndex + 1}`;
                 this.sound.play(bulletSoundKey);
 
-                //Playing shooting sound
-                //this.sound.play('shootingSound');
-
                 this.lastFired = time + 100;
             }
         } else if (enter.isUp && space.isUp) {
@@ -217,11 +223,11 @@ export default class PlayScene extends Phaser.Scene {
             const asteroid = this.asteroids.get();
 
             if (asteroid) {
-                asteroid.minSpeed = Math.min(asteroid.minSpeed + this.playerScore.getScore() / 50, 500);
+                asteroid.minSpeed = Math.min((asteroid.minSpeed + this.playerScore.getScore() / 5) * this.multiplier, 500);
                 asteroid.show(this.ship);
                 asteroid.body.allowGravity = false;
 
-                this.lastAsteroid = time + 3000;
+                this.lastAsteroid = time + Math.max(3000 - this.playerScore.getScore() / 5 * this.multiplier, 1000);
             }
         }
 

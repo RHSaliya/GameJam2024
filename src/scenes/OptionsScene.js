@@ -21,13 +21,13 @@ export default class OptionsScene extends Phaser.Scene {
         const scale = Math.max(scaleX, scaleY);
         this.optionImage.setScale(scale).setScrollFactor(0);
         const buttonStyle = {
-            fill: '#ffffff',
+            color: '#ffffff',
             fontSize: 45,
             fontFamily: 'Caramel',
         }
 
         const buttonHoverStyle = {
-            fill: '#ff0',
+            color: '#ff0',
             fontFamily: 'Caramel',
         }
         // Add a button to skip the credits animation and return to the main menu
