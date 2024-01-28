@@ -24,7 +24,7 @@ export default class PlayerScore {
     }
 
     getScore() {
-        return this.score;
+        return Math.ceil(this.score);
     }
 
     drawScore(label = "") {
@@ -32,9 +32,9 @@ export default class PlayerScore {
         const endX = +this.scene.sys.game.config.width - margin;
 
         if (label) {
-            this.scoreText.setText(`${label}: ${this.score}`);
+            this.scoreText.setText(`${label}: ${this.getScore()}`);
         } else {
-            this.scoreText.setText(`Score: ${this.score}`);
+            this.scoreText.setText(`Score: ${this.getScore()}`);
         }
         this.scoreText.setPosition(endX - this.scoreText.width, margin);
     }
