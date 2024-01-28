@@ -3,6 +3,7 @@ import HealthBar from '../components/HealthBar';
 import Bullet from '../components/Bullet';
 import Asteroid from '../components/Asteroid';
 import PlayerScore from '../components/PlayerScore';
+import Astronaut from '../components/Astronaut';
 
 export default class PlayScene extends Phaser.Scene {
     lastFired = 0;
@@ -23,6 +24,8 @@ export default class PlayScene extends Phaser.Scene {
         this.load.image('stars', '/assets/space/stars.png');
         this.load.image('ship', '/assets/space/Spaceship.png');
         this.load.image('projectiles', '/assets/projectiles.png');
+        this.load.image('astronaut1', '/assets/Astronaut.png');
+        this.load.image('astronaut2','/assets/Astronaut1.png');
         this.load.atlas('space', '/assets/space/space.png', '/assets/space/space.json');
         this.load.audio('Pew1', 'assets/Sound/Pew1.wav');
         this.load.audio('Pew2', 'assets/Sound/Pew2.wav');
@@ -105,6 +108,11 @@ export default class PlayScene extends Phaser.Scene {
             runChildUpdate: true
         });
 
+        this.astronaut = this.physics.add.group({
+            classType: Astronaut,
+            maxSize: 25,
+        });
+        this.lastAstronautSpawn = this.time.now;
         this.physics.add.collider(this.bullets, this.asteroids, (bullet, asteroid) => {
             bullet.destroy();
             asteroid.destroy();
@@ -234,6 +242,17 @@ export default class PlayScene extends Phaser.Scene {
                 asteroid.body.allowGravity = false;
 
                 this.lastAsteroid = time + Math.max(2000 - this.playerScore.getScore() / 5 * this.multiplier, 1000);
+            }
+        }
+        if (time > this.lastAstronautSpawn + 5000) { // Check if 10 seconds have passed
+            const astronaut = this.astronaut.get();
+            if (astronaut) {
+                // Randomly position the astronaut within the game's boundaries
+                const x = Phaser.Math.Between(0, +this.sys.game.config.width);
+                const y = Phaser.Math.Between(0, +this.sys.game.config.height);
+                astronaut.setPosition(x, y);
+                astronaut.show(this.ship); // Call show method to make astronaut visible and move towards the ship
+                this.lastAstronautSpawn = time; // Update last spawn time
             }
         }
 
