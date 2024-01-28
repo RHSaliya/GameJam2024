@@ -30,7 +30,7 @@ export default class PlayScene extends Phaser.Scene {
         this.load.audio('accelerationSound', 'assets/Sound/ShipAccelerate.wav');
         this.load.audio('hitSound', 'assets/Sound/HitSound.wav');
         this.load.audio('deathSound', 'assets/Sound/DeathSound.wav');
-        this.load.audio('explosionSound', 'assets/Sound/ExplosionSound.wav')
+        this.load.audio('explosionSound', 'assets/Sound/Explosion.wav')
     }
 
     create() {
