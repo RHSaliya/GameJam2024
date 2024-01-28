@@ -11,7 +11,7 @@ export default class PlayerScore {
 
         const buttonStyle = {
             fontFamily: 'Caramel',
-            fill: '#ffffff',
+            color: '#ffffff',
             fontWeight: 800,
             fontSize: `${fontSize}px`,
         }

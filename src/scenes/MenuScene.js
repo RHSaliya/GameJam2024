@@ -34,14 +34,14 @@ export default class MenuScene extends Phaser.Scene {
 
         const buttonStyle = {
             fontFamily: 'Caramel',
-            fill: '#ffffff',
+            color: '#ffffff',
             fontWeight: 800,
             fontSize: `${fontSize}px`,
         }
 
         const buttonHoverStyle = {
             fontFamily: 'Caramel',
-            fill: '#ff0',
+            color: '#ff0',
             fontWeight: 800,
             fontSize: `${fontSize}px`,
         }

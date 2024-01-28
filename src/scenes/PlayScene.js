@@ -114,13 +114,13 @@ export default class PlayScene extends Phaser.Scene {
             }
         });
         const buttonStyle = {
-            fill: '#ffffff',
+            color: '#ffffff',
             fontSize: 45,
             fontFamily: 'Caramel',
         }
 
         const buttonHoverStyle = {
-            fill: '#ff0',
+            color: '#ff0',
             fontFamily: 'Caramel',
         }
         var BackButton = this.add.text(30, +this.sys.game.config.height - 50, 'Back', buttonStyle);
@@ -137,7 +137,7 @@ export default class PlayScene extends Phaser.Scene {
         this.bulletText = this.add.text(30, 60, 'Bullets: ' + this.totalBullets, {
             fontFamily: 'Caramel',
             fontSize: '30px',
-            fill: '#ffffff'
+            color: '#ffffff'
         });
         this.bulletText.setScrollFactor(0);
     }

@@ -23,16 +23,16 @@ export default class CreditScene extends Phaser.Scene {
         const fontSize = +this.sys.game.config.height * 24 / 800;
 
         const buttonStyle = {
-            fill: '#ffffff',
+            color: '#ffffff',
             fontSize: 25,
             fontFamily: 'Caramel',
         }
 
         const buttonHoverStyle = {
-            fill: '#ff0',
+            color: '#ff0',
             fontFamily: 'Caramel',
         }
-    
+
         // Create the credits text
         var creditsText = "Quarrel through the cosmos\n\n" +
             "Developed by: Team Ubihard\n" +
@@ -43,12 +43,12 @@ export default class CreditScene extends Phaser.Scene {
             "Sound Designer: Eldon\n\n" +
             "Artist Name: Carlos \n\n" +
             "Developers name:\nLoki\nRachit\nHarshpreet\nRahul";
-    
+
         var text = this.add.text(200, +this.sys.game.config.height, creditsText, { fontFamily: 'Caramel', fontSize: 24, color: '#ffffff' });
-    
+
         // Calculate the height of the text
         var textHeight = text.height;
-    
+
         // Create a tween to scroll the credits text upwards
         var tween = this.tweens.add({
             targets: text,
@@ -61,7 +61,7 @@ export default class CreditScene extends Phaser.Scene {
                 this.scene.start('menu');
             }
         });
-    
+
         // Add a button to skip the credits animation and return to the main menu
         var skipButton = this.add.text(70, +this.sys.game.config.height - 100, 'Skip', buttonStyle);
         skipButton.setInteractive(); // Enable button interactivity
