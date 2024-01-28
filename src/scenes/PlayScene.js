@@ -114,7 +114,7 @@ export default class PlayScene extends Phaser.Scene {
         });
 
         this.physics.add.collider(this.ship, this.asteroids, (ship, asteroid) => {
-            this.healthBar.decreaseHealth(25);
+            this.healthBar.decreaseHealth(20);
             asteroid.destroy();
 
             //Play the hit sound
@@ -233,7 +233,7 @@ export default class PlayScene extends Phaser.Scene {
                 asteroid.show(this.ship);
                 asteroid.body.allowGravity = false;
 
-                this.lastAsteroid = time + Math.max(3000 - this.playerScore.getScore() / 5 * this.multiplier, 1000);
+                this.lastAsteroid = time + Math.max(2000 - this.playerScore.getScore() / 5 * this.multiplier, 1000);
             }
         }
 
