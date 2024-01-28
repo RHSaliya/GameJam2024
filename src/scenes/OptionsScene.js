@@ -4,6 +4,7 @@ export default class OptionsScene extends Phaser.Scene {
     constructor() {
         super('options');
         this.optionsImage = null;
+        this.themeMusic = null;
 
     }
     preload() {
@@ -39,6 +40,51 @@ export default class OptionsScene extends Phaser.Scene {
             // Transition back to the main menu
             this.scene.start('menu');
         }, this);
-    }
+        const width = this.cameras.main.width;
+        const height = this.cameras.main.height;
 
+        // Display volume text
+        this.add.text(width / 2 - 50, height / 2 - 50, 'Volume:', { fontFamily: 'Arial', fontSize: 24, color: '#ffffff' });
+
+        // Create volume slider background
+        const sliderBackground = this.add.rectangle(width / 2, height / 2, 300, 10, 0x666666);
+        
+        // Create volume slider handle
+        const sliderHandle = this.add.rectangle(width / 2 - 150, height / 2, 10, 20, 0xffffff);
+        sliderHandle.setInteractive();
+
+        // Load theme music
+        this.themeMusic = this.sound.add('themeMusic', { loop: true });
+
+        // Set initial volume based on stored settings or default to 0.5
+        let initialVolume = parseFloat(localStorage.getItem('volume')) || 0.5;
+        this.updateVolume(initialVolume);
+
+        // Update volume based on slider position
+        sliderHandle.on('pointerdown', (pointer, dragX) => {
+            sliderHandle.setData('dragging', true);
+        });
+
+        this.input.on('pointermove', (pointer) => {
+            if (sliderHandle.getData('dragging')) {
+                let newValue = Phaser.Math.Clamp((pointer.x - (width / 2 - 150)) / 300, 0, 1);
+                this.updateVolume(newValue);
+                sliderHandle.x = Phaser.Math.Clamp(pointer.x, width / 2 - 150, width / 2 + 150);
+            }
+        });
+
+        this.input.on('pointerup', () => {
+            sliderHandle.setData('dragging', false);
+        });
+
+        sliderHandle.on('pointerover', () => sliderHandle.setFillStyle(Phaser.Display.Color.HexStringToColor('#ff0').color));
+        sliderHandle.on('pointerout', () => sliderHandle.setFillStyle(Phaser.Display.Color.HexStringToColor('#ffffff').color));
+
+}
+updateVolume(value) {
+    if (this.themeMusic) {
+        this.themeMusic.setVolume(value);
+        localStorage.setItem('volume', value.toString()); // Store volume setting
+    }
+}
 }
