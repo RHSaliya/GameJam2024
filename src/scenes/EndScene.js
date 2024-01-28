@@ -67,7 +67,7 @@ export default class EndScene extends Phaser.Scene {
         };
 
         const buttonHoverStyle = {
-            color: '#ff0' // Hover color yellow
+            color: '#ff0' // Hover color yellow.
         };
 
         // @ts-ignore
