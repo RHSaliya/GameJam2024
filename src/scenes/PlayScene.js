@@ -28,8 +28,9 @@ export default class PlayScene extends Phaser.Scene {
         this.load.audio('Pew2', 'assets/Sound/Pew2.wav');
         this.load.audio('Pew3', 'assets/Sound/Pew3.wav');
         this.load.audio('accelerationSound', 'assets/Sound/ShipAccelerate.wav');
-        this.load.audio('hitSound', 'assets/Sound/HitSound.wav')
-        this.load.audio('deathSound', 'assets/Sound/DeathSound.wav')
+        this.load.audio('hitSound', 'assets/Sound/HitSound.wav');
+        this.load.audio('deathSound', 'assets/Sound/DeathSound.wav');
+        this.load.audio('explosionSound', 'assets/Sound/ExplosionSound.wav')
     }
 
     create() {
@@ -111,6 +112,9 @@ export default class PlayScene extends Phaser.Scene {
             this.totalBullets += 4;
             this.refreshBulletText();
             this.playerScore.addScore(10);
+
+            //Play the explosion sound
+            this.sound.play('explosionSound');
         });
 
         this.physics.add.collider(this.ship, this.asteroids, (ship, asteroid) => {

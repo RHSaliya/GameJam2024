@@ -33,34 +33,6 @@ export default class CreditScene extends Phaser.Scene {
         }
     
         // Create the credits text
-<<<<<<< HEAD
-        var creditsText = "Quarrel Through The Cosmos\n\n" +
-            "Created by Team Mostly Green\n" +
-            "Special Thanks to Shiftkey Labs & the Phaser community\n" +
-            "Inspiration Source: Make me laugh....hehehehe \n\n" +
-            "Music and sound by Eldon\n\n" +
-            "Art by Carson \n\n" +
-            "Developed by Loki, Rachit, Harshpreet & Rahul";
-
-        var text = this.add.text(200, +this.sys.game.config.height, creditsText, { fontFamily: 'Caramel', fontSize: 24, color: '#ffffff' });
-
-        // Calculate the height of the text
-        var textHeight = text.height;
-
-        // Create a tween to scroll the credits text upwards
-        var tween = this.tweens.add({
-            targets: text,
-            y: -textHeight, // Target position to move the text off the top of the screen
-            duration: 14000, // Duration of the scroll animation in milliseconds
-            ease: 'Linear',
-            onComplete: () => {
-                // Handle what happens when the animation completes
-                // For example, transition back to the main menu
-                this.scene.start('menu');
-            }
-        });
-
-=======
         var creditsText = "Quarrel through the cosmos\n\n" +
             "Developed by: Team Ubihard\n" +
             "Special Thanks to: Shiftkey Labs\n" +
@@ -77,7 +49,6 @@ export default class CreditScene extends Phaser.Scene {
             color: '#ffffff' 
         }).setOrigin(0.5);
     
->>>>>>> d5eadf7baba03b666b913ee0db9c252eacb14ddb
         // Add a button to skip the credits animation and return to the main menu
         var skipButton = this.add.text(70, +this.sys.game.config.height - 100, 'Skip', buttonStyle);
         skipButton.setInteractive(); // Enable button interactivity
