@@ -17,6 +17,7 @@ const config = {
 	physics: {
 		default: 'arcade',
 		arcade: {
+			debug: false,
 			gravity: { y: 200 },
 		},
 	},
@@ -27,7 +28,6 @@ const config = {
 }
 
 const game = new Phaser.Game(config)
-const totalScore = 0;
 game.scene.add('splash', SplashScene)
 game.scene.add('hello-world', HelloWorldScene)
 game.scene.add('menu', MenuScene)
@@ -37,7 +37,7 @@ game.scene.add('end', EndScene)
 game.scene.add('options', OptionsScene)
 game.scene.add('instructions', InstructionsScene)
 
-//game.scene.start('play')
+// game.scene.start('play')
 game.scene.start('splash')
 // game.scene.start('hello-world')
 

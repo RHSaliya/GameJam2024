@@ -61,9 +61,10 @@ export default class PlayScene extends Phaser.Scene {
 
         this.ship = this.physics.add.image(10, 10, 'ship')
             .setDepth(20)
-            .setScale(0.5);
-        this.ship.body.allowGravity = false;
-        this.ship.body.setMaxVelocity(200);
+            .setScale(0.5)
+            .setDrag(300)
+            .setAngularDrag(400)
+            .setMaxVelocity(600);
         this.cameras.main.startFollow(this.ship);
         emitter.startFollow(this.ship);
 
@@ -149,7 +150,7 @@ export default class PlayScene extends Phaser.Scene {
     multiplier = 1;
 
     update(time, delta) {
-        const { left, right, up, left_a, right_d, up_w, enter, space } = this.keys;
+        const { left, right, left_a, right_d, enter, space } = this.keys;
         this.visibleRect = this.cameras.main.worldView;
 
         const timeSinceLastFire = time - this.fireChange;
@@ -183,22 +184,7 @@ export default class PlayScene extends Phaser.Scene {
             this.ship.setAngularVelocity(0);
         }
 
-        if (up.isDown || up_w.isDown) {
-            this.physics.velocityFromRotation(this.ship.rotation, 600, this.ship.body.acceleration);
-            // Play acceleration sound if it's not already playing
-            if (!this.accelerationSound || !this.accelerationSound.isPlaying) {
-                this.accelerationSound = this.sound.add('accelerationSound');
-                this.accelerationSound.play();
-            }
-        }
-        else {
-            this.ship.body.setVelocity(0);
-            this.physics.velocityFromRotation(this.ship.rotation, 0, this.ship.body.acceleration);
-            // Stop the acceleration sound
-            if (this.accelerationSound && this.accelerationSound.isPlaying) {
-                this.accelerationSound.stop();
-            }
-        }
+        this.handleAcceleration(time)
 
 
         if ((enter.isDown || space.isDown) && time > this.lastFired) {
@@ -239,13 +225,29 @@ export default class PlayScene extends Phaser.Scene {
 
         this.stars.tilePositionX += this.ship.body.deltaX() * 2;
         this.stars.tilePositionY += this.ship.body.deltaY() * 2;
-
-
     }
 
     refreshBulletText() {
         this.bulletText.setText('Bullets: ' + this.totalBullets);
     }
 
+    handleAcceleration(time) {
+        const { up, up_w } = this.keys;
+        if (up.isDown || up_w.isDown) {
+            this.physics.velocityFromRotation(this.ship.rotation, 600, this.ship.body.acceleration);
+            // Play acceleration sound if it's not already playing
+            if (!this.accelerationSound || !this.accelerationSound.isPlaying) {
+                this.accelerationSound = this.sound.add('accelerationSound');
+                this.accelerationSound.play();
+            }
+        }
+        else {
+            this.ship.setAcceleration(0);
+            // Stop the acceleration sound
+            if (this.accelerationSound && this.accelerationSound.isPlaying) {
+                this.accelerationSound.stop();
+            }
+        }
+    }
 }
 
