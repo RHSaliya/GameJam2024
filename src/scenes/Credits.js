@@ -34,15 +34,13 @@ export default class CreditScene extends Phaser.Scene {
         }
 
         // Create the credits text
-        var creditsText = "Quarrel through the cosmos\n\n" +
-            "Developed by: Team Ubihard\n" +
-            "Special Thanks to: Shiftkey Labs\n" +
-            "Inspiration Source:Make me laugh....hehehehe \n" +
-            "Phaser Community\n\n" +
-            "Music by Eldon the Rapper\n" +
-            "Sound Designer: Eldon\n\n" +
-            "Artist Name: Carlos \n\n" +
-            "Developers name:\nLoki\nRachit\nHarshpreet\nRahul";
+        var creditsText = "Quarrel Through The Cosmos\n\n" +
+            "Created by Team Mostly Green\n" +
+            "Special Thanks to Shiftkey Labs & the Phaser community\n" +
+            "Inspiration Source: Make me laugh....hehehehe \n\n" +
+            "Music and sound by Eldon\n\n" +
+            "Art by Carson \n\n" +
+            "Developed by Loki, Rachit, Harshpreet & Rahul";
 
         var text = this.add.text(200, +this.sys.game.config.height, creditsText, { fontFamily: 'Caramel', fontSize: 24, color: '#ffffff' });
 
