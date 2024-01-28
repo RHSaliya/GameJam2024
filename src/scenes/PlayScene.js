@@ -9,7 +9,7 @@ export default class PlayScene extends Phaser.Scene {
     fireChange = -1;
     totalBullets = 50;
     bulletSoundIndex = 0;
-    bulletSoundTimes = [0, 3000, 6000];
+    bulletSoundTimes = [0, 200, 500];
 
     constructor() {
         super('play');
@@ -17,6 +17,9 @@ export default class PlayScene extends Phaser.Scene {
     preload() {
         this.load.image('background-play', '/assets/menu.png');
         this.load.image('asteroid1', '/assets/asteroid1.png');
+        this.load.image('asteroid2', '/assets/asteroid2.png');
+        this.load.image('asteroid3', '/assets/asteroid3.png');
+        this.load.image('asteroid4', '/assets/asteroid4.png');
         this.load.image('stars', '/assets/space/stars.png');
         this.load.image('ship', '/assets/space/Spaceship.png');
         this.load.image('projectiles', '/assets/projectiles.png');
@@ -25,6 +28,9 @@ export default class PlayScene extends Phaser.Scene {
         this.load.audio('Pew2', 'assets/Sound/Pew2.wav');
         this.load.audio('Pew3', 'assets/Sound/Pew3.wav');
         this.load.audio('accelerationSound', 'assets/Sound/ShipAccelerate.wav');
+        this.load.audio('hitSound', 'assets/Sound/HitSound.wav');
+        this.load.audio('deathSound', 'assets/Sound/DeathSound.wav');
+        this.load.audio('explosionSound', 'assets/Sound/Explosion.wav')
     }
 
     create() {
@@ -61,9 +67,10 @@ export default class PlayScene extends Phaser.Scene {
 
         this.ship = this.physics.add.image(10, 10, 'ship')
             .setDepth(20)
-            .setScale(0.5);
-        this.ship.body.allowGravity = false;
-        this.ship.body.setMaxVelocity(200);
+            .setScale(0.5)
+            .setDrag(300)
+            .setAngularDrag(400)
+            .setMaxVelocity(600);
         this.cameras.main.startFollow(this.ship);
         emitter.startFollow(this.ship);
 
@@ -105,12 +112,27 @@ export default class PlayScene extends Phaser.Scene {
             this.totalBullets += 4;
             this.refreshBulletText();
             this.playerScore.addScore(10);
+
+            //Play the explosion sound
+            this.sound.play('explosionSound');
         });
 
         this.physics.add.collider(this.ship, this.asteroids, (ship, asteroid) => {
-            this.healthBar.decreaseHealth(25);
+            this.healthBar.decreaseHealth(20);
             asteroid.destroy();
+
+            //Play the hit sound
+            if (this.healthBar.getHealth() >= 25) {
+                this.sound.play('hitSound');
+            }
+
             if (this.healthBar.getHealth() <= 0) {
+                // Stop the acceleration sound if it's playing
+                if (this.accelerationSound && this.accelerationSound.isPlaying) {
+                    this.accelerationSound.stop();
+                }
+
+                this.sound.play('deathSound');
                 this.scene.start('end', {
                     totalScore:
                         this.playerScore.getScore()
@@ -149,7 +171,7 @@ export default class PlayScene extends Phaser.Scene {
     multiplier = 1;
 
     update(time, delta) {
-        const { left, right, up, left_a, right_d, up_w, enter, space } = this.keys;
+        const { left, right, left_a, right_d, enter, space } = this.keys;
         this.visibleRect = this.cameras.main.worldView;
 
         const timeSinceLastFire = time - this.fireChange;
@@ -183,22 +205,7 @@ export default class PlayScene extends Phaser.Scene {
             this.ship.setAngularVelocity(0);
         }
 
-        if (up.isDown || up_w.isDown) {
-            this.physics.velocityFromRotation(this.ship.rotation, 600, this.ship.body.acceleration);
-            // Play acceleration sound if it's not already playing
-            if (!this.accelerationSound || !this.accelerationSound.isPlaying) {
-                this.accelerationSound = this.sound.add('accelerationSound');
-                this.accelerationSound.play();
-            }
-        }
-        else {
-            this.ship.body.setVelocity(0);
-            this.physics.velocityFromRotation(this.ship.rotation, 0, this.ship.body.acceleration);
-            // Stop the acceleration sound
-            if (this.accelerationSound && this.accelerationSound.isPlaying) {
-                this.accelerationSound.stop();
-            }
-        }
+        this.handleAcceleration(time)
 
 
         if ((enter.isDown || space.isDown) && time > this.lastFired) {
@@ -230,7 +237,7 @@ export default class PlayScene extends Phaser.Scene {
                 asteroid.show(this.ship);
                 asteroid.body.allowGravity = false;
 
-                this.lastAsteroid = time + Math.max(3000 - this.playerScore.getScore() / 5 * this.multiplier, 1000);
+                this.lastAsteroid = time + Math.max(2000 - this.playerScore.getScore() / 5 * this.multiplier, 1000);
             }
         }
 
@@ -239,13 +246,29 @@ export default class PlayScene extends Phaser.Scene {
 
         this.stars.tilePositionX += this.ship.body.deltaX() * 2;
         this.stars.tilePositionY += this.ship.body.deltaY() * 2;
-
-
     }
 
     refreshBulletText() {
         this.bulletText.setText('Bullets: ' + this.totalBullets);
     }
 
+    handleAcceleration(time) {
+        const { up, up_w } = this.keys;
+        if (up.isDown || up_w.isDown) {
+            this.physics.velocityFromRotation(this.ship.rotation, 600, this.ship.body.acceleration);
+            // Play acceleration sound if it's not already playing
+            if (!this.accelerationSound || !this.accelerationSound.isPlaying) {
+                this.accelerationSound = this.sound.add('accelerationSound');
+                this.accelerationSound.play();
+            }
+        }
+        else {
+            this.ship.setAcceleration(0);
+            // Stop the acceleration sound
+            if (this.accelerationSound && this.accelerationSound.isPlaying) {
+                this.accelerationSound.stop();
+            }
+        }
+    }
 }
 

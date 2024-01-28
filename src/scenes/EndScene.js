@@ -9,6 +9,7 @@ export default class EndScene extends Phaser.Scene {
         this.load.image('endGameScene', 'assets/menu.png');
         this.load.image('endGameScene2', 'assets/end2.png');
         this.load.image('endGameScene3', 'assets/end3.png');
+        this.load.audio('deathTheme', 'assets/Sound/DeathTheme.wav')
     }
 
     create(data) {
@@ -19,6 +20,9 @@ export default class EndScene extends Phaser.Scene {
         if (totalScore > maxScore) {
             localStorage.setItem('maxScore', totalScore);
         }
+
+        const deathThemeSound = this.sound.add('deathTheme', { loop: true });
+        deathThemeSound.play();
 
         // Add the menu background
         const background = this.add.image(0, 0, 'endGameScene').setOrigin(0);
@@ -80,6 +84,7 @@ export default class EndScene extends Phaser.Scene {
         });
 
         restartButton.on('pointerdown', () => {
+            deathThemeSound.stop();
             this.scene.start('menu');
         });
     }

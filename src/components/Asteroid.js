@@ -8,6 +8,7 @@ export default class Asteroid extends Phaser.Physics.Arcade.Image {
     show(ship) {
         // random scale between 0.3 to 0.5
         this.scale = 0.3 + Math.random() * 0.2;
+        this.setTexture('asteroid' + (Math.floor(Math.random() * 4) + 1));
         this.speed = this.minSpeed + Math.random() * 100;
 
         const shipX = ship.x;
@@ -62,8 +63,6 @@ export default class Asteroid extends Phaser.Physics.Arcade.Image {
                 this.setActive(false);
                 this.setVisible(false);
                 this.body.stop();
-            } else {
-                console.log("asteroid still in view");
             }
         }
     }
