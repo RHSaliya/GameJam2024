@@ -6,7 +6,9 @@ export default class EndScene extends Phaser.Scene {
     }
 
     preload() {
-        this.load.image('endGameScene', 'assets/darthVader.jpeg');
+        this.load.image('endGameScene', 'assets/menu.png');
+        this.load.image('endGameScene2', 'assets/end2.png');
+        this.load.image('endGameScene3', 'assets/end3.png');
     }
 
     create(data) {
@@ -24,6 +26,16 @@ export default class EndScene extends Phaser.Scene {
         const scaleY = +this.sys.game.config.height / background.height;
         const scale = Math.max(scaleX, scaleY);
         background.setScale(scale).setScrollFactor(0);
+
+
+        const background2 = this.add.image(0, 0, 'endGameScene2').setOrigin(0);
+        background2.setScale(0.6).setScrollFactor(0);
+        background2.x = +this.sys.game.config.width - 800;
+
+
+        const background3 = this.add.image(0, 0, 'endGameScene3').setOrigin(0);
+        background3.setScale(0.7).setScrollFactor(0);
+        background3.x = +this.sys.game.config.width - 250;
 
         // Add "Game Over" text
         const gameOverText = this.add.text(+this.sys.game.config.width / 2, +this.sys.game.config.height / 2 - 50, 'Game Over', {
