@@ -33,15 +33,13 @@ export default class CreditScene extends Phaser.Scene {
         }
     
         // Create the credits text
-        var creditsText = "Quarrel through the cosmos\n\n" +
-            "Developed by: Team Ubihard\n" +
-            "Special Thanks to: Shiftkey Labs\n" +
-            "Inspiration Source: Make me laugh....hehehehe \n" +
-            "Phaser Community\n\n" +
-            "Music by Eldon the Rapper\n" +
-            "Sound Designer: Eldon\n\n" +
-            "Artist Name: Carlos \n\n" +
-            "Developed by:\nCarlos\nEldon\nHarshpreet\nLoki\nRachit\nRahul";
+        var creditsText = "Quarrel Through The Cosmos\n\n" +
+            "Developed by Team Mostly Green\n" +
+            "Special Thanks to Shiftkey Labs & the Phaser community\n" +
+            "Inspiration Source: Make me laugh....hehehehe \n\n" +
+            "Music and sound by Eldon\n\n" +
+            "Art by Carson \n\n" +
+            "Developed by Rahul, Loki, Rachit & Harshpreet";
     
         var text = this.add.text(this.cameras.main.width / 2, this.cameras.main.height / 2, creditsText, { 
             fontFamily: 'Caramel', 
