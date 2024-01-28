@@ -25,6 +25,7 @@ export default class PlayScene extends Phaser.Scene {
         this.load.image('destroy1', '/assets/destroy1.png');
         this.load.image('destroy2', '/assets/destroy2.png');
         this.load.image('destroy3', '/assets/destroy3.png');
+        this.load.image('muzzleflash7', '/assets/space/muzzleflash7.png');
         this.load.image('stars', '/assets/space/stars.png');
         this.load.image('ship', '/assets/space/Spaceship.png');
         this.load.image('projectiles', '/assets/projectiles.png');
@@ -32,7 +33,6 @@ export default class PlayScene extends Phaser.Scene {
         this.load.image('astronaut2', '/assets/Astronaut2.png');
         this.load.image('astronaut3', '/assets/Astronaut3.png');
         this.load.image('astronaut4', '/assets/Astronaut4.png');
-        this.load.atlas('space', '/assets/space/space.png', '/assets/space/space.json');
         this.load.audio('Pew1', 'assets/Sound/Pew1.wav');
         this.load.audio('Pew2', 'assets/Sound/Pew2.wav');
         this.load.audio('Pew3', 'assets/Sound/Pew3.wav');
@@ -40,7 +40,7 @@ export default class PlayScene extends Phaser.Scene {
         this.load.audio('hitSound', 'assets/Sound/HitSound.wav');
         this.load.audio('deathSound', 'assets/Sound/DeathSound.wav');
         this.load.audio('explosionSound', 'assets/Sound/Explosion.wav');
-        this.load.audio('gameTheme','assets/Sound/GameTheme.wav');
+        this.load.audio('gameTheme', 'assets/Sound/GameTheme.wav');
     }
 
     create() {
@@ -54,8 +54,7 @@ export default class PlayScene extends Phaser.Scene {
 
         this.stars = this.add.tileSprite(400, 300, 800, 600, 'stars').setScrollFactor(0);
 
-        const emitter = this.add.particles(0, 0, 'space', {
-            frame: 'muzzleflash7',
+        const emitter = this.add.particles(0, 0, 'muzzleflash7', {
             speed: 100,
             lifespan: {
                 onEmit: (particle, key, t, value) => {
