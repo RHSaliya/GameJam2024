@@ -39,7 +39,7 @@ export default class CreditScene extends Phaser.Scene {
             "Inspiration Source: Make me laugh....hehehehe \n\n" +
             "Music and sound by Eldon\n\n" +
             "Art by Carson \n\n" +
-            "Developed by Carson, Eldon, Harshpreet, Loki, Rachit, Rahul";
+            "Developed by Rahul, Loki, Rachit & Harshpreet";
     
         var text = this.add.text(this.cameras.main.width / 2, this.cameras.main.height / 2, creditsText, { 
             fontFamily: 'Caramel', 
