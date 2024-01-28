@@ -39,7 +39,8 @@ export default class PlayScene extends Phaser.Scene {
         this.load.audio('accelerationSound', 'assets/Sound/ShipAccelerate.wav');
         this.load.audio('hitSound', 'assets/Sound/HitSound.wav');
         this.load.audio('deathSound', 'assets/Sound/DeathSound.wav');
-        this.load.audio('explosionSound', 'assets/Sound/Explosion.wav')
+        this.load.audio('explosionSound', 'assets/Sound/Explosion.wav');
+        this.load.audio('gameTheme','assets/Sound/GameTheme.wav');
     }
 
     create() {
@@ -48,7 +49,8 @@ export default class PlayScene extends Phaser.Scene {
         this.lastAsteroid = this.multiplierStartTime + 2000;
         this.totalBullets = 50;
         this.bg = this.add.tileSprite(400, 300, 800, 600, 'background-play').setScrollFactor(0);
-
+        const themeMusic = this.sound.add('gameTheme', { loop: true });
+        themeMusic.play();
 
         this.stars = this.add.tileSprite(400, 300, 800, 600, 'stars').setScrollFactor(0);
 
@@ -144,7 +146,7 @@ export default class PlayScene extends Phaser.Scene {
                 if (this.accelerationSound && this.accelerationSound.isPlaying) {
                     this.accelerationSound.stop();
                 }
-
+                themeMusic.stop();
                 this.sound.play('deathSound');
                 this.scene.start('end', {
                     totalScore:
