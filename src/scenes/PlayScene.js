@@ -3,6 +3,7 @@ import HealthBar from '../components/HealthBar';
 import Bullet from '../components/Bullet';
 import Asteroid from '../components/Asteroid';
 import PlayerScore from '../components/PlayerScore';
+import Astronaut from '../components/Astronaut';
 
 export default class PlayScene extends Phaser.Scene {
     lastFired = 0;
@@ -26,6 +27,8 @@ export default class PlayScene extends Phaser.Scene {
         this.load.image('stars', '/assets/space/stars.png');
         this.load.image('ship', '/assets/space/Spaceship.png');
         this.load.image('projectiles', '/assets/projectiles.png');
+        this.load.image('astronaut1', '/assets/Astronaut.png');
+        this.load.image('astronaut2','/assets/Astronaut1.png');
         this.load.atlas('space', '/assets/space/space.png', '/assets/space/space.json');
         this.load.audio('Pew1', 'assets/Sound/Pew1.wav');
         this.load.audio('Pew2', 'assets/Sound/Pew2.wav');
@@ -81,14 +84,10 @@ export default class PlayScene extends Phaser.Scene {
         this.playerScore = new PlayerScore(this);
 
         this.keys = {
-            left: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT),
-            right: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT),
-            up: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP),
-            left_a: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A),
-            right_d: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D),
-            up_w: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W),
-            space: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE),
-            enter: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER)
+            rotate_left: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Q),
+            rotate_right: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W),
+            accelerate: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.P),
+            fire: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE),
         }
 
         this.cameras.main.addListener(Phaser.Cameras.Scene2D.Events.FOLLOW_UPDATE, () => {
@@ -109,6 +108,11 @@ export default class PlayScene extends Phaser.Scene {
             runChildUpdate: true
         });
 
+        this.astronaut = this.physics.add.group({
+            classType: Astronaut,
+            maxSize: 25,
+        });
+        this.lastAstronautSpawn = this.time.now;
         this.physics.add.collider(this.bullets, this.asteroids, (bullet, asteroid) => {
             bullet.destroy();
             asteroid.destroyMe();
@@ -175,7 +179,7 @@ export default class PlayScene extends Phaser.Scene {
     multiplier = 1;
 
     update(time, delta) {
-        const { left, right, left_a, right_d, enter, space } = this.keys;
+        const { rotate_left, rotate_right, fire } = this.keys;
         this.visibleRect = this.cameras.main.worldView;
 
         const timeSinceLastFire = time - this.fireChange;
@@ -199,10 +203,10 @@ export default class PlayScene extends Phaser.Scene {
             this.bulletSoundIndex = 2; // Pew3
         }
 
-        if (left.isDown || left_a.isDown) {
+        if (rotate_left.isDown) {
             this.ship.setAngularVelocity(-150 * this.multiplier);
         }
-        else if (right.isDown || right_d.isDown) {
+        else if (rotate_right.isDown) {
             this.ship.setAngularVelocity(150 * this.multiplier);
         }
         else {
@@ -212,7 +216,7 @@ export default class PlayScene extends Phaser.Scene {
         this.handleAcceleration(time)
 
 
-        if ((enter.isDown || space.isDown) && time > this.lastFired) {
+        if (fire.isDown && time > this.lastFired) {
             const bullet = this.bullets.get();
 
             if (this.fireChange == -1) {
@@ -229,7 +233,7 @@ export default class PlayScene extends Phaser.Scene {
 
                 this.lastFired = time + 100;
             }
-        } else if (enter.isUp && space.isUp) {
+        } else if (fire.isUp && fire.isUp) {
             this.fireChange = -1
         }
 
@@ -242,6 +246,17 @@ export default class PlayScene extends Phaser.Scene {
                 asteroid.body.allowGravity = false;
 
                 this.lastAsteroid = time + Math.max(1250 - this.playerScore.getScore() / 5 * this.multiplier, 800);
+            }
+        }
+        if (time > this.lastAstronautSpawn + 5000) { // Check if 10 seconds have passed
+            const astronaut = this.astronaut.get();
+            if (astronaut) {
+                // Randomly position the astronaut within the game's boundaries
+                const x = Phaser.Math.Between(0, +this.sys.game.config.width);
+                const y = Phaser.Math.Between(0, +this.sys.game.config.height);
+                astronaut.setPosition(x, y);
+                astronaut.show(this.ship); // Call show method to make astronaut visible and move towards the ship
+                this.lastAstronautSpawn = time; // Update last spawn time
             }
         }
 
@@ -257,8 +272,8 @@ export default class PlayScene extends Phaser.Scene {
     }
 
     handleAcceleration(time) {
-        const { up, up_w } = this.keys;
-        if (up.isDown || up_w.isDown) {
+        const { accelerate } = this.keys;
+        if (accelerate.isDown) {
             this.physics.velocityFromRotation(this.ship.rotation, 600, this.ship.body.acceleration);
             // Play acceleration sound if it's not already playing
             if (!this.accelerationSound || !this.accelerationSound.isPlaying) {
