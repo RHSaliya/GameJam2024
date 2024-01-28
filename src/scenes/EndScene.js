@@ -9,7 +9,7 @@ export default class EndScene extends Phaser.Scene {
         this.load.image('endGameScene', 'assets/menu.png');
         this.load.image('endGameScene2', 'assets/end2.png');
         this.load.image('endGameScene3', 'assets/end3.png');
-        this.load.audio('deathTheme', 'assets/Sound/DeathTheme.wav')
+        this.load.audio('deathTheme', 'assets/Sound/DeathTheme.mp3')
     }
 
     create(data) {
