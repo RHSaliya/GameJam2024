@@ -146,11 +146,17 @@ export default class PlayScene extends Phaser.Scene {
                     this.accelerationSound.stop();
                 }
                 themeMusic.stop();
+
                 this.sound.play('deathSound');
-                this.scene.start('end', {
-                    totalScore:
-                        this.playerScore.getScore()
-                });
+
+                this.time.delayedCall(300, () => {
+                    this.scene.start('end', {
+                        totalScore:
+                            this.playerScore.getScore()
+                    });
+                }, [], this);
+
+
             }
         });
         const buttonStyle = {
