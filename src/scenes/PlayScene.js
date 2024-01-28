@@ -17,6 +17,9 @@ export default class PlayScene extends Phaser.Scene {
     preload() {
         this.load.image('background-play', '/assets/menu.png');
         this.load.image('asteroid1', '/assets/asteroid1.png');
+        this.load.image('asteroid2', '/assets/asteroid2.png');
+        this.load.image('asteroid3', '/assets/asteroid3.png');
+        this.load.image('asteroid4', '/assets/asteroid4.png');
         this.load.image('stars', '/assets/space/stars.png');
         this.load.image('ship', '/assets/space/Spaceship.png');
         this.load.image('projectiles', '/assets/projectiles.png');
@@ -115,7 +118,7 @@ export default class PlayScene extends Phaser.Scene {
             asteroid.destroy();
 
             //Play the hit sound
-            if (this.healthBar.getHealth() >= 25){
+            if (this.healthBar.getHealth() >= 25) {
                 this.sound.play('hitSound');
             }
 
