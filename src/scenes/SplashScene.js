@@ -9,8 +9,8 @@ export default class SplashScene extends Phaser.Scene {
 
     preload() {
         this.load.text('Caramel', 'assets/fonts/caramel_3/Caramel.ttf');
-        this.load.image('background-splash', '/public/assets/menu.png');
-        this.load.image('background-splash2', '/public/assets/spacetitle.png');
+        this.load.image('background-splash', 'assets/menu.png');
+        this.load.image('background-splash2', 'assets/spacetitle.png');
         this.load.image('title', 'assets/title.png')
     }
 
@@ -36,7 +36,7 @@ export default class SplashScene extends Phaser.Scene {
         title.setOrigin(0.5); // Set origin to center
         // Set the scale and scroll factor for title
         title.setScale(1).setScrollFactor(0);
-        
+
         const startButton = this.add.text(0, 0, '', {
             fontFamily: 'Caramel',
             fontSize: `0px`,
