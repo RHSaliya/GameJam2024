@@ -65,7 +65,6 @@ export default class Asteroid extends Phaser.Physics.Arcade.Image {
             } else {
                 console.log("asteroid still in view");
             }
-
         }
     }
 }
