@@ -1,6 +1,5 @@
 import Phaser from 'phaser'
 
-import HelloWorldScene from './HelloWorldScene'
 import SplashScene from './scenes/SplashScene'
 import MenuScene from './scenes/MenuScene'
 import PlayScene from './scenes/PlayScene'
@@ -29,7 +28,6 @@ const config = {
 
 const game = new Phaser.Game(config)
 game.scene.add('splash', SplashScene)
-game.scene.add('hello-world', HelloWorldScene)
 game.scene.add('menu', MenuScene)
 game.scene.add('play', PlayScene)
 game.scene.add('credits', CreditScene)
