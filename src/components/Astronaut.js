@@ -7,11 +7,13 @@ export default class Astronaut extends Phaser.Physics.Arcade.Image {
 
     show(ship) {
         this.showTime = Date.now()
-        this.scale = 0.4 + Math.random() * 0.2;
+        this.scale = 0.1 + Math.random() * 0.5;
         const textureIndex = Math.floor(Math.random() * 4) + 1;
         this.setTexture(`astronaut${textureIndex}`);
         this.speed = this.minSpeed + Math.random() * 5;
-        this.setAlpha(Math.random() * 0.5 + 0.4);
+
+        // set opacity depending on scale
+        this.setAlpha(0.4 + this.scale * 0.5);
 
         const shipX = ship.x;
         const shipY = ship.y;
