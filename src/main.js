@@ -8,6 +8,8 @@ import CreditScene from './scenes/Credits'
 import EndScene from './scenes/EndScene'
 import OptionsScene from './scenes/OptionsScene'
 import InstructionsScene from './scenes/InstructionsScene'
+import UIPlugin from 'phaser3-rex-plugins/templates/ui/ui-plugin.js';
+
 
 const config = {
 	type: Phaser.AUTO,
@@ -20,10 +22,18 @@ const config = {
 			gravity: { y: 200 },
 		},
 	},
-	scale: {
+	scale: { 
 		mode: Phaser.Scale.FIT,
 		autoCenter: Phaser.Scale.CENTER_BOTH
 	},
+	plugins: {
+		scene: [{
+			key: 'rexUI',
+			plugin: UIPlugin,
+			mapping: 'rexUI'
+		},
+	]
+}	
 }
 
 const game = new Phaser.Game(config)
