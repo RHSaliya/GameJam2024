@@ -33,7 +33,7 @@ export default class PlayScene extends Phaser.Scene {
         this.bg = this.add.tileSprite(400, 300, 800, 600, 'background-play').setScrollFactor(0);
 
         const emitter = this.add.particles(0, 0, 'space', {
-            frame: 'red',
+            frame: 'muzzleflash7',
             speed: 100,
             lifespan: {
                 onEmit: (particle, key, t, value) => {
@@ -136,7 +136,7 @@ export default class PlayScene extends Phaser.Scene {
         this.bulletText = this.add.text(30, 60, 'Bullets: ' + this.totalBullets, {
             fontFamily: 'Caramel',
             fontSize: '30px',
-            fill: '#ffffff'
+            color: '#ffffff'
         });
         this.bulletText.setScrollFactor(0);
     }
