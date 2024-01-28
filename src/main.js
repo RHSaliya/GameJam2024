@@ -7,6 +7,7 @@ import PlayScene from './scenes/PlayScene'
 import CreditScene from './scenes/Credits'
 import EndScene from './scenes/EndScene'
 import OptionsScene from './scenes/OptionsScene'
+import InstructionsScene from './scenes/InstructionsScene'
 
 const config = {
 	type: Phaser.AUTO,
@@ -34,9 +35,10 @@ game.scene.add('play', PlayScene)
 game.scene.add('credits', CreditScene)
 game.scene.add('end', EndScene)
 game.scene.add('options', OptionsScene)
+game.scene.add('instructions', InstructionsScene)
 
 //game.scene.start('play')
- game.scene.start('splash')
+game.scene.start('splash')
 // game.scene.start('hello-world')
 
 export default game
