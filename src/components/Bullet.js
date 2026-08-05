@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 
 export default class Bullet extends Phaser.Physics.Arcade.Image {
     constructor(scene) {
-        super(scene, 0, 0, 'projectiles');
+        super(scene, 0, 0, 'projectile-pulse');
         this.setBlendMode(1).setDepth(10);
     }
 
@@ -19,9 +19,10 @@ export default class Bullet extends Phaser.Physics.Arcade.Image {
         const y = ship.y + Math.cos(forwardAngle) * sideOffset;
         this.enableBody(true, x, y, true, true);
         this.body.allowGravity = false;
-        this.setRotation(forwardAngle + Math.PI / 2)
+        this.setTexture(`projectile-${weapon.id}`)
+            .setRotation(forwardAngle + Math.PI / 2)
             .setScale(projectile.scale || 0.5)
-            .setTint(weapon.color);
+            .clearTint();
         this.scene.physics.velocityFromRotation(forwardAngle, this.speed, this.body.velocity);
     }
 

@@ -31,7 +31,7 @@ export default class PlayScene extends Phaser.Scene {
         this.load.image('muzzleflash7', 'assets/space/muzzleflash7.png');
         this.load.image('stars', 'assets/space/stars.png');
         SKINS.forEach(ship => this.load.image(`ship-${ship.id}`, ship.texture));
-        this.load.image('projectiles', 'assets/projectiles.png');
+        Object.values(WEAPONS).forEach(weapon => this.load.image(`projectile-${weapon.id}`, weapon.texture));
         preloadAudio(this, [
             'pew1', 'pew2', 'pew3', 'accelerationSound', 'lowHealthAccelerationSound',
             'impact', 'deathSound', 'explosion', 'gameTheme', 'coinPickup', 'emptyAmmo',

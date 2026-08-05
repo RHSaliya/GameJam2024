@@ -38,11 +38,13 @@ export const UPGRADES = {
 export const WEAPONS = {
     pulse: {
         id: 'pulse', name: 'Pulse Blaster', color: 0xffd166, cooldownMultiplier: 1,
+        texture: 'assets/space/projectile-pulse.png',
         ammoCost: 1, pickupShots: 28,
         projectiles: [{ angle: 0, offset: 0, speed: 1150, damage: 1, pierce: 0, scale: 0.5 }],
     },
     solar: {
         id: 'solar', name: 'Solar Barrage', color: 0xffa62b, cooldownMultiplier: 1.35,
+        texture: 'assets/space/projectile-solar.png',
         ammoCost: 1, pickupShots: 18,
         projectiles: [
             { angle: -12, offset: -8, speed: 1050, damage: 1, pierce: 0, scale: 0.43 },
@@ -52,11 +54,13 @@ export const WEAPONS = {
     },
     phase: {
         id: 'phase', name: 'Phase Lance', color: 0xd98cff, cooldownMultiplier: 1.2,
+        texture: 'assets/space/projectile-phase.png',
         ammoCost: 1, pickupShots: 20,
         projectiles: [{ angle: 0, offset: 0, speed: 1380, damage: 1, pierce: 2, scale: 0.62 }],
     },
     ion: {
         id: 'ion', name: 'Ion Repeater', color: 0x72ddf7, cooldownMultiplier: 0.66,
+        texture: 'assets/space/projectile-ion.png',
         ammoCost: 1, pickupShots: 24,
         projectiles: [
             { angle: 0, offset: -10, speed: 1220, damage: 1, pierce: 0, scale: 0.38 },
@@ -65,6 +69,7 @@ export const WEAPONS = {
     },
     seeker: {
         id: 'seeker', name: 'Void Seeker', color: 0xff4d6d, cooldownMultiplier: 1.55,
+        texture: 'assets/space/projectile-seeker.png',
         ammoCost: 1, pickupShots: 14,
         projectiles: [{ angle: 0, offset: 0, speed: 760, damage: 2, pierce: 0, homing: 0.075, scale: 0.55 }],
     },

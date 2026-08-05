@@ -32,3 +32,9 @@ test('signature attacks have distinct firing behavior', () => {
     assert.ok(WEAPONS.seeker.projectiles[0].homing > 0);
     assert.equal(WEAPONS.seeker.projectiles[0].damage, 2);
 });
+
+test('every signature weapon has its own projectile asset', () => {
+    const textures = Object.values(WEAPONS).map(weapon => weapon.texture);
+    assert.equal(new Set(textures).size, Object.keys(WEAPONS).length);
+    textures.forEach(texture => assert.ok(existsSync(`public/${texture}`), `${texture} should exist`));
+});
