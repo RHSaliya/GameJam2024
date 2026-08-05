@@ -20,12 +20,15 @@ export function createDefaultProfile() {
         selectedSkin: 'classic',
         achievements: [],
         localScores: [],
-        settings: { volume: 0.65, vibration: true },
+        settings: { masterVolume: 1, musicVolume: 0.55, sfxVolume: 0.75, vibration: true },
     };
 }
 
 export function normalizeProfile(value = {}) {
     const defaults = createDefaultProfile();
+    const savedSettings = value.settings || {};
+    const hasLegacyVolume = savedSettings.volume !== undefined && Number.isFinite(Number(savedSettings.volume));
+    const legacyVolume = hasLegacyVolume ? clampVolume(savedSettings.volume, defaults.settings.sfxVolume) : undefined;
     const completedLevels = Array.isArray(value.completedLevels)
         ? value.completedLevels.filter(id => LEVELS.some(level => level.id === Number(id))).map(Number)
         : [];
@@ -47,8 +50,18 @@ export function normalizeProfile(value = {}) {
         selectedSkin: unlockedSkins.includes(value.selectedSkin) ? value.selectedSkin : 'classic',
         achievements: Array.isArray(value.achievements) ? [...new Set(value.achievements)] : [],
         localScores: Array.isArray(value.localScores) ? value.localScores.slice(0, 10) : [],
-        settings: { ...defaults.settings, ...(value.settings || {}) },
+        settings: {
+            masterVolume: clampVolume(savedSettings.masterVolume, legacyVolume ?? defaults.settings.masterVolume),
+            musicVolume: clampVolume(savedSettings.musicVolume, hasLegacyVolume ? 1 : defaults.settings.musicVolume),
+            sfxVolume: clampVolume(savedSettings.sfxVolume, hasLegacyVolume ? 1 : defaults.settings.sfxVolume),
+            vibration: savedSettings.vibration ?? defaults.settings.vibration,
+        },
     };
+}
+
+function clampVolume(value, fallback) {
+    const volume = Number(value);
+    return Number.isFinite(volume) ? Math.min(1, Math.max(0, volume)) : fallback;
 }
 
 export function sanitizeDisplayName(name) {

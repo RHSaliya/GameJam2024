@@ -9,6 +9,7 @@ import { getLevel, getSkin } from '../config/gameData';
 import { playerProfile } from '../services/PlayerProfile';
 import { COLORS, textStyle } from '../ui';
 import { configureSharpCamera, GAME_CENTER_X, GAME_CENTER_Y, GAME_HEIGHT, GAME_WIDTH } from '../config/layout';
+import { playMusic, playSfx, preloadAudio, stopMusic } from '../services/AudioService';
 
 export default class PlayScene extends Phaser.Scene {
     constructor() { super('play'); }
@@ -24,10 +25,11 @@ export default class PlayScene extends Phaser.Scene {
         this.load.image('stars', 'assets/space/stars.png');
         this.load.image('ship', 'assets/space/Spaceship.png');
         this.load.image('projectiles', 'assets/projectiles.png');
-        ['Pew1', 'Pew2', 'Pew3', 'ShipAccelerate', 'HitSound', 'DeathSound', 'Explosion', 'GameTheme'].forEach(name => {
-            const key = name === 'ShipAccelerate' ? 'accelerationSound' : name === 'GameTheme' ? 'gameTheme' : name.charAt(0).toLowerCase() + name.slice(1);
-            this.load.audio(key, `assets/Sound/${name}.mp3`);
-        });
+        preloadAudio(this, [
+            'pew1', 'pew2', 'pew3', 'accelerationSound', 'lowHealthAccelerationSound',
+            'impact', 'deathSound', 'explosion', 'gameTheme', 'coinPickup', 'emptyAmmo',
+            'victorySting', 'uiClick',
+        ]);
     }
 
     create() {
@@ -36,6 +38,7 @@ export default class PlayScene extends Phaser.Scene {
         this.lastAsteroid = this.time.now + 900;
         this.lastAstronaut = this.time.now;
         this.lastFired = 0;
+        this.lastEmptyAmmoCue = 0;
         this.lastScoreTick = this.time.now;
         this.score = 0;
         this.kills = 0;
@@ -44,12 +47,15 @@ export default class PlayScene extends Phaser.Scene {
         this.isPaused = false;
         this.effects = playerProfile.getUpgradeEffects();
         this.totalBullets = this.effects.startingAmmo;
-        this.sound.volume = playerProfile.data.settings.volume;
 
         this.bg = this.add.tileSprite(GAME_CENTER_X, GAME_CENTER_Y, GAME_WIDTH, GAME_HEIGHT, 'background-play');
         this.stars = this.add.tileSprite(GAME_CENTER_X, GAME_CENTER_Y, GAME_WIDTH, GAME_HEIGHT, 'stars').setAlpha(0.82);
-        this.themeMusic = this.sound.add('gameTheme', { loop: true, volume: 0.5 });
-        this.themeMusic.play();
+        this.themeMusic = playMusic(this, 'gameTheme', { volume: 0.44, fade: 650 });
+        this.thrustSounds = {
+            normal: this.sound.add('accelerationSound', { loop: true, volume: 0 }),
+            damaged: this.sound.add('lowHealthAccelerationSound', { loop: true, volume: 0 }),
+        };
+        this.activeThrustSound = undefined;
 
         this.ship = this.physics.add.image(GAME_CENTER_X, GAME_CENTER_Y, 'ship')
             .setDepth(20).setScale(0.45).setDrag(260).setAngularDrag(500)
@@ -116,14 +122,11 @@ export default class PlayScene extends Phaser.Scene {
         if (thrust) {
             this.physics.velocityFromRotation(this.ship.rotation, this.effects.acceleration, this.ship.body.acceleration);
             this.thrustEmitter.start();
-            if (!this.accelerationSound?.isPlaying) {
-                this.accelerationSound = this.sound.add('accelerationSound', { volume: 0.35, loop: true });
-                this.accelerationSound.play();
-            }
+            this.setThrustAudio(true);
         } else {
             this.ship.setAcceleration(0);
             this.thrustEmitter.stop();
-            this.accelerationSound?.stop();
+            this.setThrustAudio(false);
         }
         if (fire && time >= this.lastFired) this.fire(time);
         this.physics.world.wrap(this.ship, 36);
@@ -143,13 +146,23 @@ export default class PlayScene extends Phaser.Scene {
     }
 
     fire(time) {
-        if (this.totalBullets <= 0) return;
+        if (this.totalBullets <= 0) {
+            if (time >= this.lastEmptyAmmoCue) {
+                playSfx(this, 'emptyAmmo', { volume: 0.65 });
+                this.lastEmptyAmmoCue = time + 420;
+            }
+            return;
+        }
         const bullet = this.bullets.get();
         if (!bullet) return;
         bullet.fire(this.ship);
         this.totalBullets -= 1;
         this.lastFired = time + this.effects.fireCooldown;
-        this.sound.play(`pew${Phaser.Math.Between(1, 3)}`, { volume: 0.55 });
+        playSfx(this, `pew${Phaser.Math.Between(1, 3)}`, {
+            volume: 0.9,
+            rate: Phaser.Math.FloatBetween(0.94, 1.06),
+            detune: Phaser.Math.Between(-45, 45),
+        });
         this.refreshHud();
     }
 
@@ -186,7 +199,7 @@ export default class PlayScene extends Phaser.Scene {
         bullet.disableBody(true, true);
         if (!hit.destroyed) {
             this.score += 5;
-            this.sound.play('hitSound', { volume: 0.3 });
+            playSfx(this, 'impact', { volume: 0.22, rate: Phaser.Math.FloatBetween(0.96, 1.04) });
             this.refreshHud();
             return;
         }
@@ -194,7 +207,7 @@ export default class PlayScene extends Phaser.Scene {
         this.score += hit.score + this.level.id * 5;
         this.totalBullets += 3;
         this.spawnCoin(hit.x, hit.y, hit.coins);
-        this.sound.play('explosion', { volume: 0.6 });
+        playSfx(this, 'explosion', { volume: 0.68, rate: Phaser.Math.FloatBetween(0.94, 1.05) });
         this.refreshHud();
         if (this.kills >= this.level.targetKills) this.finish(true);
     }
@@ -210,6 +223,7 @@ export default class PlayScene extends Phaser.Scene {
         this.runCoins += value;
         this.score += value * 8;
         this.totalBullets += value >= 3 ? 2 : 0;
+        playSfx(this, 'coinPickup', { volume: 0.7, rate: 0.96 + Math.min(value, 4) * 0.035 });
         if (playerProfile.data.settings.vibration) navigator.vibrate?.(12);
         this.refreshHud();
     }
@@ -220,7 +234,7 @@ export default class PlayScene extends Phaser.Scene {
         this.healthBar.decreaseHealth(damage);
         this.totalBullets += 2;
         this.cameras.main.shake(130, 0.012);
-        this.sound.play('hitSound', { volume: 0.7 });
+        playSfx(this, 'impact', { volume: 0.5, rate: 0.88 });
         if (playerProfile.data.settings.vibration) navigator.vibrate?.(45);
         this.refreshHud();
         if (this.healthBar.getHealth() <= 0) this.finish(false);
@@ -240,7 +254,7 @@ export default class PlayScene extends Phaser.Scene {
             this.physics.world.pause();
             this.themeMusic.pause();
             this.touch.reset();
-            this.accelerationSound?.stop();
+            this.setThrustAudio(false, true);
             this.thrustEmitter.stop();
             this.pauseOverlay = this.add.container(GAME_CENTER_X, GAME_CENTER_Y).setDepth(5000);
             const bg = this.add.rectangle(0, 0, GAME_WIDTH, GAME_HEIGHT, 0x090c1a, 0.82).setInteractive();
@@ -264,15 +278,42 @@ export default class PlayScene extends Phaser.Scene {
         this.physics.world.pause();
         this.touch.reset();
         this.stopAudio();
-        if (!victory) this.sound.play('deathSound', { volume: 0.75 });
+        playSfx(this, victory ? 'victorySting' : 'deathSound', { volume: victory ? 0.9 : 0.72 });
         const seconds = Math.max(1, Math.floor((this.time.now - this.runStartedAt) / 1000));
-        this.time.delayedCall(victory ? 450 : 650, () => this.scene.start('end', {
+        this.time.delayedCall(victory ? 900 : 650, () => this.scene.start('end', {
             victory, score: Math.floor(this.score), kills: this.kills, coins: this.runCoins, seconds, levelId: this.level.id,
         }));
     }
 
     stopAudio() {
-        this.themeMusic?.stop();
-        this.accelerationSound?.stop();
+        stopMusic(this);
+        Object.values(this.thrustSounds || {}).forEach(sound => sound.stop());
+        this.activeThrustSound = undefined;
+    }
+
+    setThrustAudio(active, immediate = false) {
+        if (!active) {
+            const current = this.activeThrustSound;
+            this.activeThrustSound = undefined;
+            if (!current?.isPlaying) return;
+            this.tweens.killTweensOf(current);
+            if (immediate) current.stop();
+            else this.tweens.add({ targets: current, volume: 0, duration: 110, onComplete: () => current.stop() });
+            return;
+        }
+
+        const damaged = this.healthBar.getHealth() / this.healthBar.maxHealth <= 0.3;
+        const desired = damaged ? this.thrustSounds.damaged : this.thrustSounds.normal;
+        if (this.activeThrustSound === desired) return;
+        this.setThrustAudio(false, true);
+        this.activeThrustSound = desired;
+        desired.setVolume(0);
+        desired.play();
+        this.tweens.add({
+            targets: desired,
+            volume: 0.3 * playerProfile.data.settings.masterVolume * playerProfile.data.settings.sfxVolume,
+            duration: 140,
+            ease: 'Sine.easeOut',
+        });
     }
 }

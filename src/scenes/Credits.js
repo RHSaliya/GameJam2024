@@ -39,7 +39,8 @@ export default class CreditScene extends Phaser.Scene {
             "Developed by Team Mostly Green\n" +
             "Special Thanks to Shiftkey Labs & the Phaser community\n" +
             "Inspiration Source: Make me laugh....hehehehe \n\n" +
-            "Music and sound by Eldon\n\n" +
+            "Original music and sound by Eldon\n" +
+            "Additional interface effects created for this release\n\n" +
             "Art by Carson \n\n" +
             "Developed by Rahul, Loki, Rachit & Harshpreet";
     

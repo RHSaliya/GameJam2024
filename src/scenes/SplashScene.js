@@ -1,5 +1,6 @@
 import Phaser from 'phaser'
 import { configureSharpCamera, GAME_CENTER_X, GAME_CENTER_Y, GAME_HEIGHT, GAME_WIDTH, RENDER_SCALE } from '../config/layout'
+import { preloadAudio } from '../services/AudioService'
 
 
 export default class SplashScene extends Phaser.Scene {
@@ -13,6 +14,7 @@ export default class SplashScene extends Phaser.Scene {
         this.load.image('background-splash', 'assets/menu.png');
         this.load.image('background-splash2', 'assets/spacetitle.png');
         this.load.image('title', 'assets/title.png')
+        preloadAudio(this)
     }
 
 

@@ -63,7 +63,7 @@ const suspendGameAudio = () => {
 	lifecycleMusic.clear()
 	game.sound.sounds.forEach(sound => {
 		if (!sound.isPlaying) return
-		if (sound.loop && sound.key !== 'accelerationSound') lifecycleMusic.add(sound)
+		if (sound.loop && !['accelerationSound', 'lowHealthAccelerationSound'].includes(sound.key)) lifecycleMusic.add(sound)
 		sound.pause()
 	})
 }

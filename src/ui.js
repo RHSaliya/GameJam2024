@@ -1,4 +1,5 @@
 import { GAME_CENTER_X, GAME_HEIGHT, GAME_WIDTH, RENDER_SCALE } from './config/layout';
+import { playMusic, playSfx } from './services/AudioService';
 
 export const COLORS = {
     navy: 0x11162d,
@@ -23,6 +24,7 @@ export const textStyle = (size = 28, color = '#ffffff') => ({
 });
 
 export function addSpaceBackground(scene, key = 'menu') {
+    playMusic(scene, 'titleMusic', { volume: 0.42 });
     const width = GAME_WIDTH;
     const height = GAME_HEIGHT;
     const bg = scene.add.image(width / 2, height / 2, key).setDisplaySize(width, width).setAlpha(0.78);
@@ -58,6 +60,7 @@ export function addButton(scene, x, y, label, onPress, options = {}) {
             .on('pointerdown', pointer => {
                 pointer.event?.preventDefault?.();
                 background.setScale(0.97);
+                playSfx(scene, 'uiClick', { volume: 0.42, rate: Phaser.Math.FloatBetween(0.97, 1.03) });
                 onPress?.();
             })
             .on('pointerup', () => background.setScale(1));

@@ -4,13 +4,14 @@ import { playerProfile } from '../services/PlayerProfile';
 import { leaderboardService } from '../services/LeaderboardService';
 import { addButton, addPanel, addSpaceBackground, COLORS, formatNumber, textStyle } from '../ui';
 import { configureSharpCamera } from '../config/layout';
+import { playMusic, preloadAudio } from '../services/AudioService';
 
 export default class EndScene extends Phaser.Scene {
     constructor() { super('end'); }
 
     preload() {
         this.load.image('menu', 'assets/menu.png');
-        this.load.audio('deathTheme', 'assets/Sound/DeathTheme.mp3');
+        preloadAudio(this, ['deathTheme', 'titleMusic', 'uiClick']);
     }
 
     create(data) {
@@ -27,9 +28,7 @@ export default class EndScene extends Phaser.Scene {
         leaderboardService.submitScore({ score: run.score, level: run.levelId }).catch(error => console.warn('Score sync failed.', error));
 
         addSpaceBackground(this);
-        this.music = this.sound.add('deathTheme', { loop: true, volume: 0.45 });
-        this.music.play();
-        this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.music?.stop());
+        if (!run.victory) playMusic(this, 'deathTheme', { volume: 0.4, fade: 500 });
 
         this.add.text(640, 64, run.victory ? 'MISSION COMPLETE' : 'SHIP LOST', textStyle(46, run.victory ? '#7ae582' : '#ff6b6b')).setOrigin(0.5);
         this.add.text(640, 105, `MISSION ${run.levelId} • ${getLevel(run.levelId).name}`, textStyle(21, COLORS.muted)).setOrigin(0.5);
@@ -66,7 +65,6 @@ export default class EndScene extends Phaser.Scene {
     }
 
     go(scene, data) {
-        this.music?.stop();
         this.scene.start(scene, data);
     }
 }

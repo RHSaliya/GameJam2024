@@ -30,6 +30,24 @@ test('sanitizes public leaderboard names', () => {
     assert.equal(sanitizeDisplayName('A very very very long pilot name').length, 18);
 });
 
+test('migrates the legacy master volume and clamps separate audio levels', () => {
+    const defaults = normalizeProfile();
+    assert.equal(defaults.settings.masterVolume, 1);
+    assert.equal(defaults.settings.musicVolume, 0.55);
+    assert.equal(defaults.settings.sfxVolume, 0.75);
+
+    const legacy = normalizeProfile({ settings: { volume: 0.4, vibration: false } });
+    assert.equal(legacy.settings.masterVolume, 0.4);
+    assert.equal(legacy.settings.musicVolume, 1);
+    assert.equal(legacy.settings.sfxVolume, 1);
+    assert.equal(legacy.settings.vibration, false);
+
+    const split = normalizeProfile({ settings: { masterVolume: -2, musicVolume: 2, sfxVolume: -1 } });
+    assert.equal(split.settings.masterVolume, 0);
+    assert.equal(split.settings.musicVolume, 1);
+    assert.equal(split.settings.sfxVolume, 0);
+});
+
 test('a first victory rewards credits, achievements, and the next mission', () => {
     const profile = new PlayerProfile(new MemoryStorage());
     const result = profile.recordRun({ victory: true, score: 400, kills: 8, seconds: 32, levelId: 1 });
