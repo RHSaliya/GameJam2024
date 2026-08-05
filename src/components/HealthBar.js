@@ -3,8 +3,8 @@ export default class HealthBar {
         this.scene = scene;
         this.maxHealth = maxHealth;
         this.currentHealth = maxHealth;
-        this.bgGraphics = scene.add.graphics().setScrollFactor(0).setDepth(2000);
-        this.healthBar = scene.add.graphics().setScrollFactor(0).setDepth(2001);
+        this.bgGraphics = scene.add.graphics().setDepth(2000);
+        this.healthBar = scene.add.graphics().setDepth(2001);
         this.updateHealthBar();
     }
 

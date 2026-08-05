@@ -19,6 +19,7 @@ export default class EndScene extends Phaser.Scene {
             victory: Boolean(data.victory),
             score: Math.max(0, Number(data.score) || 0),
             kills: Math.max(0, Number(data.kills) || 0),
+            coins: Math.max(0, Number(data.coins) || 0),
             seconds: Math.max(0, Number(data.seconds) || 0),
             levelId: getLevel(data.levelId).id,
         };
@@ -37,11 +38,12 @@ export default class EndScene extends Phaser.Scene {
         const stats = [
             ['SCORE', formatNumber(run.score)],
             ['ASTEROIDS', run.kills],
+            ['COINS COLLECTED', `◆ ${run.coins}`],
             ['FLIGHT TIME', `${run.seconds}s`],
             ['CREDITS EARNED', `◆ ${formatNumber(rewards.creditsEarned)}`],
         ];
         stats.forEach(([label, value], index) => {
-            const y = 158 + index * 47;
+            const y = 145 + index * 42;
             this.add.text(260, y, label, textStyle(21, COLORS.muted));
             this.add.text(1020, y, String(value), textStyle(25, index === 3 ? '#ffd166' : '#ffffff')).setOrigin(1, 0);
         });

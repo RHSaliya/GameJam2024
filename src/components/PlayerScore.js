@@ -16,7 +16,7 @@ export default class PlayerScore {
             fontSize: `${fontSize}px`,
         }
 
-        this.scoreText = this.scene.add.text(0, 0, `Score: ${this.score}`, buttonStyle).setScrollFactor(0);
+        this.scoreText = this.scene.add.text(0, 0, `Score: ${this.score}`, buttonStyle);
     }
 
     addScore(amount) {

@@ -10,6 +10,7 @@ export function createDefaultProfile() {
         bestScore: 0,
         totalScore: 0,
         totalKills: 0,
+        totalCoins: 0,
         totalRuns: 0,
         longestRun: 0,
         completedLevels: [],
@@ -125,15 +126,17 @@ export class PlayerProfile {
         const score = Math.max(0, Math.floor(Number(run.score) || 0));
         const kills = Math.max(0, Math.floor(Number(run.kills) || 0));
         const seconds = Math.max(0, Math.floor(Number(run.seconds) || 0));
+        const coins = Math.max(0, Math.floor(Number(run.coins) || 0));
         const levelId = Math.min(LEVELS.length, Math.max(1, Math.floor(Number(run.levelId) || 1)));
         const level = LEVELS[levelId - 1];
         const firstCompletion = Boolean(run.victory) && !this.data.completedLevels.includes(levelId);
-        const creditsEarned = Math.floor(score / 8) + kills * 3 + (firstCompletion ? level.reward : run.victory ? Math.floor(level.reward * 0.25) : 0);
+        const creditsEarned = coins + Math.floor(score / 8) + kills * 3 + (firstCompletion ? level.reward : run.victory ? Math.floor(level.reward * 0.25) : 0);
 
         this.data.credits += creditsEarned;
         this.data.bestScore = Math.max(this.data.bestScore, score);
         this.data.totalScore += score;
         this.data.totalKills += kills;
+        this.data.totalCoins += coins;
         this.data.totalRuns += 1;
         this.data.longestRun = Math.max(this.data.longestRun, seconds);
         if (run.victory) {

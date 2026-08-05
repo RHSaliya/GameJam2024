@@ -52,3 +52,11 @@ test('upgrades and skins require credits and apply permanent effects', () => {
     assert.equal(profile.data.selectedSkin, 'solar');
     assert.ok(profile.data.unlockedSkins.includes('solar'));
 });
+
+test('collected mission coins are banked into the persistent economy', () => {
+    const profile = new PlayerProfile(new MemoryStorage());
+    const result = profile.recordRun({ victory: false, score: 0, kills: 0, coins: 17, seconds: 8, levelId: 1 });
+    assert.equal(result.creditsEarned, 17);
+    assert.equal(profile.data.credits, 17);
+    assert.equal(profile.data.totalCoins, 17);
+});

@@ -30,6 +30,7 @@ export const ACHIEVEMENTS = [
     { id: 'high_flyer', name: 'High Flyer', description: 'Score 1,000 points in one run', reward: 150, test: s => s.bestScore >= 1000 },
     { id: 'engineer', name: 'Chief Engineer', description: 'Max out any upgrade', reward: 200, test: s => Object.values(s.upgrades).some(level => level >= 4) },
     { id: 'collector', name: 'Fleet Collector', description: 'Own four ship skins', reward: 220, test: s => s.unlockedSkins.length >= 4 },
+    { id: 'treasure_hunter', name: 'Treasure Hunter', description: 'Collect 250 mission coins', reward: 250, test: s => s.totalCoins >= 250 },
     { id: 'cosmic_hero', name: 'Cosmic Hero', description: 'Complete every mission', reward: 500, test: s => s.completedLevels.length >= LEVELS.length },
 ];
 

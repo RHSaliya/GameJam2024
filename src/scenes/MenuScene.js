@@ -24,14 +24,15 @@ export default class MenuScene extends Phaser.Scene {
         this.music.play();
         this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.music?.stop());
 
-        this.add.image(640, 62, 'titleImage').setScale(0.42);
-        this.add.image(640, 172, 'title').setScale(0.52);
+        // Keep the full logo above the profile card on short, wide phones.
+        this.add.image(640, 55, 'titleImage').setScale(0.38);
+        this.add.image(640, 158, 'title').setScale(0.46);
 
         const profile = playerProfile.data;
-        this.add.rectangle(640, 242, 900, 56, COLORS.panelDark, 0.9).setStrokeStyle(1, COLORS.cyan, 0.5);
-        this.nameText = this.add.text(220, 231, profile.displayName, textStyle(25, '#ffffff'));
-        this.add.text(1060, 231, `◆ ${formatNumber(profile.credits)}`, textStyle(25, '#ffd166')).setOrigin(1, 0);
-        this.add.text(640, 271, `BEST ${formatNumber(profile.bestScore)}   •   MISSIONS ${profile.completedLevels.length}/6`, textStyle(17, COLORS.muted)).setOrigin(0.5);
+        this.add.rectangle(640, 246, 900, 82, COLORS.panelDark, 0.9).setStrokeStyle(1, COLORS.cyan, 0.5);
+        this.nameText = this.add.text(220, 220, profile.displayName, textStyle(25, '#ffffff'));
+        this.add.text(1060, 220, `◆ ${formatNumber(profile.credits)}`, textStyle(25, '#ffd166')).setOrigin(1, 0);
+        this.add.text(640, 263, `BEST ${formatNumber(profile.bestScore)}   •   MISSIONS ${profile.completedLevels.length}/6`, textStyle(17, COLORS.muted)).setOrigin(0.5);
 
         const go = (scene, data) => { this.music?.stop(); this.scene.start(scene, data); };
         addButton(this, 440, 337, 'CAMPAIGN', () => go('levels'), { width: 360, accent: COLORS.green });

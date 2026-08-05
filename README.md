@@ -49,6 +49,8 @@ npm run mobile:ios
 ## Progression model
 
 - Six finite missions with escalating speed, density, damage, and rewards.
+- Four enemy archetypes: drifters, fast strikers, steering hunters, and armored juggernauts.
+- Magnetic mission coins dropped by enemies and banked into the persistent economy.
 - Four permanent upgrades: hull, engine, blaster, and shield.
 - Five purchasable/equippable skins.
 - Eight automatically awarded achievements with credit bonuses.

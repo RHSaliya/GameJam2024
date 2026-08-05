@@ -1,8 +1,8 @@
 export const GAME_HEIGHT = 600;
 
 const pixelRatio = window.devicePixelRatio || 1;
-const viewportLongSide = Math.max(window.innerWidth, window.innerHeight);
-const viewportShortSide = Math.min(window.innerWidth, window.innerHeight);
+const viewportLongSide = Math.max(window.screen.width, window.screen.height);
+const viewportShortSide = Math.min(window.screen.width, window.screen.height);
 const viewportAspect = viewportLongSide / Math.max(1, viewportShortSide);
 
 // Logical coordinates stay stable for gameplay while following the display ratio.
@@ -17,6 +17,15 @@ export const SAFE_EDGE = 84;
 export const RENDER_WIDTH = Math.round(viewportLongSide * pixelRatio);
 export const RENDER_HEIGHT = Math.round(viewportShortSide * pixelRatio);
 export const RENDER_SCALE = Math.min(RENDER_WIDTH / GAME_WIDTH, RENDER_HEIGHT / GAME_HEIGHT);
+
+export function getPhysicalViewport() {
+    const longSide = Math.max(window.innerWidth, window.innerHeight);
+    const shortSide = Math.min(window.innerWidth, window.innerHeight);
+    return {
+        width: Math.round(longSide * pixelRatio),
+        height: Math.round(shortSide * pixelRatio),
+    };
+}
 
 export function configureSharpCamera(scene) {
     const camera = scene.cameras.main;

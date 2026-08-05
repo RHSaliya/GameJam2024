@@ -21,7 +21,7 @@ export default class CreditScene extends Phaser.Scene {
         const scaleX = GAME_WIDTH / this.creditImage.width;
         const scaleY = GAME_HEIGHT / this.creditImage.height;
         const scale = Math.max(scaleX, scaleY);
-        this.creditImage.setScale(scale).setScrollFactor(0);
+        this.creditImage.setScale(scale);
     
         const buttonStyle = {
             color: '#ffffff',
@@ -44,7 +44,7 @@ export default class CreditScene extends Phaser.Scene {
             "Developed by Rahul, Loki, Rachit & Harshpreet";
     
         var text = this.add.text(GAME_CENTER_X, GAME_CENTER_Y, creditsText, { 
-            fontFamily: 'Arial, Helvetica, sans-serif',
+            fontFamily: 'Caramel, "Arial Rounded MT Bold", Arial, sans-serif',
             fontStyle: 'bold',
             fontSize: 24, 
             color: '#ffffff',

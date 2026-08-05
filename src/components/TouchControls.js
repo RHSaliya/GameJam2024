@@ -20,13 +20,11 @@ export default class TouchControls {
     createButton(x, y, radius, action, label, accent = COLORS.cyan) {
         const circle = this.scene.add.circle(x, y, radius, COLORS.panelDark, 0.48)
             .setStrokeStyle(3, accent, 0.7)
-            .setScrollFactor(0)
             .setDepth(3000);
         const text = this.scene.add.text(x, y, label, textStyle(label.length > 2 ? 20 : 31))
-            .setOrigin(0.5).setScrollFactor(0).setDepth(3001).setAlpha(0.82);
+            .setOrigin(0.5).setDepth(3001).setAlpha(0.82);
         const hitRadius = radius * 1.32;
         const hitZone = this.scene.add.zone(x, y, hitRadius * 2, hitRadius * 2)
-            .setScrollFactor(0)
             .setDepth(3002)
             .setInteractive(new Phaser.Geom.Circle(hitRadius, hitRadius, hitRadius), Phaser.Geom.Circle.Contains);
         hitZone.on('pointerdown', pointer => {

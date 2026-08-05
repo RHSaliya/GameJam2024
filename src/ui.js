@@ -13,7 +13,7 @@ export const COLORS = {
 };
 
 export const textStyle = (size = 28, color = '#ffffff') => ({
-    fontFamily: 'Arial, Helvetica, sans-serif',
+    fontFamily: 'Caramel, "Arial Rounded MT Bold", Arial, sans-serif',
     fontStyle: 'bold',
     fontSize: `${size}px`,
     color,

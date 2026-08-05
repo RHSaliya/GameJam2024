@@ -4,6 +4,7 @@ import Bullet from '../components/Bullet';
 import Asteroid from '../components/Asteroid';
 import Astronaut from '../components/Astronaut';
 import TouchControls from '../components/TouchControls';
+import Coin from '../components/Coin';
 import { getLevel, getSkin } from '../config/gameData';
 import { playerProfile } from '../services/PlayerProfile';
 import { COLORS, textStyle } from '../ui';
@@ -38,14 +39,15 @@ export default class PlayScene extends Phaser.Scene {
         this.lastScoreTick = this.time.now;
         this.score = 0;
         this.kills = 0;
+        this.runCoins = 0;
         this.ending = false;
         this.isPaused = false;
         this.effects = playerProfile.getUpgradeEffects();
         this.totalBullets = this.effects.startingAmmo;
         this.sound.volume = playerProfile.data.settings.volume;
 
-        this.bg = this.add.tileSprite(GAME_CENTER_X, GAME_CENTER_Y, GAME_WIDTH, GAME_HEIGHT, 'background-play').setScrollFactor(0);
-        this.stars = this.add.tileSprite(GAME_CENTER_X, GAME_CENTER_Y, GAME_WIDTH, GAME_HEIGHT, 'stars').setScrollFactor(0).setAlpha(0.82);
+        this.bg = this.add.tileSprite(GAME_CENTER_X, GAME_CENTER_Y, GAME_WIDTH, GAME_HEIGHT, 'background-play');
+        this.stars = this.add.tileSprite(GAME_CENTER_X, GAME_CENTER_Y, GAME_WIDTH, GAME_HEIGHT, 'stars').setAlpha(0.82);
         this.themeMusic = this.sound.add('gameTheme', { loop: true, volume: 0.5 });
         this.themeMusic.play();
 
@@ -55,7 +57,9 @@ export default class PlayScene extends Phaser.Scene {
         const skin = getSkin(playerProfile.data.selectedSkin);
         if (skin.tint !== 0xffffff) this.ship.setTint(skin.tint);
         this.ship.body.allowGravity = false;
-        this.cameras.main.startFollow(this.ship, true, 0.08, 0.08);
+        // Gameplay uses a fixed logical viewport. Camera follow works in backing
+        // buffer coordinates and would shift touch UI on high-DPI phones.
+        this.physics.world.setBounds(0, 0, GAME_WIDTH, GAME_HEIGHT);
 
         this.thrustEmitter = this.add.particles(0, 0, 'muzzleflash7', {
             speed: 90, lifespan: 280, frequency: 45, quantity: 1,
@@ -64,12 +68,15 @@ export default class PlayScene extends Phaser.Scene {
         }).startFollow(this.ship).stop();
 
         this.healthBar = new HealthBar(this, this.effects.maxHealth);
+        this.createCoinTexture();
         this.bullets = this.physics.add.group({ classType: Bullet, maxSize: 45, runChildUpdate: true });
         this.asteroids = this.physics.add.group({ classType: Asteroid, maxSize: 45, runChildUpdate: true });
         this.astronauts = this.physics.add.group({ classType: Astronaut, maxSize: 12, runChildUpdate: true });
+        this.coins = this.physics.add.group({ classType: Coin, maxSize: 30, runChildUpdate: true });
 
         this.physics.add.overlap(this.bullets, this.asteroids, (bullet, asteroid) => this.hitAsteroid(bullet, asteroid));
         this.physics.add.overlap(this.ship, this.asteroids, (_ship, asteroid) => this.hitShip(asteroid));
+        this.physics.add.overlap(this.ship, this.coins, (_ship, coin) => this.collectCoin(coin));
 
         this.keys = this.input.keyboard.addKeys({
             left: Phaser.Input.Keyboard.KeyCodes.LEFT,
@@ -87,13 +94,14 @@ export default class PlayScene extends Phaser.Scene {
     }
 
     createHud() {
-        this.add.text(84, 42, `MISSION ${this.level.id} • ${this.level.name}`, textStyle(18, '#aeb8da')).setScrollFactor(0).setDepth(2000);
-        this.scoreText = this.add.text(GAME_WIDTH - 84, 18, 'SCORE 0', textStyle(25)).setOrigin(1, 0).setScrollFactor(0).setDepth(2000);
-        this.objectiveText = this.add.text(GAME_WIDTH - 84, 50, `TARGET 0/${this.level.targetKills}`, textStyle(20, '#ffd166')).setOrigin(1, 0).setScrollFactor(0).setDepth(2000);
-        this.ammoText = this.add.text(GAME_CENTER_X, 20, `AMMO ${this.totalBullets}`, textStyle(22, '#ffffff')).setOrigin(0.5, 0).setScrollFactor(0).setDepth(2000);
+        this.add.text(84, 42, `MISSION ${this.level.id} • ${this.level.name}`, textStyle(18, '#aeb8da')).setDepth(2000);
+        this.scoreText = this.add.text(GAME_WIDTH - 84, 18, 'SCORE 0', textStyle(25)).setOrigin(1, 0).setDepth(2000);
+        this.objectiveText = this.add.text(GAME_WIDTH - 84, 50, `TARGET 0/${this.level.targetKills}`, textStyle(20, '#ffd166')).setOrigin(1, 0).setDepth(2000);
+        this.ammoText = this.add.text(GAME_CENTER_X - 90, 20, `AMMO ${this.totalBullets}`, textStyle(22, '#ffffff')).setOrigin(0.5, 0).setDepth(2000);
+        this.coinText = this.add.text(GAME_CENTER_X + 105, 20, 'COINS 0', textStyle(22, '#ffd166')).setOrigin(0.5, 0).setDepth(2000);
         this.pauseButton = this.add.circle(GAME_CENTER_X, 64, 25, COLORS.panelDark, 0.8).setStrokeStyle(2, COLORS.cyan, 0.7)
-            .setScrollFactor(0).setDepth(3000).setInteractive({ useHandCursor: true }).on('pointerdown', () => this.togglePause());
-        this.add.text(GAME_CENTER_X, 64, 'Ⅱ', textStyle(19)).setOrigin(0.5).setScrollFactor(0).setDepth(3001);
+            .setDepth(3000).setInteractive({ useHandCursor: true }).on('pointerdown', () => this.togglePause());
+        this.add.text(GAME_CENTER_X, 64, 'Ⅱ', textStyle(19)).setOrigin(0.5).setDepth(3001);
     }
 
     update(time) {
@@ -118,6 +126,7 @@ export default class PlayScene extends Phaser.Scene {
             this.accelerationSound?.stop();
         }
         if (fire && time >= this.lastFired) this.fire(time);
+        this.physics.world.wrap(this.ship, 36);
 
         if (time - this.lastScoreTick >= 1000) {
             this.score += 2 + this.level.id;
@@ -144,11 +153,21 @@ export default class PlayScene extends Phaser.Scene {
         this.refreshHud();
     }
 
+    createCoinTexture() {
+        if (this.textures.exists('coin')) return;
+        const graphics = this.make.graphics({ add: false });
+        graphics.fillStyle(0xffd166, 1).fillCircle(36, 36, 32);
+        graphics.lineStyle(6, 0xffa62b, 1).strokeCircle(36, 36, 30);
+        graphics.fillStyle(0xffffff, 0.75).fillCircle(24, 22, 8);
+        graphics.generateTexture('coin', 72, 72);
+        graphics.destroy();
+    }
+
     spawnAsteroid(time) {
         const asteroid = this.asteroids.get();
         if (!asteroid) return;
         asteroid.body.allowGravity = false;
-        asteroid.show(this.ship, this.level.asteroidSpeed + Math.floor(this.kills * 1.4));
+        asteroid.show(this.ship, this.level.asteroidSpeed + Math.floor(this.kills * 1.4), this.level.id);
         this.lastAsteroid = time + Math.max(420, this.level.spawnDelay - this.kills * 8);
     }
 
@@ -162,14 +181,37 @@ export default class PlayScene extends Phaser.Scene {
     }
 
     hitAsteroid(bullet, asteroid) {
-        if (!asteroid.destroyMe()) return;
+        const hit = asteroid.takeHit();
+        if (!hit.destroyed && hit.hp === undefined) return;
         bullet.disableBody(true, true);
+        if (!hit.destroyed) {
+            this.score += 5;
+            this.sound.play('hitSound', { volume: 0.3 });
+            this.refreshHud();
+            return;
+        }
         this.kills += 1;
-        this.score += 30 + this.level.id * 5;
+        this.score += hit.score + this.level.id * 5;
         this.totalBullets += 3;
+        this.spawnCoin(hit.x, hit.y, hit.coins);
         this.sound.play('explosion', { volume: 0.6 });
         this.refreshHud();
         if (this.kills >= this.level.targetKills) this.finish(true);
+    }
+
+    spawnCoin(x, y, value) {
+        const coin = this.coins.get();
+        if (coin) coin.show(x, y, value, this.ship);
+    }
+
+    collectCoin(coin) {
+        const value = coin.collect();
+        if (!value) return;
+        this.runCoins += value;
+        this.score += value * 8;
+        this.totalBullets += value >= 3 ? 2 : 0;
+        if (playerProfile.data.settings.vibration) navigator.vibrate?.(12);
+        this.refreshHud();
     }
 
     hitShip(asteroid) {
@@ -188,6 +230,7 @@ export default class PlayScene extends Phaser.Scene {
         this.scoreText.setText(`SCORE ${Math.floor(this.score)}`);
         this.objectiveText.setText(`TARGET ${this.kills}/${this.level.targetKills}`);
         this.ammoText.setText(`AMMO ${this.totalBullets}`);
+        this.coinText.setText(`COINS ${this.runCoins}`);
     }
 
     togglePause() {
@@ -199,7 +242,7 @@ export default class PlayScene extends Phaser.Scene {
             this.touch.reset();
             this.accelerationSound?.stop();
             this.thrustEmitter.stop();
-            this.pauseOverlay = this.add.container(GAME_CENTER_X, GAME_CENTER_Y).setScrollFactor(0).setDepth(5000);
+            this.pauseOverlay = this.add.container(GAME_CENTER_X, GAME_CENTER_Y).setDepth(5000);
             const bg = this.add.rectangle(0, 0, GAME_WIDTH, GAME_HEIGHT, 0x090c1a, 0.82).setInteractive();
             const title = this.add.text(0, -80, 'PAUSED', textStyle(44)).setOrigin(0.5);
             const resume = this.add.text(0, 0, 'RESUME', textStyle(30, '#7ae582')).setOrigin(0.5).setPadding(25).setInteractive({ useHandCursor: true }).on('pointerdown', () => this.togglePause());
@@ -224,7 +267,7 @@ export default class PlayScene extends Phaser.Scene {
         if (!victory) this.sound.play('deathSound', { volume: 0.75 });
         const seconds = Math.max(1, Math.floor((this.time.now - this.runStartedAt) / 1000));
         this.time.delayedCall(victory ? 450 : 650, () => this.scene.start('end', {
-            victory, score: Math.floor(this.score), kills: this.kills, seconds, levelId: this.level.id,
+            victory, score: Math.floor(this.score), kills: this.kills, coins: this.runCoins, seconds, levelId: this.level.id,
         }));
     }
 
