@@ -95,7 +95,7 @@ test('a first victory rewards credits, achievements, and the next mission', () =
     assert.equal(profile.data.credits, 319);
 });
 
-test('upgrades and skins require credits and apply permanent effects', () => {
+test('upgrades and ships require credits and apply permanent effects', () => {
     const profile = new PlayerProfile(new MemoryStorage());
     assert.equal(profile.buyUpgrade('hull').reason, 'CREDITS');
     profile.data.credits = 1000;

@@ -53,7 +53,8 @@ npm run mobile:ios
 - Four enemy archetypes: drifters, fast strikers, steering hunters, and armored juggernauts.
 - Magnetic mission coins dropped by enemies and banked into the persistent economy.
 - Four permanent upgrades: hull, engine, blaster, and shield.
-- Five purchasable/equippable skins.
+- Five purchasable/equippable ship models with distinct flight stats and signature weapons.
+- Collectible weapon cores that temporarily let any ship use another model's attack.
 - Eight automatically awarded achievements with credit bonuses.
 - Versioned local persistence with legacy high-score migration.
 - Endless-only high scores with one best global score per pilot and local fallback rankings.

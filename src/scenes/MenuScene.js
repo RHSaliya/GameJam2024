@@ -12,7 +12,6 @@ export default class MenuScene extends Phaser.Scene {
     preload() {
         this.load.image('menu', 'assets/menu-space-v2.png');
         this.load.image('titleImage', 'assets/spacetitle.png');
-        this.load.image('ship', 'assets/space/Spaceship.png');
         preloadAudio(this, ['titleMusic']);
     }
 

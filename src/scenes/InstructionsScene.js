@@ -13,9 +13,9 @@ export default class InstructionsScene extends Phaser.Scene {
         const sections = [
             ['↺  ↻', 'ROTATE', 'Touch the left controls. Keyboard: A/D or arrow keys.'],
             ['▲', 'THRUST', 'Hold thrust to accelerate. Keyboard: W or Up.'],
-            ['FIRE', 'BLASTER', 'Hold Fire to shoot. Every hit returns some ammo. Keyboard: Space.'],
+            ['FIRE', 'SIGNATURE WEAPONS', 'Each ship fires differently. Collect colored weapon cores to borrow another ship’s attack.'],
             ['✦', 'ENEMIES', 'Red strikers are fast, blue hunters steer, and purple juggernauts take several hits.'],
-            ['◆', 'COINS', 'Destroyed enemies drop coins. Fly close to collect and bank them for upgrades and skins.'],
+            ['◆', 'COINS', 'Destroyed enemies drop coins. Fly close to collect and bank them for upgrades and ships.'],
         ];
         sections.forEach(([icon, title, body], index) => {
             const y = 125 + index * 78;

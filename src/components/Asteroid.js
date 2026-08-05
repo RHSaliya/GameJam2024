@@ -63,9 +63,9 @@ export default class Asteroid extends Phaser.Physics.Arcade.Image {
         }
     }
 
-    takeHit() {
+    takeHit(damage = 1) {
         if (!this.active || this.exploding) return { destroyed: false };
-        this.hp -= 1;
+        this.hp -= Math.max(1, Math.floor(Number(damage) || 1));
         if (this.hp > 0) {
             this.scene.tweens.add({ targets: this, alpha: 0.35, duration: 55, yoyo: true });
             return { destroyed: false, hp: this.hp, maxHp: this.maxHp };

@@ -8,16 +8,16 @@ export default class HangarScene extends Phaser.Scene {
     constructor() { super('hangar'); }
     preload() {
         this.load.image('menu', 'assets/menu-space-v2.png');
-        this.load.image('ship', 'assets/space/Spaceship.png');
+        SKINS.forEach(ship => this.load.image(`ship-${ship.id}`, ship.texture));
     }
 
     create() {
         configureSharpCamera(this);
         addSpaceBackground(this);
-        addTitle(this, 'THE HANGAR', 'Spend mission credits on permanent upgrades and ship finishes');
+        addTitle(this, 'THE HANGAR', 'Every ship has unique flight characteristics and a signature weapon');
         this.creditText = this.add.text(1190, 30, '', textStyle(25, '#ffd166')).setOrigin(1, 0);
         addButton(this, 520, 105, 'UPGRADES', () => this.render('upgrades'), { width: 230, height: 42 });
-        addButton(this, 760, 105, 'SKINS', () => this.render('skins'), { width: 230, height: 42, accent: COLORS.yellow });
+        addButton(this, 760, 105, 'SHIPS', () => this.render('skins'), { width: 230, height: 42, accent: COLORS.yellow });
         addBackButton(this);
         this.dynamic = [];
         this.render('upgrades');
@@ -57,8 +57,7 @@ export default class HangarScene extends Phaser.Scene {
         SKINS.forEach((skin, index) => {
             const y = 158 + index * 76;
             this.keep(addPanel(this, 640, y, 1000, 62));
-            const preview = this.keep(this.add.image(190, y, 'ship').setScale(0.16).setAngle(90));
-            if (skin.tint !== 0xffffff) preview.setTint(skin.tint);
+            this.keep(this.add.image(190, y, `ship-${skin.id}`).setScale(0.16).setAngle(90));
             const owned = playerProfile.data.unlockedSkins.includes(skin.id);
             const selected = playerProfile.data.selectedSkin === skin.id;
             this.keep(this.add.text(240, y - 24, skin.name, textStyle(23)));
