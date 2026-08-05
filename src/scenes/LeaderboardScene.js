@@ -9,7 +9,7 @@ export default class LeaderboardScene extends Phaser.Scene {
     create() {
         configureSharpCamera(this);
         addSpaceBackground(this);
-        addTitle(this, 'LEADERBOARD', 'Best score per pilot');
+        addTitle(this, 'LEADERBOARD', 'Endless high score per pilot');
         addPanel(this, 640, 325, 1000, 430);
         this.status = this.add.text(640, 113, 'Connecting…', textStyle(18, COLORS.muted)).setOrigin(0.5);
         this.rows = [];
@@ -27,8 +27,8 @@ export default class LeaderboardScene extends Phaser.Scene {
             this.rows.push(this.add.text(180, y, `${index + 1}`, textStyle(20, color)));
             this.rows.push(this.add.text(245, y, String(score.name || 'Anonymous Pilot').slice(0, 18), textStyle(20, color)));
             this.rows.push(this.add.text(1000, y, formatNumber(score.score), textStyle(20, color)).setOrigin(1, 0));
-            this.rows.push(this.add.text(1100, y, `L${score.level || 1}`, textStyle(18, COLORS.muted)).setOrigin(1, 0));
+            this.rows.push(this.add.text(1100, y, `T${score.threat || 1}`, textStyle(18, COLORS.muted)).setOrigin(1, 0));
         });
-        if (!result.scores.length) this.rows.push(this.add.text(640, 300, 'No scores yet. Launch a mission!', textStyle(24, COLORS.muted)).setOrigin(0.5));
+        if (!result.scores.length) this.rows.push(this.add.text(640, 300, 'No endless scores yet. Start an endless run!', textStyle(24, COLORS.muted)).setOrigin(0.5));
     }
 }

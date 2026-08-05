@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { PlayerProfile, normalizeProfile, sanitizeDisplayName } from '../src/services/PlayerProfile.js';
+import { pilotNameKey } from '../src/services/LeaderboardService.js';
 
 class MemoryStorage {
     constructor() { this.values = new Map(); }
@@ -28,6 +29,40 @@ test('sanitizes public leaderboard names', () => {
     assert.equal(sanitizeDisplayName('  Ace<script>🚀  '), 'Acescript');
     assert.equal(sanitizeDisplayName('!@#$'), 'Anonymous Pilot');
     assert.equal(sanitizeDisplayName('A very very very long pilot name').length, 18);
+});
+
+test('locks a pilot name once and preserves it when progress is reset', () => {
+    const profile = new PlayerProfile(new MemoryStorage());
+    assert.equal(profile.data.pilotNameLocked, false);
+    assert.equal(profile.lockDisplayName('  Nova  Ace! ').displayName, 'Nova Ace');
+    assert.equal(profile.data.pilotNameLocked, true);
+    assert.equal(profile.data.pilotNameVersion, 1);
+    assert.equal(profile.lockDisplayName('Replacement').reason, 'LOCKED');
+    profile.reset();
+    assert.equal(profile.data.displayName, 'Nova Ace');
+    assert.equal(profile.data.pilotNameLocked, true);
+});
+
+test('prompts legacy profiles for a permanent name without losing progress', () => {
+    const storage = new MemoryStorage();
+    storage.setItem('quarrel-profile-v2', JSON.stringify({
+        displayName: 'Pilot-4587',
+        pilotNameLocked: true,
+        credits: 559,
+        bestScore: 538,
+    }));
+    const profile = new PlayerProfile(storage);
+    assert.equal(profile.data.displayName, '');
+    assert.equal(profile.data.pilotNameLocked, false);
+    assert.equal(profile.data.pilotNameVersion, 0);
+    assert.equal(profile.data.credits, 559);
+    assert.equal(profile.data.bestScore, 538);
+});
+
+test('pilot name reservations are case and separator insensitive', () => {
+    assert.equal(pilotNameKey('Nova Ace'), 'nova-ace');
+    assert.equal(pilotNameKey('nova_ace'), 'nova-ace');
+    assert.equal(pilotNameKey('NOVA-ACE'), 'nova-ace');
 });
 
 test('migrates the legacy master volume and clamps separate audio levels', () => {
@@ -77,4 +112,15 @@ test('collected mission coins are banked into the persistent economy', () => {
     assert.equal(result.creditsEarned, 17);
     assert.equal(profile.data.credits, 17);
     assert.equal(profile.data.totalCoins, 17);
+});
+
+test('only endless runs are stored in local leaderboard records', () => {
+    const profile = new PlayerProfile(new MemoryStorage());
+    profile.recordRun({ mode: 'campaign', victory: true, score: 900, kills: 8, seconds: 30, levelId: 1 });
+    profile.recordRun({ mode: 'endless', victory: false, score: 600, kills: 12, seconds: 45, threat: 2, levelId: 1 });
+    assert.equal(profile.data.bestScore, 900);
+    assert.equal(profile.data.endlessBestScore, 600);
+    assert.equal(profile.data.endlessScores.length, 1);
+    assert.equal(profile.data.endlessScores[0].mode, 'endless');
+    assert.equal(profile.data.endlessScores[0].threat, 2);
 });

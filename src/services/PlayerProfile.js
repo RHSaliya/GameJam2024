@@ -5,9 +5,12 @@ const STORAGE_KEY = 'quarrel-profile-v2';
 export function createDefaultProfile() {
     return {
         version: 2,
-        displayName: `Pilot-${Math.floor(1000 + Math.random() * 9000)}`,
+        displayName: '',
+        pilotNameLocked: false,
+        pilotNameVersion: 0,
         credits: 0,
         bestScore: 0,
+        endlessBestScore: 0,
         totalScore: 0,
         totalKills: 0,
         totalCoins: 0,
@@ -20,12 +23,14 @@ export function createDefaultProfile() {
         selectedSkin: 'classic',
         achievements: [],
         localScores: [],
+        endlessScores: [],
         settings: { masterVolume: 1, musicVolume: 0.55, sfxVolume: 0.75, vibration: true },
     };
 }
 
 export function normalizeProfile(value = {}) {
     const defaults = createDefaultProfile();
+    const pilotNameLocked = Boolean(value.pilotNameLocked);
     const savedSettings = value.settings || {};
     const hasLegacyVolume = savedSettings.volume !== undefined && Number.isFinite(Number(savedSettings.volume));
     const legacyVolume = hasLegacyVolume ? clampVolume(savedSettings.volume, defaults.settings.sfxVolume) : undefined;
@@ -35,13 +40,28 @@ export function normalizeProfile(value = {}) {
     const unlockedSkins = Array.isArray(value.unlockedSkins)
         ? value.unlockedSkins.filter(id => SKINS.some(skin => skin.id === id))
         : ['classic'];
+    const endlessScores = Array.isArray(value.endlessScores)
+        ? value.endlessScores
+            .filter(item => item?.mode === 'endless')
+            .map(item => ({
+                mode: 'endless',
+                name: sanitizeDisplayName(item.name),
+                score: Math.max(0, Math.floor(Number(item.score) || 0)),
+                threat: Math.min(6, Math.max(1, Math.floor(Number(item.threat) || 1))),
+                at: Math.max(0, Number(item.at) || 0),
+            }))
+            .sort((a, b) => b.score - a.score)
+            .slice(0, 10)
+        : [];
     if (!unlockedSkins.includes('classic')) unlockedSkins.unshift('classic');
 
     return {
         ...defaults,
         ...value,
         version: 2,
-        displayName: sanitizeDisplayName(value.displayName || defaults.displayName),
+        displayName: pilotNameLocked ? sanitizeDisplayName(value.displayName) : '',
+        pilotNameLocked,
+        pilotNameVersion: Number(value.pilotNameVersion) === 1 ? 1 : 0,
         credits: Math.max(0, Math.floor(Number(value.credits) || 0)),
         completedLevels: [...new Set(completedLevels)],
         unlockedLevel: Math.min(LEVELS.length, Math.max(1, Math.floor(Number(value.unlockedLevel) || 1))),
@@ -50,6 +70,12 @@ export function normalizeProfile(value = {}) {
         selectedSkin: unlockedSkins.includes(value.selectedSkin) ? value.selectedSkin : 'classic',
         achievements: Array.isArray(value.achievements) ? [...new Set(value.achievements)] : [],
         localScores: Array.isArray(value.localScores) ? value.localScores.slice(0, 10) : [],
+        endlessBestScore: Math.max(
+            0,
+            Math.floor(Number(value.endlessBestScore) || 0),
+            ...endlessScores.map(item => item.score),
+        ),
+        endlessScores,
         settings: {
             masterVolume: clampVolume(savedSettings.masterVolume, legacyVolume ?? defaults.settings.masterVolume),
             musicVolume: clampVolume(savedSettings.musicVolume, hasLegacyVolume ? 1 : defaults.settings.musicVolume),
@@ -65,8 +91,12 @@ function clampVolume(value, fallback) {
 }
 
 export function sanitizeDisplayName(name) {
-    const cleaned = String(name).replace(/[^a-zA-Z0-9 _-]/g, '').trim().slice(0, 18);
+    const cleaned = cleanDisplayName(name);
     return cleaned || 'Anonymous Pilot';
+}
+
+export function cleanDisplayName(name) {
+    return String(name).replace(/[^a-zA-Z0-9 _-]/g, '').trim().replace(/\s+/g, ' ').slice(0, 18);
 }
 
 export class PlayerProfile {
@@ -78,7 +108,13 @@ export class PlayerProfile {
     load() {
         try {
             const saved = this.storage?.getItem(STORAGE_KEY);
-            if (saved) return normalizeProfile(JSON.parse(saved));
+            if (saved) {
+                const value = JSON.parse(saved);
+                // Profiles from the editable-name release must choose their
+                // permanent unique name once without losing any progress.
+                if (Number(value.pilotNameVersion) !== 1) value.pilotNameLocked = false;
+                return normalizeProfile(value);
+            }
             const legacyScore = Math.max(0, Math.floor(Number(this.storage?.getItem('maxScore')) || 0));
             return normalizeProfile(legacyScore ? { bestScore: legacyScore } : undefined);
         } catch {
@@ -91,9 +127,15 @@ export class PlayerProfile {
         return this.data;
     }
 
-    setDisplayName(name) {
-        this.data.displayName = sanitizeDisplayName(name);
-        return this.save();
+    lockDisplayName(name) {
+        if (this.data.pilotNameLocked) return { ok: false, reason: 'LOCKED' };
+        const displayName = cleanDisplayName(name);
+        if (displayName.length < 3) return { ok: false, reason: 'INVALID' };
+        this.data.displayName = displayName;
+        this.data.pilotNameLocked = true;
+        this.data.pilotNameVersion = 1;
+        this.save();
+        return { ok: true, displayName };
     }
 
     getUpgradeEffects() {
@@ -141,25 +183,31 @@ export class PlayerProfile {
         const seconds = Math.max(0, Math.floor(Number(run.seconds) || 0));
         const coins = Math.max(0, Math.floor(Number(run.coins) || 0));
         const levelId = Math.min(LEVELS.length, Math.max(1, Math.floor(Number(run.levelId) || 1)));
+        const mode = run.mode === 'endless' ? 'endless' : 'campaign';
+        const campaignVictory = mode === 'campaign' && Boolean(run.victory);
+        const threat = Math.min(6, Math.max(1, Math.floor(Number(run.threat) || 1)));
         const level = LEVELS[levelId - 1];
-        const firstCompletion = Boolean(run.victory) && !this.data.completedLevels.includes(levelId);
-        const creditsEarned = coins + Math.floor(score / 8) + kills * 3 + (firstCompletion ? level.reward : run.victory ? Math.floor(level.reward * 0.25) : 0);
+        const firstCompletion = campaignVictory && !this.data.completedLevels.includes(levelId);
+        const creditsEarned = coins + Math.floor(score / 8) + kills * 3 + (firstCompletion ? level.reward : campaignVictory ? Math.floor(level.reward * 0.25) : 0);
 
         this.data.credits += creditsEarned;
         this.data.bestScore = Math.max(this.data.bestScore, score);
+        if (mode === 'endless') this.data.endlessBestScore = Math.max(this.data.endlessBestScore, score);
         this.data.totalScore += score;
         this.data.totalKills += kills;
         this.data.totalCoins += coins;
         this.data.totalRuns += 1;
         this.data.longestRun = Math.max(this.data.longestRun, seconds);
-        if (run.victory) {
+        if (campaignVictory) {
             this.data.completedLevels.push(levelId);
             this.data.completedLevels = [...new Set(this.data.completedLevels)];
             this.data.unlockedLevel = Math.min(LEVELS.length, Math.max(this.data.unlockedLevel, levelId + 1));
         }
-        this.data.localScores.unshift({ name: this.data.displayName, score, level: levelId, at: Date.now() });
-        this.data.localScores.sort((a, b) => b.score - a.score);
-        this.data.localScores = this.data.localScores.slice(0, 10);
+        if (mode === 'endless') {
+            this.data.endlessScores.unshift({ mode, name: this.data.displayName, score, threat, at: Date.now() });
+            this.data.endlessScores.sort((a, b) => b.score - a.score);
+            this.data.endlessScores = this.data.endlessScores.slice(0, 10);
+        }
         const unlocked = this.checkAchievements();
         this.save();
         return { creditsEarned, firstCompletion, unlocked };
@@ -178,7 +226,8 @@ export class PlayerProfile {
     }
 
     reset() {
-        this.data = createDefaultProfile();
+        const { displayName, pilotNameLocked, pilotNameVersion, settings } = this.data;
+        this.data = { ...createDefaultProfile(), displayName, pilotNameLocked, pilotNameVersion, settings };
         return this.save();
     }
 }

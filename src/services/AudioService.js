@@ -1,7 +1,6 @@
 import { playerProfile } from './PlayerProfile.js';
 
 export const AUDIO_ASSETS = {
-    uiClick: 'assets/Sound/UiClick.wav',
     coinPickup: 'assets/Sound/CoinPickup.wav',
     emptyAmmo: 'assets/Sound/EmptyAmmo.wav',
     victorySting: 'assets/Sound/VictorySting.wav',

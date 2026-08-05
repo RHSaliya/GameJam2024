@@ -7,8 +7,22 @@ service cloud.firestore {
       allow create: if signedIn(userId) && validScore();
       allow update: if signedIn(userId)
                     && validScore()
-                    && request.resource.data.score >= resource.data.score;
+                    && (!resource.data.keys().hasAll(['mode'])
+                        || (resource.data.mode == 'endless'
+                            && request.resource.data.score >= resource.data.score));
       allow delete: if false;
+    }
+
+    match /pilotNames/{nameKey} {
+      allow read: if true;
+      allow create: if request.auth != null
+                    && request.resource.data.keys().hasOnly(['uid', 'name', 'createdAt'])
+                    && request.resource.data.uid == request.auth.uid
+                    && request.resource.data.name is string
+                    && request.resource.data.name.size() >= 3
+                    && request.resource.data.name.size() <= 18
+                    && request.resource.data.createdAt is timestamp;
+      allow update, delete: if false;
     }
 
     match /{document=**} {
@@ -20,17 +34,18 @@ service cloud.firestore {
     }
 
     function validScore() {
-      return request.resource.data.keys().hasOnly(['uid', 'name', 'score', 'level', 'updatedAt'])
+      return request.resource.data.keys().hasOnly(['uid', 'name', 'mode', 'score', 'threat', 'updatedAt'])
              && request.resource.data.uid == request.auth.uid
              && request.resource.data.name is string
              && request.resource.data.name.size() >= 1
              && request.resource.data.name.size() <= 18
+             && request.resource.data.mode == 'endless'
              && request.resource.data.score is int
              && request.resource.data.score >= 0
              && request.resource.data.score <= 100000000
-             && request.resource.data.level is int
-             && request.resource.data.level >= 1
-             && request.resource.data.level <= 6
+             && request.resource.data.threat is int
+             && request.resource.data.threat >= 1
+             && request.resource.data.threat <= 6
              && request.resource.data.updatedAt is timestamp;
     }
   }

@@ -4,3 +4,137 @@
     font-weight: bold; /* Specify bold font weight */
     font-style: normal; /* Specify normal font style */
 }
+
+.pilot-name-dialog-shell {
+    position: absolute;
+    inset: 0;
+    z-index: 5000;
+    display: grid;
+    place-items: center;
+    box-sizing: border-box;
+    padding: 24px;
+    background: rgb(9 12 26 / 62%);
+    touch-action: manipulation;
+}
+
+.pilot-name-dialog {
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    width: min(720px, calc(100vw - 48px));
+    padding: 24px 32px;
+    border: 2px solid rgb(92 225 230 / 75%);
+    border-radius: 8px;
+    background: rgb(21 27 53 / 98%);
+    box-shadow: 0 16px 48px rgb(0 0 0 / 55%);
+    color: #fff;
+    font-family: Caramel, "Arial Rounded MT Bold", Arial, sans-serif;
+}
+
+.pilot-name-dialog h1 {
+    margin: 0 0 6px;
+    color: #fff;
+    font-size: clamp(28px, 4vw, 42px);
+    line-height: 1;
+    text-align: center;
+}
+
+.pilot-name-dialog > p:not(.pilot-name-status) {
+    margin: 0 0 16px;
+    color: #aeb8da;
+    font: 18px/1.3 Arial, sans-serif;
+    text-align: center;
+}
+
+.pilot-name-dialog label {
+    margin: 0 0 5px;
+    color: #ffd166;
+    font-size: 20px;
+}
+
+.pilot-name-dialog input {
+    box-sizing: border-box;
+    width: 100%;
+    height: 52px;
+    padding: 7px 14px;
+    border: 2px solid rgb(92 225 230 / 75%);
+    border-radius: 6px;
+    outline: none;
+    background: #0f1530;
+    color: #fff;
+    caret-color: #5ce1e6;
+    font: 24px Arial, sans-serif;
+    touch-action: auto;
+    user-select: text;
+    -webkit-user-select: text;
+}
+
+.pilot-name-dialog input:focus {
+    border-color: #7ae582;
+    box-shadow: 0 0 0 2px rgb(122 229 130 / 18%);
+}
+
+.pilot-name-status {
+    min-height: 22px;
+    margin: 8px 0 10px;
+    color: #ffd166;
+    font: 16px/1.25 Arial, sans-serif;
+    text-align: center;
+}
+
+.pilot-name-status.is-error {
+    color: #ff6b6b;
+}
+
+.pilot-name-dialog button {
+    align-self: center;
+    min-width: 260px;
+    height: 50px;
+    padding: 0 24px;
+    border: 2px solid #7ae582;
+    border-radius: 6px;
+    background: #20284c;
+    color: #fff;
+    font: bold 24px Caramel, "Arial Rounded MT Bold", Arial, sans-serif;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+.pilot-name-dialog button:active {
+    transform: scale(0.98);
+    background: rgb(122 229 130 / 25%);
+}
+
+.pilot-name-dialog button:disabled {
+    cursor: wait;
+    opacity: 0.55;
+}
+
+@media (max-height: 520px) {
+    .pilot-name-dialog {
+        padding: 16px 24px;
+    }
+
+    .pilot-name-dialog h1 {
+        font-size: 30px;
+    }
+
+    .pilot-name-dialog > p:not(.pilot-name-status) {
+        margin-bottom: 10px;
+        font-size: 15px;
+    }
+
+    .pilot-name-dialog input {
+        height: 46px;
+        font-size: 21px;
+    }
+
+    .pilot-name-status {
+        margin: 5px 0 7px;
+    }
+
+    .pilot-name-dialog button {
+        height: 44px;
+        font-size: 21px;
+    }
+}

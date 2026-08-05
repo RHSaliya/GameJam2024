@@ -1,6 +1,6 @@
 # Quarrel Through The Cosmos
 
-A mobile-first Phaser space game with six campaign missions, persistent upgrades, unlockable ship skins, achievements, offline play, native Android/iOS wrappers, and an optional Firebase leaderboard.
+A mobile-first Phaser space game with six campaign missions, an escalating endless mode, persistent upgrades, unlockable ship skins, achievements, offline play, native Android/iOS wrappers, and an optional Firebase leaderboard.
 
 ## Play locally
 
@@ -49,10 +49,12 @@ npm run mobile:ios
 ## Progression model
 
 - Six finite missions with escalating speed, density, damage, and rewards.
+- An endless survival mode with six threat tiers and continuously increasing pressure.
 - Four enemy archetypes: drifters, fast strikers, steering hunters, and armored juggernauts.
 - Magnetic mission coins dropped by enemies and banked into the persistent economy.
 - Four permanent upgrades: hull, engine, blaster, and shield.
 - Five purchasable/equippable skins.
 - Eight automatically awarded achievements with credit bonuses.
 - Versioned local persistence with legacy high-score migration.
-- One best global score per anonymous Firebase user, plus local fallback rankings.
+- Endless-only high scores with one best global score per pilot and local fallback rankings.
+- Campaign scoring based on combat, pickups, and a faster-completion bonus instead of passive flight time.

@@ -22,7 +22,7 @@ export default class Asteroid extends Phaser.Physics.Arcade.Image {
         return 'drifter';
     }
 
-    show(ship, minSpeed = 100, levelId = 1) {
+    show(ship, minSpeed = 100, levelId = 1, spawn) {
         this.exploding = false;
         this.ship = ship;
         this.enemyType = this.chooseType(levelId);
@@ -34,21 +34,17 @@ export default class Asteroid extends Phaser.Physics.Arcade.Image {
         this.setAlpha(1).setTint(this.definition.tint).setTexture(this.definition.texture);
 
         const camera = this.scene.cameras.main.worldView;
-        const side = Phaser.Math.Between(0, 3);
-        const padding = 120;
-        let x = Phaser.Math.Between(camera.left - padding, camera.right + padding);
-        let y = Phaser.Math.Between(camera.top - padding, camera.bottom + padding);
-        if (side === 0) x = camera.left - padding;
-        if (side === 1) x = camera.right + padding;
-        if (side === 2) y = camera.top - padding;
-        if (side === 3) y = camera.bottom + padding;
+        const x = spawn?.x ?? camera.left - 120;
+        const y = spawn?.y ?? Phaser.Math.Between(camera.top, camera.bottom);
+        const targetX = spawn?.targetX ?? ship.x;
+        const targetY = spawn?.targetY ?? ship.y;
 
         this.setScale(Phaser.Math.FloatBetween(...this.definition.scale));
         this.enableBody(true, x, y, true, true);
         this.setMass(8 * this.scale);
         this.spawnTime = this.scene.time.now;
         this.moveSpeed = (minSpeed + Phaser.Math.Between(0, 70)) * this.definition.speed;
-        const angle = Phaser.Math.Angle.Between(x, y, ship.x, ship.y);
+        const angle = Phaser.Math.Angle.Between(x, y, targetX, targetY);
         this.setRotation(angle);
         this.scene.physics.velocityFromRotation(angle, this.moveSpeed, this.body.velocity);
         this.setAngularVelocity(Phaser.Math.Between(-65, 65));

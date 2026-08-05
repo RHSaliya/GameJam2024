@@ -2,13 +2,13 @@ import Phaser from 'phaser';
 import { playerProfile } from '../services/PlayerProfile';
 import { addBackButton, addButton, addPanel, addSpaceBackground, addTitle, COLORS, showToast, textStyle } from '../ui';
 import { configureSharpCamera } from '../config/layout';
-import { playSfx, preloadAudio, updateMusicVolume } from '../services/AudioService';
+import { preloadAudio, updateMusicVolume } from '../services/AudioService';
 
 export default class OptionsScene extends Phaser.Scene {
     constructor() { super('options'); }
     preload() {
         this.load.image('menu', 'assets/menu.png');
-        preloadAudio(this, ['titleMusic', 'uiClick']);
+        preloadAudio(this, ['titleMusic']);
     }
     create() {
         configureSharpCamera(this);
@@ -17,10 +17,9 @@ export default class OptionsScene extends Phaser.Scene {
         addPanel(this, 640, 310, 900, 430);
         this.createVolumeSlider('MASTER VOLUME', 'masterVolume', 155, () => {
             updateMusicVolume();
-            this.previewSfx();
         });
         this.createVolumeSlider('MUSIC', 'musicVolume', 230, updateMusicVolume);
-        this.createVolumeSlider('SOUND EFFECTS', 'sfxVolume', 305, () => this.previewSfx());
+        this.createVolumeSlider('SOUND EFFECTS', 'sfxVolume', 305);
 
         this.input.on('drag', (_pointer, target, dragX) => {
             if (!target.audioSlider) return;
@@ -45,12 +44,6 @@ export default class OptionsScene extends Phaser.Scene {
         addBackButton(this);
     }
 
-    previewSfx() {
-        if (this.time.now < (this.nextPreviewAt || 0)) return;
-        this.nextPreviewAt = this.time.now + 120;
-        playSfx(this, 'uiClick', { volume: 0.65 });
-    }
-
     createVolumeSlider(label, setting, y, onChange) {
         const volume = playerProfile.data.settings[setting];
         this.add.text(250, y - 48, label, textStyle(23));
@@ -73,7 +66,7 @@ export default class OptionsScene extends Phaser.Scene {
         slider.valueText.setText(`${Math.round(volume * 100)}%`);
         playerProfile.data.settings[slider.setting] = volume;
         playerProfile.save();
-        slider.onChange();
+        slider.onChange?.();
     }
 
     refreshVibration() {

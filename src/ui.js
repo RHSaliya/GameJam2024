@@ -1,5 +1,5 @@
 import { GAME_CENTER_X, GAME_HEIGHT, GAME_WIDTH, RENDER_SCALE } from './config/layout';
-import { playMusic, playSfx } from './services/AudioService';
+import { playMusic } from './services/AudioService';
 
 export const COLORS = {
     navy: 0x11162d,
@@ -23,12 +23,30 @@ export const textStyle = (size = 28, color = '#ffffff') => ({
     resolution: RENDER_SCALE,
 });
 
-export function addSpaceBackground(scene, key = 'menu') {
+export function addSpaceBackground(scene, key = 'menu', options = {}) {
     playMusic(scene, 'titleMusic', { volume: 0.42 });
     const width = GAME_WIDTH;
     const height = GAME_HEIGHT;
-    const bg = scene.add.image(width / 2, height / 2, key).setDisplaySize(width, width).setAlpha(0.78);
-    scene.add.rectangle(width / 2, height / 2, width, height, COLORS.navy, 0.3);
+    const animated = options.animated === true;
+    const bg = animated
+        ? scene.add.tileSprite(width / 2, height / 2, width, height, key)
+            .setTileScale(Math.max(width / 1024, height / 1024) * 1.08)
+            .setAlpha(0.78)
+        : scene.add.image(width / 2, height / 2, key).setDisplaySize(width, width).setAlpha(0.78);
+    bg.setDepth(-2);
+
+    if (animated) {
+        scene.tweens.add({
+            targets: bg,
+            tilePositionX: 1024,
+            tilePositionY: 1024,
+            duration: 60000,
+            ease: 'Linear',
+            repeat: -1,
+        });
+    }
+
+    scene.add.rectangle(width / 2, height / 2, width, height, COLORS.navy, 0.3).setDepth(-1);
     return bg;
 }
 
@@ -60,7 +78,6 @@ export function addButton(scene, x, y, label, onPress, options = {}) {
             .on('pointerdown', pointer => {
                 pointer.event?.preventDefault?.();
                 background.setScale(0.97);
-                playSfx(scene, 'uiClick', { volume: 0.42, rate: Phaser.Math.FloatBetween(0.97, 1.03) });
                 onPress?.();
             })
             .on('pointerup', () => background.setScale(1));

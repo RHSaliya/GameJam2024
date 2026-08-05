@@ -20,13 +20,9 @@ export default class SplashScene extends Phaser.Scene {
 
     create() {
         configureSharpCamera(this);
-        this.splashImage = this.add.sprite(0, 0, 'background-splash');
-        this.splashImage.setOrigin(0, 0);
+        this.splashImage = this.add.tileSprite(GAME_CENTER_X, GAME_CENTER_Y, GAME_WIDTH, GAME_HEIGHT, 'background-splash');
         this.splashImage.alpha = 0.6;
-        const scaleX = GAME_WIDTH / this.splashImage.width;
-        const scaleY = GAME_HEIGHT / this.splashImage.height;
-        const scale = Math.max(scaleX, scaleY);
-        this.splashImage.setScale(scale);
+        this.splashImage.setTileScale(Math.max(GAME_WIDTH / 1024, GAME_HEIGHT / 1024) * 1.08);
         // Calculate the center of the screen
         const centerX = GAME_CENTER_X;
         const centerY = GAME_CENTER_Y;
@@ -55,6 +51,8 @@ export default class SplashScene extends Phaser.Scene {
     }
 
     update(time, diff) {
+        this.splashImage.tilePositionX += diff * 0.017;
+        this.splashImage.tilePositionY += diff * 0.009;
         if (this.splashImage.alpha < 1) {
             this.splashImage.alpha += 0.01;
         } else if (time > 3000) {

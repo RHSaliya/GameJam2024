@@ -1,11 +1,32 @@
 export const LEVELS = [
-    { id: 1, name: 'First Flight', subtitle: 'Learn the lanes', targetKills: 8, spawnDelay: 1500, asteroidSpeed: 105, collisionDamage: 18, reward: 120 },
-    { id: 2, name: 'Meteor Shower', subtitle: 'The field gets crowded', targetKills: 14, spawnDelay: 1250, asteroidSpeed: 130, collisionDamage: 20, reward: 190 },
-    { id: 3, name: 'Red Horizon', subtitle: 'Fast rocks, little mercy', targetKills: 20, spawnDelay: 1050, asteroidSpeed: 160, collisionDamage: 22, reward: 280 },
-    { id: 4, name: 'Gravity Well', subtitle: 'Hold your nerve', targetKills: 27, spawnDelay: 900, asteroidSpeed: 195, collisionDamage: 24, reward: 390 },
-    { id: 5, name: 'Cosmic Storm', subtitle: 'A veteran challenge', targetKills: 35, spawnDelay: 760, asteroidSpeed: 235, collisionDamage: 26, reward: 520 },
-    { id: 6, name: 'The Last Orbit', subtitle: 'Master the cosmos', targetKills: 45, spawnDelay: 650, asteroidSpeed: 280, collisionDamage: 28, reward: 750 },
+    { id: 1, name: 'First Flight', subtitle: 'Learn the lanes', targetKills: 8, spawnDelay: 1500, asteroidSpeed: 105, collisionDamage: 18, reward: 120, parTime: 55, maxSpeedBonus: 400 },
+    { id: 2, name: 'Meteor Shower', subtitle: 'The field gets crowded', targetKills: 14, spawnDelay: 1250, asteroidSpeed: 130, collisionDamage: 20, reward: 190, parTime: 75, maxSpeedBonus: 650 },
+    { id: 3, name: 'Red Horizon', subtitle: 'Fast rocks, little mercy', targetKills: 20, spawnDelay: 1050, asteroidSpeed: 160, collisionDamage: 22, reward: 280, parTime: 95, maxSpeedBonus: 900 },
+    { id: 4, name: 'Gravity Well', subtitle: 'Hold your nerve', targetKills: 27, spawnDelay: 900, asteroidSpeed: 195, collisionDamage: 24, reward: 390, parTime: 115, maxSpeedBonus: 1200 },
+    { id: 5, name: 'Cosmic Storm', subtitle: 'A veteran challenge', targetKills: 35, spawnDelay: 760, asteroidSpeed: 235, collisionDamage: 26, reward: 520, parTime: 140, maxSpeedBonus: 1550 },
+    { id: 6, name: 'The Last Orbit', subtitle: 'Master the cosmos', targetKills: 45, spawnDelay: 650, asteroidSpeed: 280, collisionDamage: 28, reward: 750, parTime: 165, maxSpeedBonus: 2000 },
 ];
+
+export function getCampaignSpeedBonus(levelId, seconds) {
+    const level = getLevel(levelId);
+    const completionTime = Math.max(0, Number(seconds) || 0);
+    const fullBonusTime = level.parTime * 0.5;
+    const bonusCutoff = level.parTime * 1.5;
+    const ratio = Math.min(1, Math.max(0, (bonusCutoff - completionTime) / (bonusCutoff - fullBonusTime)));
+    return Math.round(level.maxSpeedBonus * ratio);
+}
+
+export function getEndlessDifficulty(kills = 0) {
+    const destroyed = Math.max(0, Math.floor(Number(kills) || 0));
+    const tier = Math.min(6, 1 + Math.floor(destroyed / 10));
+    return {
+        tier,
+        asteroidSpeed: Math.min(340, 105 + Math.floor(destroyed * 1.4)),
+        spawnDelay: Math.max(420, 1500 - destroyed * 9),
+        collisionDamage: Math.min(34, 18 + Math.floor(destroyed / 10) * 2),
+        scorePerSecond: 2 + tier,
+    };
+}
 
 export const UPGRADES = {
     hull: { name: 'Reinforced Hull', description: '+20 maximum health', costs: [140, 300, 560, 900] },
