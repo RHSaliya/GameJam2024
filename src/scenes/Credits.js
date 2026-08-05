@@ -1,6 +1,7 @@
 import Phaser from 'phaser'
 import '../../public/font.css';
-import { configureSharpCamera, GAME_CENTER_X, GAME_CENTER_Y, GAME_HEIGHT, GAME_WIDTH, RENDER_SCALE } from '../config/layout';
+import { addSpaceBackground } from '../ui';
+import { configureSharpCamera, GAME_CENTER_X, GAME_CENTER_Y, GAME_HEIGHT, RENDER_SCALE } from '../config/layout';
 export default class CreditScene extends Phaser.Scene {
     constructor() {
         super('credits');
@@ -9,19 +10,12 @@ export default class CreditScene extends Phaser.Scene {
 
     preload() {
         // Load any assets like images or fonts if required
-        this.load.image('background-credit', '/assets/credit-space.jpg');
+        this.load.image('background-credit', '/assets/menu-space-v2.png');
     }
 
     create() {
         configureSharpCamera(this);
-        // Add background image
-        this.creditImage = this.add.sprite(0, 0, 'background-credit');
-        this.creditImage.setOrigin(0, 0);
-        this.creditImage.alpha = 0.6;
-        const scaleX = GAME_WIDTH / this.creditImage.width;
-        const scaleY = GAME_HEIGHT / this.creditImage.height;
-        const scale = Math.max(scaleX, scaleY);
-        this.creditImage.setScale(scale);
+        this.creditImage = addSpaceBackground(this, 'background-credit', { animated: true });
     
         const buttonStyle = {
             color: '#ffffff',

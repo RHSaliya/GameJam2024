@@ -21,7 +21,6 @@ export default class PlayScene extends Phaser.Scene {
     }
 
     preload() {
-        this.load.image('background-play', 'assets/menu.png');
         for (let i = 1; i <= 5; i += 1) this.load.image(`asteroid${i}`, `assets/asteroid${i}.png`);
         for (let i = 1; i <= 3; i += 1) this.load.image(`destroy${i}`, `assets/destroy${i}.png`);
         for (let i = 1; i <= 4; i += 1) this.load.image(`astronaut${i}`, `assets/Astronaut${i}.png`);

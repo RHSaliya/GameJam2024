@@ -7,7 +7,7 @@ import { configureSharpCamera } from '../config/layout';
 export default class HangarScene extends Phaser.Scene {
     constructor() { super('hangar'); }
     preload() {
-        this.load.image('menu', 'assets/menu.png');
+        this.load.image('menu', 'assets/menu-space-v2.png');
         this.load.image('ship', 'assets/space/Spaceship.png');
     }
 

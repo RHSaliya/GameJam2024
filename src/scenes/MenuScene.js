@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import '../../public/font.css';
 import { cleanDisplayName, playerProfile } from '../services/PlayerProfile';
-import { addButton, addSpaceBackground, formatNumber, showToast, textStyle, COLORS } from '../ui';
+import { addBrandTitle, addButton, addSpaceBackground, formatNumber, showToast, textStyle, COLORS } from '../ui';
 import { configureSharpCamera, GAME_CENTER_X, GAME_WIDTH } from '../config/layout';
 import { preloadAudio } from '../services/AudioService';
 import { leaderboardService } from '../services/LeaderboardService';
@@ -10,9 +10,8 @@ export default class MenuScene extends Phaser.Scene {
     constructor() { super('menu'); }
 
     preload() {
-        this.load.image('menu', 'assets/menu.png');
+        this.load.image('menu', 'assets/menu-space-v2.png');
         this.load.image('titleImage', 'assets/spacetitle.png');
-        this.load.image('title', 'assets/title.png');
         this.load.image('ship', 'assets/space/Spaceship.png');
         preloadAudio(this, ['titleMusic']);
     }
@@ -23,11 +22,11 @@ export default class MenuScene extends Phaser.Scene {
         const centerX = GAME_CENTER_X;
 
         // Keep the complete brand and action grid centered as one vertical group.
-        this.brandImage = this.add.image(centerX, 138, 'titleImage').setScale(0.38);
-        this.gameTitle = this.add.image(centerX, 235, 'title').setScale(0.46);
+        this.brandImage = this.add.image(centerX, 125, 'titleImage').setScale(0.34);
+        this.gameTitle = addBrandTitle(this, centerX, 235, { fontSize: 38 });
 
         if (!playerProfile.data.pilotNameLocked) {
-            this.brandImage.setY(65);
+            this.brandImage.setY(62);
             this.gameTitle.setY(155);
             this.showPilotNameOnboarding();
             return;
@@ -149,7 +148,7 @@ export default class MenuScene extends Phaser.Scene {
             return;
         }
         this.destroyPilotNameDialog();
-        this.brandImage.setY(138);
+        this.brandImage.setY(125);
         this.gameTitle.setY(235);
         showToast(this, `Welcome aboard, ${result.displayName}!`);
         this.createMenuActions();

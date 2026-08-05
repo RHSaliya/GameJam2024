@@ -7,7 +7,7 @@ import { preloadAudio, updateMusicVolume } from '../services/AudioService';
 export default class OptionsScene extends Phaser.Scene {
     constructor() { super('options'); }
     preload() {
-        this.load.image('menu', 'assets/menu.png');
+        this.load.image('menu', 'assets/menu-space-v2.png');
         preloadAudio(this, ['titleMusic']);
     }
     create() {

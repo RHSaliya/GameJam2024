@@ -6,7 +6,7 @@ import { configureSharpCamera } from '../config/layout';
 
 export default class AchievementsScene extends Phaser.Scene {
     constructor() { super('achievements'); }
-    preload() { this.load.image('menu', 'assets/menu.png'); }
+    preload() { this.load.image('menu', 'assets/menu-space-v2.png'); }
     create() {
         configureSharpCamera(this);
         addSpaceBackground(this);

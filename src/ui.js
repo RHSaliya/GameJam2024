@@ -38,16 +38,31 @@ export function addSpaceBackground(scene, key = 'menu', options = {}) {
     if (animated) {
         scene.tweens.add({
             targets: bg,
-            tilePositionX: 1024,
-            tilePositionY: 1024,
-            duration: 60000,
-            ease: 'Linear',
+            tilePositionX: 120,
+            tilePositionY: 72,
+            duration: 18000,
+            ease: 'Sine.inOut',
+            yoyo: true,
             repeat: -1,
         });
     }
 
     scene.add.rectangle(width / 2, height / 2, width, height, COLORS.navy, 0.3).setDepth(-1);
     return bg;
+}
+
+export function addBrandTitle(scene, x, y, options = {}) {
+    const size = options.fontSize || 38;
+    const gap = Math.round(size * 0.78);
+    const container = scene.add.container(x, y);
+    const top = scene.add.text(0, -gap / 2, 'QUARREL THROUGH', textStyle(size, '#ffffff'))
+        .setOrigin(0.5)
+        .setShadow(0, 3, '#05081b', 5, true, true);
+    const bottom = scene.add.text(0, gap / 2, 'THE COSMOS', textStyle(Math.round(size * 0.94), '#ffd166'))
+        .setOrigin(0.5)
+        .setShadow(0, 3, '#05081b', 5, true, true);
+    container.add([top, bottom]);
+    return container;
 }
 
 export function addTitle(scene, title, subtitle = '') {

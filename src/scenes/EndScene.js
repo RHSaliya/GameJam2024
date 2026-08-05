@@ -10,7 +10,7 @@ export default class EndScene extends Phaser.Scene {
     constructor() { super('end'); }
 
     preload() {
-        this.load.image('menu', 'assets/menu.png');
+        this.load.image('menu', 'assets/menu-space-v2.png');
         preloadAudio(this, ['deathTheme', 'titleMusic']);
     }
 

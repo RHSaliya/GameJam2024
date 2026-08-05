@@ -7,7 +7,7 @@ import { configureSharpCamera } from '../config/layout';
 export default class LevelSelectScene extends Phaser.Scene {
     constructor() { super('levels'); }
 
-    preload() { this.load.image('menu', 'assets/menu.png'); }
+    preload() { this.load.image('menu', 'assets/menu-space-v2.png'); }
 
     create() {
         configureSharpCamera(this);

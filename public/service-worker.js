@@ -1,5 +1,5 @@
-const CACHE = 'quarrel-cosmos-v3';
-const SHELL = ['/', '/index.html', '/font.css', '/assets/menu.png', '/assets/space/Spaceship.png'];
+const CACHE = 'quarrel-cosmos-v4';
+const SHELL = ['/', '/index.html', '/font.css', '/assets/menu-space-v2.png', '/assets/space/Spaceship.png'];
 const NATIVE_WEBVIEW = self.navigator.userAgent.includes('; wv');
 
 self.addEventListener('install', event => {
