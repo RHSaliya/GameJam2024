@@ -1,129 +1,54 @@
-import Phaser from "phaser";
+import Phaser from 'phaser';
 import '../../public/font.css';
-import PlayerScore from "../components/PlayerScore";
+import { playerProfile } from '../services/PlayerProfile';
+import { addButton, addSpaceBackground, formatNumber, textStyle, COLORS } from '../ui';
+import { configureSharpCamera } from '../config/layout';
 
 export default class MenuScene extends Phaser.Scene {
-    constructor() {
-        super('menu');
-    }
+    constructor() { super('menu'); }
+
     preload() {
         this.load.image('menu', 'assets/menu.png');
-        this.load.image('titleImage', 'assets/spacetitle.png')
-        this.load.image('title', 'assets/title.png')
+        this.load.image('titleImage', 'assets/spacetitle.png');
+        this.load.image('title', 'assets/title.png');
+        this.load.image('ship', 'assets/space/Spaceship.png');
         this.load.audio('titleMusic', 'assets/Sound/TitleTheme.mp3');
     }
+
     create() {
-        //Playing music title
-        const titleMusic = this.sound.add('titleMusic', { loop: true });
-        titleMusic.play();
+        configureSharpCamera(this);
+        addSpaceBackground(this);
+        const volume = playerProfile.data.settings.volume;
+        this.sound.volume = volume;
+        this.music = this.sound.add('titleMusic', { loop: true, volume: Math.min(0.65, volume) });
+        this.music.play();
+        this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.music?.stop());
 
-        const background = this.add.image(0, 0, 'menu');
-        background.setOrigin(0);
-        const scaleX = +this.sys.game.config.width / background.width;
-        const scaleY = +this.sys.game.config.height / background.height;
-        const scale = Math.max(scaleX, scaleY);
-        background.setScale(scale).setScrollFactor(0);
+        this.add.image(640, 62, 'titleImage').setScale(0.42);
+        this.add.image(640, 172, 'title').setScale(0.52);
 
-        // There will be three buttons start, options, credits and exit
-        // start button
+        const profile = playerProfile.data;
+        this.add.rectangle(640, 242, 900, 56, COLORS.panelDark, 0.9).setStrokeStyle(1, COLORS.cyan, 0.5);
+        this.nameText = this.add.text(220, 231, profile.displayName, textStyle(25, '#ffffff'));
+        this.add.text(1060, 231, `◆ ${formatNumber(profile.credits)}`, textStyle(25, '#ffd166')).setOrigin(1, 0);
+        this.add.text(640, 271, `BEST ${formatNumber(profile.bestScore)}   •   MISSIONS ${profile.completedLevels.length}/6`, textStyle(17, COLORS.muted)).setOrigin(0.5);
 
-        const gameWidth = +this.sys.game.config.width;
-        const gameHeight = +this.sys.game.config.height;
-        const fontSize = gameWidth * 55 / 800;
-        const firstButtonHeight = gameHeight * 425 / 600;
+        const go = (scene, data) => { this.music?.stop(); this.scene.start(scene, data); };
+        addButton(this, 440, 337, 'CAMPAIGN', () => go('levels'), { width: 360, accent: COLORS.green });
+        addButton(this, 840, 337, 'HANGAR', () => go('hangar'), { width: 360, accent: COLORS.yellow });
+        addButton(this, 440, 401, 'ACHIEVEMENTS', () => go('achievements'), { width: 360 });
+        addButton(this, 840, 401, 'LEADERBOARD', () => go('leaderboard'), { width: 360 });
+        addButton(this, 440, 465, 'HOW TO PLAY', () => go('instructions'), { width: 360 });
+        addButton(this, 840, 465, 'OPTIONS', () => go('options'), { width: 360 });
+        addButton(this, 640, 532, 'EDIT PILOT NAME', () => this.renamePilot(), { width: 320, height: 42, fontSize: 21 });
 
-        const buttonStyle = {
-            fontFamily: 'Caramel',
-            color: '#ffffff',
-            fontWeight: 800,
-            fontSize: `${fontSize}px`,
-        }
-
-        const buttonHoverStyle = {
-            fontFamily: 'Caramel',
-            color: '#ff0',
-            fontWeight: 800,
-            fontSize: `${fontSize}px`,
-        }
-        const scaleTI = 0.9; // Adjust scale as needed
-
-        // Add the image
-        const spacetitle = this.add.image(0, 0, 'titleImage');
-
-        // Set the origin to the center of the image
-        spacetitle.setOrigin(0.5);
-
-        // Set the scale and scroll factor
-        spacetitle.setScale(0.7).setScrollFactor(0);
-
-        // Calculate the x-coordinate to center the image horizontally
-        const centerX = this.cameras.main.width / 2;
-        spacetitle.x = centerX;
-        spacetitle.y = gameHeight * 120 / 600;
-
-        // Add the image
-        const title = this.add.image(0, 0, 'title');
-
-        // Set the origin to the center of the image
-        title.setOrigin(0.5);
-
-        // Set the scale and scroll factor
-        title.setScale(scaleTI).setScrollFactor(0);
-
-        title.x = centerX;
-        title.y = gameHeight * 305 / 600;
-
-        const buttonPoitionX = gameWidth / 2;
-        const startButton = this.add.text(buttonPoitionX, firstButtonHeight, 'Start', buttonStyle)
-            .setInteractive()
-            .setOrigin(0.5)
-            .setPadding(7)
-            .on('pointerover', () => startButton.setStyle(buttonHoverStyle))
-            .on('pointerout', () => startButton.setStyle(buttonStyle))
-            .on('pointerdown', () => {
-                titleMusic.stop();
-                this.scene.start('play')
-            });
-        // options button
-        // const optionsButton = this.add.text(buttonPoitionX, startButton.y + startButton.height, 'Options', buttonStyle)
-        //     .setInteractive()
-        //     .setOrigin(0.5)
-        //     .setPadding(7)
-        //     .on('pointerover', () => optionsButton.setStyle(buttonHoverStyle))
-        //     .on('pointerout', () => optionsButton.setStyle(buttonStyle))
-        //     .on('pointerdown', () => {
-        //         titleMusic.stop(); this.scene.start('options')
-        //     });
-        // instructions button
-        const instructionsButton = this.add.text(buttonPoitionX, startButton.y + startButton.height, 'Instructions', buttonStyle)
-            .setInteractive()
-            .setOrigin(0.5)
-            .setPadding(7)
-            .on('pointerover', () => instructionsButton.setStyle(buttonHoverStyle))
-            .on('pointerout', () => instructionsButton.setStyle(buttonStyle))
-            .on('pointerdown', () => {
-                titleMusic.stop(); this.scene.start('instructions')
-            });
-        // credits button
-        const creditsButton = this.add.text(buttonPoitionX, instructionsButton.y + instructionsButton.height, 'Credits', buttonStyle)
-            .setInteractive()
-            .setOrigin(0.5)
-            .setPadding(7)
-            .on('pointerover', () => creditsButton.setStyle(buttonHoverStyle))
-            .on('pointerout', () => creditsButton.setStyle(buttonStyle))
-            .on('pointerdown', () => {
-                titleMusic.stop(); this.scene.start('credits')
-            });
-
-
-        this.showMaxScore();
+        this.add.text(1260, 585, 'v2.1', textStyle(14, '#7781a4')).setOrigin(1);
     }
 
-
-    showMaxScore() {
-        this.playerScore = new PlayerScore(this);
-        const maxScore = localStorage.getItem('maxScore') || 0;
-        this.playerScore.addScore(maxScore);
-        this.playerScore.drawScore("Max Score");
+    renamePilot() {
+        const nextName = window.prompt('Choose a public leaderboard name (18 characters max):', playerProfile.data.displayName);
+        if (nextName === null) return;
+        playerProfile.setDisplayName(nextName);
+        this.nameText.setText(playerProfile.data.displayName);
     }
 }

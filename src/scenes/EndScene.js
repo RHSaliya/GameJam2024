@@ -1,91 +1,70 @@
 import Phaser from 'phaser';
-import '../../public/font.css';
+import { LEVELS, getLevel } from '../config/gameData';
+import { playerProfile } from '../services/PlayerProfile';
+import { leaderboardService } from '../services/LeaderboardService';
+import { addButton, addPanel, addSpaceBackground, COLORS, formatNumber, textStyle } from '../ui';
+import { configureSharpCamera } from '../config/layout';
+
 export default class EndScene extends Phaser.Scene {
-    constructor() {
-        super('end');
-    }
+    constructor() { super('end'); }
 
     preload() {
-        this.load.image('endGameScene', 'assets/menu.png');
-        this.load.image('endGameScene2', 'assets/end2.png');
-        this.load.image('endGameScene3', 'assets/end3.png');
-        this.load.audio('deathTheme', 'assets/Sound/DeathTheme.mp3')
+        this.load.image('menu', 'assets/menu.png');
+        this.load.audio('deathTheme', 'assets/Sound/DeathTheme.mp3');
     }
 
     create(data) {
-        const totalScore = data.totalScore || 0; // Default to 0 if totalScore is not provided
+        configureSharpCamera(this);
+        const run = {
+            victory: Boolean(data.victory),
+            score: Math.max(0, Number(data.score) || 0),
+            kills: Math.max(0, Number(data.kills) || 0),
+            seconds: Math.max(0, Number(data.seconds) || 0),
+            levelId: getLevel(data.levelId).id,
+        };
+        const rewards = playerProfile.recordRun(run);
+        leaderboardService.submitScore({ score: run.score, level: run.levelId }).catch(error => console.warn('Score sync failed.', error));
 
-        const maxScore = localStorage.getItem('maxScore') || 0;
+        addSpaceBackground(this);
+        this.music = this.sound.add('deathTheme', { loop: true, volume: 0.45 });
+        this.music.play();
+        this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.music?.stop());
 
-        if (totalScore > maxScore) {
-            localStorage.setItem('maxScore', totalScore);
+        this.add.text(640, 64, run.victory ? 'MISSION COMPLETE' : 'SHIP LOST', textStyle(46, run.victory ? '#7ae582' : '#ff6b6b')).setOrigin(0.5);
+        this.add.text(640, 105, `MISSION ${run.levelId} • ${getLevel(run.levelId).name}`, textStyle(21, COLORS.muted)).setOrigin(0.5);
+        addPanel(this, 640, 253, 900, 240, 0.94);
+
+        const stats = [
+            ['SCORE', formatNumber(run.score)],
+            ['ASTEROIDS', run.kills],
+            ['FLIGHT TIME', `${run.seconds}s`],
+            ['CREDITS EARNED', `◆ ${formatNumber(rewards.creditsEarned)}`],
+        ];
+        stats.forEach(([label, value], index) => {
+            const y = 158 + index * 47;
+            this.add.text(260, y, label, textStyle(21, COLORS.muted));
+            this.add.text(1020, y, String(value), textStyle(25, index === 3 ? '#ffd166' : '#ffffff')).setOrigin(1, 0);
+        });
+
+        if (rewards.unlocked.length) {
+            this.add.text(640, 391, `★ ACHIEVEMENT: ${rewards.unlocked.map(item => item.name).join(', ')}`, textStyle(19, '#ffd166')).setOrigin(0.5);
+        } else if (rewards.firstCompletion) {
+            this.add.text(640, 391, 'NEXT MISSION UNLOCKED', textStyle(19, '#7ae582')).setOrigin(0.5);
         }
 
-        const deathThemeSound = this.sound.add('deathTheme', { loop: true });
-        deathThemeSound.play();
+        const nextLevel = Math.min(LEVELS.length, run.levelId + 1);
+        if (run.victory && run.levelId < LEVELS.length) {
+            addButton(this, 450, 458, 'NEXT MISSION', () => this.go('play', { levelId: nextLevel }), { width: 320, accent: COLORS.green });
+            addButton(this, 830, 458, 'HANGAR', () => this.go('hangar'), { width: 320, accent: COLORS.yellow });
+        } else {
+            addButton(this, 450, 458, 'RETRY', () => this.go('play', { levelId: run.levelId }), { width: 320, accent: COLORS.green });
+            addButton(this, 830, 458, 'HANGAR', () => this.go('hangar'), { width: 320, accent: COLORS.yellow });
+        }
+        addButton(this, 640, 528, 'MISSION SELECT', () => this.go('levels'), { width: 320, height: 44, fontSize: 22 });
+    }
 
-        // Add the menu background
-        const background = this.add.image(0, 0, 'endGameScene').setOrigin(0);
-        const scaleX = +this.sys.game.config.width / background.width;
-        const scaleY = +this.sys.game.config.height / background.height;
-        const scale = Math.max(scaleX, scaleY);
-        background.setScale(scale).setScrollFactor(0);
-
-
-        const background2 = this.add.image(0, 0, 'endGameScene2').setOrigin(0);
-        background2.setScale(0.6).setScrollFactor(0);
-        background2.x = +this.sys.game.config.width - 800;
-
-
-        const background3 = this.add.image(0, 0, 'endGameScene3').setOrigin(0);
-        background3.setScale(0.7).setScrollFactor(0);
-        background3.x = +this.sys.game.config.width - 250;
-
-        // Add "Game Over" text
-        const gameOverText = this.add.text(+this.sys.game.config.width / 2, +this.sys.game.config.height / 2 - 50, 'Game Over', {
-            fontSize: '48px',
-            fontFamily: 'Caramel',
-            color: '#fff'
-        });
-        gameOverText.setOrigin(0.5);
-
-        // Display total score
-        const totalScoreText = this.add.text(+this.sys.game.config.width / 2, +this.sys.game.config.height / 2, `Total Score: ${totalScore}`, {
-            fontSize: '45px',
-            fontFamily: 'Caramel',
-            color: '#fff'
-        });
-        totalScoreText.setOrigin(0.5);
-
-
-        // Add restart button
-        const buttonStyle = {
-            fontSize: '45px',
-            fontFamily: 'Caramel',
-            color: '#ffffff', // Default color green
-            padding: 10
-        };
-
-        const buttonHoverStyle = {
-            color: '#ff0' // Hover color yellow.
-        };
-
-        // @ts-ignore
-        const restartButton = this.add.text(+this.sys.game.config.width / 2, +this.sys.game.config.height * 0.8, 'Restart', buttonStyle);
-        restartButton.setOrigin(0.5);
-        restartButton.setInteractive();
-
-        restartButton.on('pointerover', () => {
-            restartButton.setStyle(buttonHoverStyle);
-        });
-
-        restartButton.on('pointerout', () => {
-            restartButton.setStyle(buttonStyle);
-        });
-
-        restartButton.on('pointerdown', () => {
-            deathThemeSound.stop();
-            this.scene.start('menu');
-        });
+    go(scene, data) {
+        this.music?.stop();
+        this.scene.start(scene, data);
     }
 }

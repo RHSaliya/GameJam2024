@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Quarrel Through The Cosmos</string>
+    <string name="title_activity_main">Quarrel Through The Cosmos</string>
+    <string name="package_name">com.mostlygreen.quarrelcosmos</string>
+    <string name="custom_url_scheme">com.mostlygreen.quarrelcosmos</string>
+</resources>

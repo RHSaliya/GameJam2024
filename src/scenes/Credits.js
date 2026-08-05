@@ -1,5 +1,6 @@
 import Phaser from 'phaser'
 import '../../public/font.css';
+import { configureSharpCamera, GAME_CENTER_X, GAME_CENTER_Y, GAME_HEIGHT, GAME_WIDTH, RENDER_SCALE } from '../config/layout';
 export default class CreditScene extends Phaser.Scene {
     constructor() {
         super('credits');
@@ -12,12 +13,13 @@ export default class CreditScene extends Phaser.Scene {
     }
 
     create() {
+        configureSharpCamera(this);
         // Add background image
         this.creditImage = this.add.sprite(0, 0, 'background-credit');
         this.creditImage.setOrigin(0, 0);
         this.creditImage.alpha = 0.6;
-        const scaleX = +this.sys.game.config.width / this.creditImage.width;
-        const scaleY = +this.sys.game.config.height / this.creditImage.height;
+        const scaleX = GAME_WIDTH / this.creditImage.width;
+        const scaleY = GAME_HEIGHT / this.creditImage.height;
         const scale = Math.max(scaleX, scaleY);
         this.creditImage.setScale(scale).setScrollFactor(0);
     
@@ -41,14 +43,16 @@ export default class CreditScene extends Phaser.Scene {
             "Art by Carson \n\n" +
             "Developed by Rahul, Loki, Rachit & Harshpreet";
     
-        var text = this.add.text(this.cameras.main.width / 2, this.cameras.main.height / 2, creditsText, { 
-            fontFamily: 'Caramel', 
+        var text = this.add.text(GAME_CENTER_X, GAME_CENTER_Y, creditsText, { 
+            fontFamily: 'Arial, Helvetica, sans-serif',
+            fontStyle: 'bold',
             fontSize: 24, 
-            color: '#ffffff' 
+            color: '#ffffff',
+            resolution: RENDER_SCALE,
         }).setOrigin(0.5);
     
         // Add a button to skip the credits animation and return to the main menu
-        var skipButton = this.add.text(70, +this.sys.game.config.height - 100, 'Skip', buttonStyle);
+        var skipButton = this.add.text(84, GAME_HEIGHT - 70, 'Skip', buttonStyle);
         skipButton.setInteractive(); // Enable button interactivity
         skipButton.on('pointerover', () => skipButton.setStyle(buttonHoverStyle))
         skipButton.on('pointerout', () => skipButton.setStyle(buttonStyle))

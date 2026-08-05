@@ -1,126 +1,54 @@
+import Phaser from 'phaser';
+
 export default class Asteroid extends Phaser.Physics.Arcade.Image {
     constructor(scene) {
         super(scene, 0, 0, 'asteroid1');
         this.setDepth(100);
         this.minSpeed = 100;
+        this.exploding = false;
     }
 
-    show(ship) {
-        this.setActive(true);
-        this.setVisible(true);
+    show(ship, minSpeed = 100) {
+        this.exploding = false;
+        this.setAlpha(1).clearTint();
+        const camera = this.scene.cameras.main.worldView;
+        const side = Phaser.Math.Between(0, 3);
+        const padding = 120;
+        let x = Phaser.Math.Between(camera.left - padding, camera.right + padding);
+        let y = Phaser.Math.Between(camera.top - padding, camera.bottom + padding);
+        if (side === 0) x = camera.left - padding;
+        if (side === 1) x = camera.right + padding;
+        if (side === 2) y = camera.top - padding;
+        if (side === 3) y = camera.bottom + padding;
 
-        const rareAsteroid = Math.random() < 0.1;
-        if (rareAsteroid) {
-            this.scale = 0.4;
-            this.speed = 90
-            this.setTexture('asteroid5');
-        } else {
-            // random scale between 0.3 to 0.5
-            this.scale = 0.3 + Math.random() * 0.2;
-            this.setMass(10 * this.scale);
-            this.setTexture('asteroid' + (Math.floor(Math.random() * 4) + 1));
-        }
-        this.body.setOffset(0, 0);
-        // this.body.setCircle(this.height / 2, 0, 0);
-        this.speed = this.minSpeed + Math.random() * 100;
-
-        const shipX = ship.x;
-        const shipY = ship.y;
-
-        const startCoordiantes = {
-            x: this.scene.cameras.main.worldView.x,
-            y: this.scene.cameras.main.worldView.y
-        }
-        const endCoordinates = {
-            x: startCoordiantes.x + +this.scene.sys.game.config.width,
-            y: startCoordiantes.y + +this.scene.sys.game.config.height
-        }
-
-        this.showTime = Date.now();
-
-        var actualStartX = Phaser.Math.Between(startCoordiantes.x - 100, endCoordinates.x + 100);
-        var actualStartY = Phaser.Math.Between(startCoordiantes.y - 100, endCoordinates.y + 100);
-        this.actualEndX = Phaser.Math.Between(startCoordiantes.x - 100, endCoordinates.x + 100);
-        this.actualEndY = Phaser.Math.Between(startCoordiantes.y - 100, endCoordinates.y + 100);
-
-        if (Math.random() < 0.25) {
-            if (actualStartX > startCoordiantes.x - 50) {
-                actualStartX = startCoordiantes.x - 150;
-            }
-        } else if (Math.random() < 0.5) {
-            if (actualStartY > startCoordiantes.y - 50) {
-                actualStartY = startCoordiantes.y - 150;
-            }
-        } else if (Math.random() < 0.75) {
-            if (actualStartX < endCoordinates.x + 50) {
-                actualStartX = endCoordinates.x + 150;
-            }
-        } else {
-            if (actualStartY < endCoordinates.y + 50) {
-                actualStartY = endCoordinates.y + 150;
-            }
-        }
-
-        // calculate angle such that the asterpoid is always moving towards the ship
-        var radius = Math.atan2(shipY - actualStartY, shipX - actualStartX) * 180 / Math.PI;
-
-
-        this.setAngle(radius);
-        this.setPosition(actualStartX, actualStartY);
-        this.body.reset(actualStartX, actualStartY);
-
-        const angle = Phaser.Math.DegToRad(radius);
-
-        this.scene.physics.velocityFromRotation(angle, this.speed, this.body.velocity);
-        // this.setVelocity(100)
+        const rare = Math.random() < 0.1;
+        this.setTexture(rare ? 'asteroid5' : `asteroid${Phaser.Math.Between(1, 4)}`);
+        this.setScale(rare ? 0.42 : Phaser.Math.FloatBetween(0.28, 0.48));
+        this.enableBody(true, x, y, true, true);
+        this.setMass(8 * this.scale);
+        this.spawnTime = this.scene.time.now;
+        const angle = Phaser.Math.Angle.Between(x, y, ship.x, ship.y);
+        this.setRotation(angle);
+        this.scene.physics.velocityFromRotation(angle, minSpeed + Phaser.Math.Between(0, 90), this.body.velocity);
     }
 
-    update(time, delta) {
-        if (Date.now() - this.showTime > 5000) {
-            const startX = this.scene.cameras.main.worldView.x;
-            const startY = this.scene.cameras.main.worldView.y;
-            const endX = startX + +this.scene.sys.game.config.width;
-            const endY = startY + +this.scene.sys.game.config.height;
-
-            if (this.x < startX - 100 || this.x > endX + 100 || this.y < startY - 100 || this.y > endY + 100) {
-                this.fadeAdRemove();
-            }
+    update(time) {
+        if (!this.active || this.exploding || time - this.spawnTime < 5000) return;
+        const camera = this.scene.cameras.main.worldView;
+        if (this.x < camera.left - 180 || this.x > camera.right + 180 || this.y < camera.top - 180 || this.y > camera.bottom + 180) {
+            this.disableBody(true, true);
         }
     }
 
-    fadeAdRemove() {
-        this.scene.tweens.add({
-            targets: this,
-            alpha: 0,
-            duration: 1000,
-            ease: 'Power2',
-            onComplete: () => {
-                this.setActive(false);
-                this.setVisible(false);
-                this.destroy();
-            }
-        });
-    }
-
-    delay = 100
     destroyMe() {
-        // delayed
-        // this.disableBody(false, false);
-        this.body.setOffset(9999, 9999);
-        this.scene.time.delayedCall(this.delay, () => {
-            this.setTexture('destroy1');
-            this.scene.time.delayedCall(this.delay, () => {
-                this.setTexture('destroy2');
-                this.scene.time.delayedCall(this.delay, () => {
-                    this.setTexture('destroy3');
-                    this.enableBody(false, 0, 0, true, true);
-                    this.scene.time.delayedCall(this.delay, () => {
-                        this.setActive(false);
-                        this.setVisible(false);
-                        this.destroy();
-                    }, [], this);
-                }, [], this);
-            }, [], this);
-        }, [], this);
+        if (!this.active || this.exploding) return false;
+        this.exploding = true;
+        this.body.enable = false;
+        const frames = ['destroy1', 'destroy2', 'destroy3'];
+        frames.forEach((texture, index) => this.scene.time.delayedCall(index * 65, () => {
+            if (this.scene) this.setTexture(texture);
+        }));
+        this.scene.time.delayedCall(frames.length * 65, () => this.disableBody(true, true));
+        return true;
     }
 }

@@ -1,4 +1,5 @@
 import Phaser from 'phaser'
+import { configureSharpCamera, GAME_CENTER_X, GAME_CENTER_Y, GAME_HEIGHT, GAME_WIDTH, RENDER_SCALE } from '../config/layout'
 
 
 export default class SplashScene extends Phaser.Scene {
@@ -16,16 +17,17 @@ export default class SplashScene extends Phaser.Scene {
 
 
     create() {
+        configureSharpCamera(this);
         this.splashImage = this.add.sprite(0, 0, 'background-splash');
         this.splashImage.setOrigin(0, 0);
         this.splashImage.alpha = 0.6;
-        const scaleX = +this.sys.game.config.width / this.splashImage.width;
-        const scaleY = +this.sys.game.config.height / this.splashImage.height;
+        const scaleX = GAME_WIDTH / this.splashImage.width;
+        const scaleY = GAME_HEIGHT / this.splashImage.height;
         const scale = Math.max(scaleX, scaleY);
         this.splashImage.setScale(scale).setScrollFactor(0);
         // Calculate the center of the screen
-        const centerX = this.cameras.main.width / 2;
-        const centerY = this.cameras.main.height / 2;
+        const centerX = GAME_CENTER_X;
+        const centerY = GAME_CENTER_Y;
 
         // Position splashImage2
         this.splashImage2 = this.add.sprite(centerX, centerY - 60, 'background-splash2'); // Adjust the vertical position
@@ -41,7 +43,9 @@ export default class SplashScene extends Phaser.Scene {
         {
             fontSize: '45px',
             color: '#ffffff',
-            fontFamily: 'Caramel',
+            fontFamily: 'Arial, Helvetica, sans-serif',
+            fontStyle: 'bold',
+            resolution: RENDER_SCALE,
         };
 
         const loadingText = this.add.text(centerX, title.y + title.displayHeight + 10, 'Loading....', style);
@@ -53,8 +57,7 @@ export default class SplashScene extends Phaser.Scene {
         if (this.splashImage.alpha < 1) {
             this.splashImage.alpha += 0.01;
         } else if (time > 3000) {
-            this.splashImage.destroy();
-            this.scene.switch('menu');
+            this.scene.start('menu');
         }
     }
 }

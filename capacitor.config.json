@@ -1,0 +1,9 @@
+{
+  "appId": "com.mostlygreen.quarrelcosmos",
+  "appName": "Quarrel Through The Cosmos",
+  "webDir": "dist",
+  "backgroundColor": "#11162d",
+  "server": {
+    "androidScheme": "https"
+  }
+}
