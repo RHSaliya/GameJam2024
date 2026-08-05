@@ -1,4 +1,4 @@
-const CACHE = 'quarrel-cosmos-v5';
+const CACHE = 'quarrel-cosmos-v6';
 const SHELL = [
     '/', '/index.html', '/font.css', '/assets/menu-space-v2.png',
     '/assets/space/ship-classic.png', '/assets/space/ship-solar.png',

@@ -1,11 +1,70 @@
 export const LEVELS = [
     { id: 1, name: 'First Flight', subtitle: 'Learn the lanes', targetKills: 8, spawnDelay: 1500, asteroidSpeed: 105, collisionDamage: 18, reward: 120, parTime: 55, maxSpeedBonus: 400 },
-    { id: 2, name: 'Meteor Shower', subtitle: 'The field gets crowded', targetKills: 14, spawnDelay: 1250, asteroidSpeed: 130, collisionDamage: 20, reward: 190, parTime: 75, maxSpeedBonus: 650 },
-    { id: 3, name: 'Red Horizon', subtitle: 'Fast rocks, little mercy', targetKills: 20, spawnDelay: 1050, asteroidSpeed: 160, collisionDamage: 22, reward: 280, parTime: 95, maxSpeedBonus: 900 },
+    { id: 2, name: 'Meteor Shower', subtitle: 'The enemy field gets crowded', targetKills: 14, spawnDelay: 1250, asteroidSpeed: 130, collisionDamage: 20, reward: 190, parTime: 75, maxSpeedBonus: 650 },
+    { id: 3, name: 'Red Horizon', subtitle: 'Fast fighters, little mercy', targetKills: 20, spawnDelay: 1050, asteroidSpeed: 160, collisionDamage: 22, reward: 280, parTime: 95, maxSpeedBonus: 900 },
     { id: 4, name: 'Gravity Well', subtitle: 'Hold your nerve', targetKills: 27, spawnDelay: 900, asteroidSpeed: 195, collisionDamage: 24, reward: 390, parTime: 115, maxSpeedBonus: 1200 },
     { id: 5, name: 'Cosmic Storm', subtitle: 'A veteran challenge', targetKills: 35, spawnDelay: 760, asteroidSpeed: 235, collisionDamage: 26, reward: 520, parTime: 140, maxSpeedBonus: 1550 },
     { id: 6, name: 'The Last Orbit', subtitle: 'Master the cosmos', targetKills: 45, spawnDelay: 650, asteroidSpeed: 280, collisionDamage: 28, reward: 750, parTime: 165, maxSpeedBonus: 2000 },
 ];
+
+export const ENEMY_TYPES = {
+    drifter: {
+        texture: 'enemy-drifter', texturePath: 'assets/enemies/enemy-drifter.png', minTier: 1, weight: 30,
+        hp: 1, speed: 1, displaySize: [76, 90], coins: 1, score: 35, steering: 0,
+    },
+    striker: {
+        texture: 'enemy-striker', texturePath: 'assets/enemies/enemy-striker.png', minTier: 1, weight: 24,
+        hp: 1, speed: 1.55, displaySize: [72, 86], coins: 1, score: 55, steering: 0,
+    },
+    swarmer: {
+        texture: 'enemy-swarmer', texturePath: 'assets/enemies/enemy-swarmer.png', minTier: 1, weight: 20,
+        hp: 1, speed: 1.8, displaySize: [54, 66], coins: 1, score: 45, steering: 0.012,
+    },
+    hunter: {
+        texture: 'enemy-hunter', texturePath: 'assets/enemies/enemy-hunter.png', minTier: 2, weight: 16,
+        hp: 2, speed: 1.05, displaySize: [78, 94], coins: 2, score: 80, steering: 0.026,
+    },
+    bomber: {
+        texture: 'enemy-bomber', texturePath: 'assets/enemies/enemy-bomber.png', minTier: 3, weight: 10,
+        hp: 2, speed: 0.82, displaySize: [98, 114], coins: 3, score: 105, steering: 0.004,
+    },
+    juggernaut: {
+        texture: 'enemy-juggernaut', texturePath: 'assets/enemies/enemy-juggernaut.png', minTier: 4, weight: 6,
+        hp: 3, speed: 0.68, displaySize: [112, 132], coins: 4, score: 140, steering: 0.007,
+    },
+};
+
+export const ASTRONAUT_VARIANTS = [
+    { texture: 'astronaut1', texturePath: 'assets/Astronaut1.png', role: 'PILOT', score: 175 },
+    { texture: 'astronaut2', texturePath: 'assets/Astronaut2.png', role: 'ENGINEER', score: 200 },
+    { texture: 'astronaut3', texturePath: 'assets/Astronaut3.png', role: 'SCIENTIST', score: 225 },
+    { texture: 'astronaut4', texturePath: 'assets/Astronaut4.png', role: 'MEDIC', score: 250 },
+];
+
+export function chooseEnemyType(tier = 1, random = Math.random) {
+    const safeTier = Math.min(6, Math.max(1, Math.floor(Number(tier) || 1)));
+    const available = Object.entries(ENEMY_TYPES).filter(([, enemy]) => enemy.minTier <= safeTier);
+    const totalWeight = available.reduce((sum, [, enemy]) => sum + enemy.weight, 0);
+    let roll = Math.min(0.999999, Math.max(0, Number(random()) || 0)) * totalWeight;
+    for (const [id, enemy] of available) {
+        if (roll < enemy.weight) return id;
+        roll -= enemy.weight;
+    }
+    return available[0][0];
+}
+
+export function getEnemyWaveSize(tier = 1, random = Math.random) {
+    const safeTier = Math.min(6, Math.max(1, Math.floor(Number(tier) || 1)));
+    const roll = Math.min(0.999999, Math.max(0, Number(random()) || 0));
+    if (safeTier >= 5 && roll < 0.12) return 3;
+    if (safeTier >= 2 && roll < Math.min(0.42, 0.18 + safeTier * 0.04)) return 2;
+    return 1;
+}
+
+export function getAstronautVariant(random = Math.random) {
+    const roll = Math.min(0.999999, Math.max(0, Number(random()) || 0));
+    return ASTRONAUT_VARIANTS[Math.floor(roll * ASTRONAUT_VARIANTS.length)];
+}
 
 export function getCampaignSpeedBonus(levelId, seconds) {
     const level = getLevel(levelId);
@@ -99,10 +158,10 @@ export const SKINS = [
 ];
 
 export const ACHIEVEMENTS = [
-    { id: 'first_blood', name: 'First Blood', description: 'Destroy your first asteroid', reward: 50, test: s => s.totalKills >= 1 },
+    { id: 'first_blood', name: 'First Blood', description: 'Destroy your first enemy', reward: 50, test: s => s.totalKills >= 1 },
     { id: 'mission_ready', name: 'Mission Ready', description: 'Complete your first mission', reward: 75, test: s => s.completedLevels.length >= 1 },
     { id: 'survivor', name: 'Space Survivor', description: 'Stay alive for 60 seconds in one run', reward: 100, test: s => s.longestRun >= 60 },
-    { id: 'centurion', name: 'Centurion', description: 'Destroy 100 asteroids', reward: 180, test: s => s.totalKills >= 100 },
+    { id: 'centurion', name: 'Centurion', description: 'Destroy 100 enemies', reward: 180, test: s => s.totalKills >= 100 },
     { id: 'high_flyer', name: 'High Flyer', description: 'Score 1,000 points in one run', reward: 150, test: s => s.bestScore >= 1000 },
     { id: 'engineer', name: 'Chief Engineer', description: 'Max out any upgrade', reward: 200, test: s => Object.values(s.upgrades).some(level => level >= 4) },
     { id: 'collector', name: 'Fleet Collector', description: 'Own four ships', reward: 220, test: s => s.unlockedSkins.length >= 4 },

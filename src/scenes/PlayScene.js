@@ -7,8 +7,8 @@ import TouchControls from '../components/TouchControls';
 import Coin from '../components/Coin';
 import WeaponPowerUp from '../components/WeaponPowerUp';
 import {
-    getCampaignSpeedBonus, getEndlessDifficulty, getLevel, getSkin, getWeapon,
-    getWeaponPickupChoices, SKINS, WEAPONS,
+    ASTRONAUT_VARIANTS, ENEMY_TYPES, getCampaignSpeedBonus, getEndlessDifficulty,
+    getEnemyWaveSize, getLevel, getSkin, getWeapon, getWeaponPickupChoices, SKINS, WEAPONS,
 } from '../config/gameData';
 import { playerProfile } from '../services/PlayerProfile';
 import { COLORS, showToast, textStyle } from '../ui';
@@ -25,9 +25,9 @@ export default class PlayScene extends Phaser.Scene {
     }
 
     preload() {
-        for (let i = 1; i <= 5; i += 1) this.load.image(`asteroid${i}`, `assets/asteroid${i}.png`);
+        Object.values(ENEMY_TYPES).forEach(enemy => this.load.image(enemy.texture, enemy.texturePath));
         for (let i = 1; i <= 3; i += 1) this.load.image(`destroy${i}`, `assets/destroy${i}.png`);
-        for (let i = 1; i <= 4; i += 1) this.load.image(`astronaut${i}`, `assets/Astronaut${i}.png`);
+        ASTRONAUT_VARIANTS.forEach(astronaut => this.load.image(astronaut.texture, astronaut.texturePath));
         this.load.image('muzzleflash7', 'assets/space/muzzleflash7.png');
         this.load.image('stars', 'assets/space/stars.png');
         SKINS.forEach(ship => this.load.image(`ship-${ship.id}`, ship.texture));
@@ -43,13 +43,14 @@ export default class PlayScene extends Phaser.Scene {
         configureSharpCamera(this);
         this.runStartedAt = this.time.now;
         this.lastAsteroid = this.time.now + 900;
-        this.lastAstronaut = this.time.now;
+        this.nextAstronautAt = this.time.now + 4200;
         this.lastFired = 0;
         this.lastEmptyAmmoCue = 0;
         this.lastScoreTick = this.time.now;
         this.score = 0;
         this.kills = 0;
         this.runCoins = 0;
+        this.rescues = 0;
         this.ending = false;
         this.isPaused = false;
         this.shipDefinition = getSkin(playerProfile.data.selectedSkin);
@@ -94,13 +95,14 @@ export default class PlayScene extends Phaser.Scene {
         this.createCoinTexture();
         this.createWeaponCoreTextures();
         this.bullets = this.physics.add.group({ classType: Bullet, maxSize: 80, runChildUpdate: true });
-        this.asteroids = this.physics.add.group({ classType: Asteroid, maxSize: 45, runChildUpdate: true });
+        this.asteroids = this.physics.add.group({ classType: Asteroid, maxSize: 60, runChildUpdate: true });
         this.astronauts = this.physics.add.group({ classType: Astronaut, maxSize: 12, runChildUpdate: true });
         this.coins = this.physics.add.group({ classType: Coin, maxSize: 30, runChildUpdate: true });
         this.weaponPowerUps = this.physics.add.group({ classType: WeaponPowerUp, maxSize: 4, runChildUpdate: true });
 
         this.physics.add.overlap(this.bullets, this.asteroids, (bullet, asteroid) => this.hitAsteroid(bullet, asteroid));
         this.physics.add.overlap(this.ship, this.asteroids, (_ship, asteroid) => this.hitShip(asteroid));
+        this.physics.add.overlap(this.ship, this.astronauts, (_ship, astronaut) => this.rescueAstronaut(astronaut));
         this.physics.add.overlap(this.ship, this.coins, (_ship, coin) => this.collectCoin(coin));
         this.physics.add.overlap(this.ship, this.weaponPowerUps, (_ship, powerUp) => this.collectWeaponPowerUp(powerUp));
 
@@ -120,17 +122,29 @@ export default class PlayScene extends Phaser.Scene {
     }
 
     createHud() {
+        const topBarWidth = GAME_WIDTH - 80;
+        const hudBg = this.add.graphics().setDepth(1999);
+        hudBg.fillStyle(COLORS.panelDark, 0.72);
+        hudBg.fillRoundedRect(40, 10, topBarWidth, 75, 12);
+        hudBg.lineStyle(1.5, COLORS.cyan, 0.45);
+        hudBg.strokeRoundedRect(40, 10, topBarWidth, 75, 12);
+
         const runName = this.mode === 'endless' ? 'ENDLESS MODE' : `MISSION ${this.level.id} • ${this.level.name}`;
-        this.add.text(84, 42, runName, textStyle(18, '#aeb8da')).setDepth(2000);
-        this.scoreText = this.add.text(GAME_WIDTH - 84, 18, 'SCORE 0', textStyle(25)).setOrigin(1, 0).setDepth(2000);
+        this.add.text(90, 48, runName, textStyle(16, '#9ea9d1')).setDepth(2000);
+        this.scoreText = this.add.text(GAME_WIDTH - 90, 20, 'SCORE 0', textStyle(24, '#ffffff')).setOrigin(1, 0).setDepth(2000);
         const objective = this.mode === 'endless' ? 'DESTROYED 0 • THREAT 1' : `TARGET 0/${this.level.targetKills}`;
-        this.objectiveText = this.add.text(GAME_WIDTH - 84, 50, objective, textStyle(20, '#ffd166')).setOrigin(1, 0).setDepth(2000);
-        this.ammoText = this.add.text(GAME_CENTER_X - 90, 20, `AMMO ${this.totalBullets}`, textStyle(22, '#ffffff')).setOrigin(0.5, 0).setDepth(2000);
-        this.coinText = this.add.text(GAME_CENTER_X + 105, 20, 'COINS 0', textStyle(22, '#ffd166')).setOrigin(0.5, 0).setDepth(2000);
-        this.pauseButton = this.add.circle(GAME_CENTER_X, 64, 25, COLORS.panelDark, 0.8).setStrokeStyle(2, COLORS.cyan, 0.7)
-            .setDepth(3000).setInteractive({ useHandCursor: true }).on('pointerdown', () => this.togglePause());
-        this.add.text(GAME_CENTER_X, 64, 'Ⅱ', textStyle(19)).setOrigin(0.5).setDepth(3001);
-        this.weaponText = this.add.text(GAME_CENTER_X, 102, '', textStyle(18, '#ffd166')).setOrigin(0.5).setDepth(2000);
+        this.objectiveText = this.add.text(GAME_WIDTH - 90, 50, objective, textStyle(18, '#ffd166')).setOrigin(1, 0).setDepth(2000);
+        this.ammoText = this.add.text(GAME_CENTER_X - 105, 22, `AMMO ${this.totalBullets}`, textStyle(20, '#ffffff')).setOrigin(0.5, 0).setDepth(2000);
+        this.coinText = this.add.text(GAME_CENTER_X + 115, 22, 'COINS 0', textStyle(20, '#ffd166')).setOrigin(0.5, 0).setDepth(2000);
+
+        this.pauseButton = this.add.circle(GAME_CENTER_X, 48, 22, COLORS.panelDark, 0.95)
+            .setStrokeStyle(2, COLORS.cyan, 0.85)
+            .setDepth(3000)
+            .setInteractive({ useHandCursor: true })
+            .on('pointerdown', () => this.togglePause());
+        this.add.text(GAME_CENTER_X, 48, 'Ⅱ', textStyle(18, COLORS.cyan)).setOrigin(0.5).setDepth(3001);
+
+        this.weaponText = this.add.text(GAME_CENTER_X, 95, '', textStyle(17, '#ffd166')).setOrigin(0.5).setDepth(2000);
         this.refreshHud();
     }
 
@@ -143,7 +157,13 @@ export default class PlayScene extends Phaser.Scene {
         const autoFireEnabled = playerProfile.data.settings.autoFire && this.asteroids.countActive(true) > 0;
         const fire = this.keys.fire.isDown || this.touch.isDown('FIRE') || autoFireEnabled;
 
-        this.ship.setAngularVelocity(left ? -175 : right ? 175 : 0);
+        const touchAimRotation = this.touch.getAimRotation();
+        if (touchAimRotation !== undefined && !this.keys.left.isDown && !this.keys.altLeft.isDown && !this.keys.right.isDown && !this.keys.altRight.isDown) {
+            this.ship.setAngularVelocity(0);
+            this.ship.setRotation(touchAimRotation);
+        } else {
+            this.ship.setAngularVelocity(left ? -175 : right ? 175 : 0);
+        }
         const travel = this.updateTravel(thrust, delta);
         this.shiftWorld(travel.x, travel.y);
         this.scrollSpace(travel.x, travel.y, delta);
@@ -162,7 +182,7 @@ export default class PlayScene extends Phaser.Scene {
             this.refreshHud();
         }
         if (time >= this.lastAsteroid) this.spawnAsteroid(time);
-        if (time - this.lastAstronaut > 6500) this.spawnAstronaut(time);
+        if (time >= this.nextAstronautAt) this.spawnAstronaut(time);
     }
 
     findAimAssistTarget(x, y, shipRotation, maxDistance = 460, maxConeRad = 0.6) {
@@ -347,11 +367,19 @@ export default class PlayScene extends Phaser.Scene {
     }
 
     spawnAsteroid(time) {
-        const asteroid = this.asteroids.get();
-        if (!asteroid) return;
         const difficulty = this.getDifficulty();
-        asteroid.body.allowGravity = false;
-        asteroid.show(this.ship, difficulty.asteroidSpeed, difficulty.tier, this.generateSpawn(125, 0.72, 0.2));
+        const waveSize = getEnemyWaveSize(difficulty.tier);
+        for (let index = 0; index < waveSize; index += 1) {
+            const asteroid = this.asteroids.get();
+            if (!asteroid) break;
+            asteroid.body.allowGravity = false;
+            asteroid.show(
+                this.ship,
+                difficulty.asteroidSpeed * (index === 0 ? 1 : 0.92),
+                difficulty.tier,
+                this.generateSpawn(125 + index * 24, 0.72, 0.2 + index * 0.08),
+            );
+        }
         this.lastAsteroid = time + difficulty.spawnDelay;
     }
 
@@ -361,7 +389,7 @@ export default class PlayScene extends Phaser.Scene {
             astronaut.body.allowGravity = false;
             astronaut.show(this.ship, this.generateSpawn(105, 0.55, 0.36));
         }
-        this.lastAstronaut = time;
+        this.nextAstronautAt = time + Phaser.Math.Between(7000, 10000);
     }
 
     generateSpawn(padding, forwardBias, targetSpread) {
@@ -432,6 +460,17 @@ export default class PlayScene extends Phaser.Scene {
         this.refreshHud();
     }
 
+    rescueAstronaut(astronaut) {
+        const rescue = astronaut.collect();
+        if (!rescue) return;
+        this.rescues += 1;
+        this.score += rescue.points;
+        playSfx(this, 'coinPickup', { volume: 0.88, rate: 1.2 });
+        if (playerProfile.data.settings.vibration) navigator.vibrate?.([14, 24, 14]);
+        showToast(this, `${rescue.role} RESCUED • +${rescue.points} SCORE`, COLORS.green);
+        this.refreshHud();
+    }
+
     hitShip(asteroid) {
         if (!asteroid.destroyMe()) return;
         const damage = Math.max(5, this.getDifficulty().collisionDamage - this.effects.collisionReduction);
@@ -499,7 +538,7 @@ export default class PlayScene extends Phaser.Scene {
             score: Math.floor(this.score) + speedBonus,
             speedBonus,
             threat: this.getDifficulty().tier,
-            kills: this.kills, coins: this.runCoins, seconds, levelId: this.level.id,
+            kills: this.kills, coins: this.runCoins, rescues: this.rescues, seconds, levelId: this.level.id,
         }));
     }
 

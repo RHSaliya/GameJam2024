@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { getAstronautVariant } from '../config/gameData';
 
 export default class Astronaut extends Phaser.Physics.Arcade.Image {
     constructor(scene) {
@@ -12,14 +13,23 @@ export default class Astronaut extends Phaser.Physics.Arcade.Image {
         const y = spawn?.y ?? Phaser.Math.Between(camera.top, camera.bottom);
         const targetX = spawn?.targetX ?? ship.x;
         const targetY = spawn?.targetY ?? ship.y;
+        this.variant = getAstronautVariant();
         this.enableBody(true, x, y, true, true);
-        this.setTexture(`astronaut${Phaser.Math.Between(1, 4)}`)
-            .setScale(Phaser.Math.FloatBetween(0.12, 0.28))
-            .setAlpha(Phaser.Math.FloatBetween(0.45, 0.72));
+        this.setTexture(this.variant.texture).setAlpha(1).clearTint();
+        const displaySize = Phaser.Math.Between(72, 84);
+        this.setDisplaySize(displaySize, displaySize);
+        this.body.setSize(this.width * 0.52, this.height * 0.72, true);
         this.spawnTime = this.scene.time.now;
         const angle = Phaser.Math.Angle.Between(x, y, targetX, targetY) + Phaser.Math.FloatBetween(-0.25, 0.25);
         this.scene.physics.velocityFromRotation(angle, Phaser.Math.Between(25, 55), this.body.velocity);
         this.setAngularVelocity(Phaser.Math.Between(-50, 50));
+    }
+
+    collect() {
+        if (!this.active || !this.variant) return undefined;
+        const rescue = { points: this.variant.score, role: this.variant.role };
+        this.disableBody(true, true);
+        return rescue;
     }
 
     update(time) {

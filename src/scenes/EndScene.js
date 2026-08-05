@@ -24,6 +24,7 @@ export default class EndScene extends Phaser.Scene {
             threat: Math.min(6, Math.max(1, Number(data.threat) || 1)),
             kills: Math.max(0, Number(data.kills) || 0),
             coins: Math.max(0, Number(data.coins) || 0),
+            rescues: Math.max(0, Number(data.rescues) || 0),
             seconds: Math.max(0, Number(data.seconds) || 0),
             levelId: getLevel(data.levelId).id,
         };
@@ -45,7 +46,7 @@ export default class EndScene extends Phaser.Scene {
         const stats = [
             ['SCORE', formatNumber(run.score)],
             ...(run.speedBonus > 0 ? [['SPEED BONUS', `+${formatNumber(run.speedBonus)}`]] : []),
-            ['ASTEROIDS', run.kills],
+            ['ENEMIES / RESCUES', `${run.kills} / ${run.rescues}`],
             ['COINS COLLECTED', `◆ ${run.coins}`],
             ['FLIGHT TIME', `${run.seconds}s`],
             ['CREDITS EARNED', `◆ ${formatNumber(rewards.creditsEarned)}`],

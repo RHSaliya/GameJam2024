@@ -1,37 +1,23 @@
 import Phaser from 'phaser';
-
-const ENEMY_TYPES = {
-    drifter: { texture: 'asteroid1', tint: 0xffffff, hp: 1, speed: 1, scale: [0.3, 0.47], coins: 1, score: 35, steering: 0 },
-    striker: { texture: 'asteroid2', tint: 0xff7777, hp: 1, speed: 1.55, scale: [0.22, 0.32], coins: 1, score: 55, steering: 0 },
-    hunter: { texture: 'asteroid4', tint: 0x72ddf7, hp: 2, speed: 1.05, scale: [0.3, 0.4], coins: 2, score: 80, steering: 0.018 },
-    juggernaut: { texture: 'asteroid5', tint: 0xd98cff, hp: 3, speed: 0.68, scale: [0.45, 0.55], coins: 4, score: 120, steering: 0.006 },
-};
+import { chooseEnemyType, ENEMY_TYPES } from '../config/gameData';
 
 export default class Asteroid extends Phaser.Physics.Arcade.Image {
     constructor(scene) {
-        super(scene, 0, 0, 'asteroid1');
+        super(scene, 0, 0, 'enemy-drifter');
         this.setDepth(100);
         this.exploding = false;
-    }
-
-    chooseType(levelId) {
-        const roll = Math.random();
-        if (levelId >= 4 && roll < 0.14) return 'juggernaut';
-        if (levelId >= 2 && roll < 0.34) return 'hunter';
-        if (roll < 0.58) return 'striker';
-        return 'drifter';
     }
 
     show(ship, minSpeed = 100, levelId = 1, spawn) {
         this.exploding = false;
         this.ship = ship;
-        this.enemyType = this.chooseType(levelId);
+        this.enemyType = chooseEnemyType(levelId);
         this.definition = ENEMY_TYPES[this.enemyType];
         this.hp = this.definition.hp + (this.enemyType === 'juggernaut' && levelId >= 6 ? 1 : 0);
         this.maxHp = this.hp;
         this.coinValue = this.definition.coins;
         this.scoreValue = this.definition.score;
-        this.setAlpha(1).setTint(this.definition.tint).setTexture(this.definition.texture);
+        this.setAlpha(1).clearTint().setTexture(this.definition.texture);
 
         const camera = this.scene.cameras.main.worldView;
         const x = spawn?.x ?? camera.left - 120;
@@ -39,15 +25,17 @@ export default class Asteroid extends Phaser.Physics.Arcade.Image {
         const targetX = spawn?.targetX ?? ship.x;
         const targetY = spawn?.targetY ?? ship.y;
 
-        this.setScale(Phaser.Math.FloatBetween(...this.definition.scale));
         this.enableBody(true, x, y, true, true);
-        this.setMass(8 * this.scale);
+        const displaySize = Phaser.Math.Between(...this.definition.displaySize);
+        this.setDisplaySize(displaySize, displaySize);
+        this.body.setSize(this.width * 0.64, this.height * 0.68, true);
+        this.setMass(8 * this.scaleX);
         this.spawnTime = this.scene.time.now;
         this.moveSpeed = (minSpeed + Phaser.Math.Between(0, 70)) * this.definition.speed;
         const angle = Phaser.Math.Angle.Between(x, y, targetX, targetY);
-        this.setRotation(angle);
+        this.setRotation(angle + Math.PI / 2);
         this.scene.physics.velocityFromRotation(angle, this.moveSpeed, this.body.velocity);
-        this.setAngularVelocity(Phaser.Math.Between(-65, 65));
+        this.setAngularVelocity(0);
     }
 
     update(time) {
@@ -55,6 +43,10 @@ export default class Asteroid extends Phaser.Physics.Arcade.Image {
         if (this.definition.steering > 0 && this.ship?.active) {
             const desired = new Phaser.Math.Vector2(this.ship.x - this.x, this.ship.y - this.y).normalize().scale(this.moveSpeed);
             this.body.velocity.lerp(desired, this.definition.steering);
+        }
+        if (this.body.velocity.lengthSq() > 0) {
+            const heading = this.body.velocity.angle() + Math.PI / 2;
+            this.rotation = Phaser.Math.Angle.RotateTo(this.rotation, heading, 0.045);
         }
         if (time - this.spawnTime < 5000) return;
         const camera = this.scene.cameras.main.worldView;

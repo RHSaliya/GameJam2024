@@ -15,16 +15,17 @@ export default class InstructionsScene extends Phaser.Scene {
             ['▲', 'THRUST', 'Hold thrust to accelerate. Keyboard: W or Up.'],
             ['FIRE', 'SIGNATURE WEAPONS', 'Each ship fires differently. Collect colored weapon cores to borrow another ship’s attack.'],
             ['✦', 'ENEMIES', 'Red strikers are fast, blue hunters steer, and purple juggernauts take several hits.'],
+            ['✚', 'RESCUE', 'Catch drifting astronauts to rescue them and earn bonus score. Different specialists are worth more points.'],
             ['◆', 'COINS', 'Destroyed enemies drop coins. Fly close to collect and bank them for upgrades and ships.'],
         ];
         sections.forEach(([icon, title, body], index) => {
-            const y = 125 + index * 78;
+            const y = 105 + index * 65;
             this.add.circle(230, y, 30, COLORS.panel, 1).setStrokeStyle(2, COLORS.cyan, 0.7);
             this.add.text(230, y, icon, textStyle(icon === 'FIRE' ? 15 : 25, '#ffffff')).setOrigin(0.5);
             this.add.text(290, y - 27, title, textStyle(23, '#ffd166'));
             this.add.text(290, y + 3, body, textStyle(18, COLORS.muted)).setWordWrapWidth(760);
         });
-        this.add.text(640, 515, 'Campaign has no passive score — finish faster for a bigger bonus. Endless threat rises every 10 asteroids.', textStyle(17, '#7ae582')).setOrigin(0.5);
+        this.add.text(640, 515, 'Campaign has no passive score — finish faster for a bigger bonus. Endless threat rises every 10 enemies.', textStyle(17, '#7ae582')).setOrigin(0.5);
         addBackButton(this);
     }
 }
