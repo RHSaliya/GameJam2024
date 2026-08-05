@@ -24,25 +24,24 @@ export default class MenuScene extends Phaser.Scene {
         this.music.play();
         this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.music?.stop());
 
-        // Keep the full logo above the profile card on short, wide phones.
+        // Keep the full logo clear of the compact corner stats.
         this.add.image(640, 55, 'titleImage').setScale(0.38);
         this.add.image(640, 158, 'title').setScale(0.46);
 
         const profile = playerProfile.data;
-        this.add.rectangle(640, 246, 900, 82, COLORS.panelDark, 0.9).setStrokeStyle(1, COLORS.cyan, 0.5);
-        this.nameText = this.add.text(220, 220, profile.displayName, textStyle(25, '#ffffff'));
-        this.add.text(1060, 220, `◆ ${formatNumber(profile.credits)}`, textStyle(25, '#ffd166')).setOrigin(1, 0);
-        this.add.text(640, 263, `BEST ${formatNumber(profile.bestScore)}   •   MISSIONS ${profile.completedLevels.length}/6`, textStyle(17, COLORS.muted)).setOrigin(0.5);
+        this.add.text(28, 20, `BEST SCORE ${formatNumber(profile.bestScore)}`, textStyle(24, '#ffffff'));
+        this.add.text(1260, 20, `◆ ${formatNumber(profile.credits)}`, textStyle(25, '#ffd166')).setOrigin(1, 0);
 
         const go = (scene, data) => { this.music?.stop(); this.scene.start(scene, data); };
-        addButton(this, 440, 337, 'CAMPAIGN', () => go('levels'), { width: 360, accent: COLORS.green });
-        addButton(this, 840, 337, 'HANGAR', () => go('hangar'), { width: 360, accent: COLORS.yellow });
-        addButton(this, 440, 401, 'ACHIEVEMENTS', () => go('achievements'), { width: 360 });
-        addButton(this, 840, 401, 'LEADERBOARD', () => go('leaderboard'), { width: 360 });
-        addButton(this, 440, 465, 'HOW TO PLAY', () => go('instructions'), { width: 360 });
-        addButton(this, 840, 465, 'OPTIONS', () => go('options'), { width: 360 });
-        addButton(this, 640, 532, 'EDIT PILOT NAME', () => this.renamePilot(), { width: 320, height: 42, fontSize: 21 });
+        addButton(this, 440, 282, 'CAMPAIGN', () => go('levels'), { width: 360, accent: COLORS.green });
+        addButton(this, 840, 282, 'HANGAR', () => go('hangar'), { width: 360, accent: COLORS.yellow });
+        addButton(this, 440, 346, 'ACHIEVEMENTS', () => go('achievements'), { width: 360 });
+        addButton(this, 840, 346, 'LEADERBOARD', () => go('leaderboard'), { width: 360 });
+        addButton(this, 440, 410, 'HOW TO PLAY', () => go('instructions'), { width: 360 });
+        addButton(this, 840, 410, 'OPTIONS', () => go('options'), { width: 360 });
+        addButton(this, 640, 480, 'EDIT PILOT NAME', () => this.renamePilot(), { width: 320, height: 42, fontSize: 21 });
 
+        this.nameText = this.add.text(28, 564, profile.displayName, textStyle(22, '#ffffff')).setOrigin(0, 1);
         this.add.text(1260, 585, 'v2.1', textStyle(14, '#7781a4')).setOrigin(1);
     }
 
