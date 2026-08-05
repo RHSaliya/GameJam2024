@@ -14,33 +14,56 @@ export default class OptionsScene extends Phaser.Scene {
         configureSharpCamera(this);
         addSpaceBackground(this);
         addTitle(this, 'OPTIONS', 'Audio and accessibility settings');
-        addPanel(this, 640, 310, 900, 430);
-        this.createVolumeSlider('MASTER VOLUME', 'masterVolume', 155, () => {
+        addPanel(this, 640, 310, 900, 470);
+        this.createVolumeSlider('MASTER VOLUME', 'masterVolume', 140, () => {
             updateMusicVolume();
         });
-        this.createVolumeSlider('MUSIC', 'musicVolume', 230, updateMusicVolume);
-        this.createVolumeSlider('SOUND EFFECTS', 'sfxVolume', 305);
+        this.createVolumeSlider('MUSIC', 'musicVolume', 205, updateMusicVolume);
+        this.createVolumeSlider('SOUND EFFECTS', 'sfxVolume', 270);
 
         this.input.on('drag', (_pointer, target, dragX) => {
             if (!target.audioSlider) return;
             this.setSliderVolume(target.audioSlider, dragX);
         });
 
-        this.vibrationButton = addButton(this, 640, 385, '', () => {
+        const toggleY1 = 330;
+        const toggleY2 = 385;
+
+        this.vibrationButton = addButton(this, 440, toggleY1, '', () => {
             playerProfile.data.settings.vibration = !playerProfile.data.settings.vibration;
             playerProfile.save();
-            this.refreshVibration();
+            this.refreshButtons();
             if (playerProfile.data.settings.vibration) navigator.vibrate?.(35);
-        }, { width: 500, accent: COLORS.yellow });
-        this.refreshVibration();
+        }, { width: 380, accent: COLORS.yellow, fontSize: 19 });
+
+        this.autoFireButton = addButton(this, 840, toggleY1, '', () => {
+            playerProfile.data.settings.autoFire = !playerProfile.data.settings.autoFire;
+            playerProfile.save();
+            this.refreshButtons();
+        }, { width: 380, accent: COLORS.cyan, fontSize: 19 });
+
+        this.aimAssistButton = addButton(this, 440, toggleY2, '', () => {
+            playerProfile.data.settings.aimAssist = !playerProfile.data.settings.aimAssist;
+            playerProfile.save();
+            this.refreshButtons();
+        }, { width: 380, accent: COLORS.cyan, fontSize: 19 });
+
+        this.touchModeButton = addButton(this, 840, toggleY2, '', () => {
+            playerProfile.data.settings.touchMode = playerProfile.data.settings.touchMode === 'joystick' ? 'buttons' : 'joystick';
+            playerProfile.save();
+            this.refreshButtons();
+        }, { width: 380, accent: COLORS.yellow, fontSize: 19 });
+
+        this.refreshButtons();
 
         addButton(this, 640, 460, 'RESET PROGRESS', () => {
             if (window.confirm('Reset all missions, credits, upgrades, skins, and achievements?')) {
                 playerProfile.reset();
                 updateMusicVolume();
+                this.refreshButtons();
                 showToast(this, 'Progress reset', COLORS.red);
             }
-        }, { width: 300, accent: COLORS.red, fontSize: 22 });
+        }, { width: 280, accent: COLORS.red, fontSize: 20 });
         addBackButton(this);
     }
 
@@ -69,7 +92,11 @@ export default class OptionsScene extends Phaser.Scene {
         slider.onChange?.();
     }
 
-    refreshVibration() {
-        this.vibrationButton.label.setText(`HAPTICS: ${playerProfile.data.settings.vibration ? 'ON' : 'OFF'}`);
+    refreshButtons() {
+        const s = playerProfile.data.settings;
+        this.vibrationButton?.label.setText(`HAPTICS: ${s.vibration ? 'ON' : 'OFF'}`);
+        this.autoFireButton?.label.setText(`AUTO-FIRE: ${s.autoFire ? 'ON' : 'OFF'}`);
+        this.aimAssistButton?.label.setText(`AIM ASSIST: ${s.aimAssist ? 'ON' : 'OFF'}`);
+        this.touchModeButton?.label.setText(`CONTROLS: ${s.touchMode === 'joystick' ? 'JOYSTICK' : 'BUTTONS'}`);
     }
 }

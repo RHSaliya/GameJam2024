@@ -21,9 +21,10 @@ export default class WeaponPowerUp extends Phaser.Physics.Arcade.Image {
         if (!this.active) return;
         const age = time - this.spawnTime;
         const distance = Phaser.Math.Distance.Between(this.x, this.y, this.ship.x, this.ship.y);
-        if (age > 400 && distance < 230) {
+        if (age > 100 && distance < 320) {
             const angle = Phaser.Math.Angle.Between(this.x, this.y, this.ship.x, this.ship.y);
-            this.scene.physics.velocityFromRotation(angle, 280, this.body.velocity);
+            const speed = Phaser.Math.Linear(420, 220, Math.min(1, distance / 320));
+            this.scene.physics.velocityFromRotation(angle, speed, this.body.velocity);
         }
         if (age <= 9000) return;
         this.scene.tweens.add({

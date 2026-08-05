@@ -22,9 +22,10 @@ export default class Coin extends Phaser.Physics.Arcade.Image {
         if (!this.active) return;
         const age = time - this.spawnTime;
         const distance = Phaser.Math.Distance.Between(this.x, this.y, this.ship.x, this.ship.y);
-        if (age > 350 && distance < 250) {
+        if (age > 100 && distance < 340) {
             const angle = Phaser.Math.Angle.Between(this.x, this.y, this.ship.x, this.ship.y);
-            this.scene.physics.velocityFromRotation(angle, 330, this.body.velocity);
+            const speed = Phaser.Math.Linear(480, 240, Math.min(1, distance / 340));
+            this.scene.physics.velocityFromRotation(angle, speed, this.body.velocity);
         }
         if (age > 6500) {
             this.scene.tweens.add({

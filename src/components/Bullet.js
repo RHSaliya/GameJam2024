@@ -6,14 +6,15 @@ export default class Bullet extends Phaser.Physics.Arcade.Image {
         this.setBlendMode(1).setDepth(10);
     }
 
-    fire(ship, weapon, projectile) {
+    fire(ship, weapon, projectile, aimAssistAngle) {
         this.lifespan = 900;
         this.damage = projectile.damage || 1;
         this.remainingImpacts = (projectile.pierce || 0) + 1;
         this.homing = projectile.homing || 0;
         this.speed = projectile.speed || 1150;
         this.hitTargets = new WeakSet();
-        const forwardAngle = ship.rotation - Math.PI / 2 + Phaser.Math.DegToRad(projectile.angle || 0);
+        const baseRotation = aimAssistAngle !== undefined ? aimAssistAngle : ship.rotation;
+        const forwardAngle = baseRotation - Math.PI / 2 + Phaser.Math.DegToRad(projectile.angle || 0);
         const sideOffset = projectile.offset || 0;
         const x = ship.x - Math.sin(forwardAngle) * sideOffset;
         const y = ship.y + Math.cos(forwardAngle) * sideOffset;

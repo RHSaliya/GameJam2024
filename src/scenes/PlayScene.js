@@ -140,7 +140,8 @@ export default class PlayScene extends Phaser.Scene {
         const left = this.keys.left.isDown || this.keys.altLeft.isDown || this.touch.isDown('LEFT');
         const right = this.keys.right.isDown || this.keys.altRight.isDown || this.touch.isDown('RIGHT');
         const thrust = this.keys.thrust.isDown || this.keys.altThrust.isDown || this.touch.isDown('THRUST');
-        const fire = this.keys.fire.isDown || this.touch.isDown('FIRE');
+        const autoFireEnabled = playerProfile.data.settings.autoFire && this.asteroids.countActive(true) > 0;
+        const fire = this.keys.fire.isDown || this.touch.isDown('FIRE') || autoFireEnabled;
 
         this.ship.setAngularVelocity(left ? -175 : right ? 175 : 0);
         const travel = this.updateTravel(thrust, delta);
@@ -162,6 +163,70 @@ export default class PlayScene extends Phaser.Scene {
         }
         if (time >= this.lastAsteroid) this.spawnAsteroid(time);
         if (time - this.lastAstronaut > 6500) this.spawnAstronaut(time);
+    }
+
+    findAimAssistTarget(x, y, shipRotation, maxDistance = 460, maxConeRad = 0.6) {
+        const forwardAngle = shipRotation - Math.PI / 2;
+        let closestTarget = null;
+        let closestDistance = maxDistance;
+
+        this.asteroids.getChildren().forEach(asteroid => {
+            if (!asteroid.active || asteroid.exploding) return;
+            const dist = Phaser.Math.Distance.Between(x, y, asteroid.x, asteroid.y);
+            if (dist >= closestDistance) return;
+            const angleToTarget = Phaser.Math.Angle.Between(x, y, asteroid.x, asteroid.y);
+            const angleDiff = Math.abs(Phaser.Math.Angle.Wrap(angleToTarget - forwardAngle));
+            if (angleDiff <= maxConeRad) {
+                closestDistance = dist;
+                closestTarget = asteroid;
+            }
+        });
+
+        return closestTarget;
+    }
+
+    fire(time) {
+        const weapon = getWeapon(this.activeWeaponId);
+        if (this.totalBullets < weapon.ammoCost) {
+            if (time >= this.lastEmptyAmmoCue) {
+                playSfx(this, 'emptyAmmo', { volume: 0.65 });
+                this.lastEmptyAmmoCue = time + 420;
+            }
+            return;
+        }
+
+        let aimAssistAngle;
+        if (playerProfile.data.settings.aimAssist) {
+            const target = this.findAimAssistTarget(this.ship.x, this.ship.y, this.ship.rotation);
+            if (target) {
+                const targetAngle = Phaser.Math.Angle.Between(this.ship.x, this.ship.y, target.x, target.y) + Math.PI / 2;
+                aimAssistAngle = Phaser.Math.Angle.RotateTo(this.ship.rotation, targetAngle, 0.35);
+            }
+        }
+
+        let fired = 0;
+        weapon.projectiles.forEach(projectile => {
+            const bullet = this.bullets.get();
+            if (!bullet) return;
+            bullet.fire(this.ship, weapon, projectile, aimAssistAngle);
+            fired += 1;
+        });
+        if (fired === 0) return;
+        this.totalBullets -= weapon.ammoCost;
+        this.lastFired = time + this.effects.fireCooldown * weapon.cooldownMultiplier;
+        if (this.weaponShotsRemaining > 0) {
+            this.weaponShotsRemaining -= 1;
+            if (this.weaponShotsRemaining === 0) {
+                this.activeWeaponId = this.nativeWeaponId;
+                showToast(this, `${getWeapon(this.nativeWeaponId).name} restored`, getWeapon(this.nativeWeaponId).color);
+            }
+        }
+        playSfx(this, `pew${Phaser.Math.Between(1, 3)}`, {
+            volume: 0.9,
+            rate: Phaser.Math.FloatBetween(0.94, 1.06),
+            detune: Phaser.Math.Between(-45, 45),
+        });
+        this.refreshHud();
     }
 
     createSpaceField() {
@@ -252,40 +317,6 @@ export default class PlayScene extends Phaser.Scene {
             layer.sprite.tilePositionX += deltaX * layer.parallax + delta * layer.drift;
             layer.sprite.tilePositionY += deltaY * layer.parallax + delta * layer.drift * 0.35;
         });
-    }
-
-    fire(time) {
-        const weapon = getWeapon(this.activeWeaponId);
-        if (this.totalBullets < weapon.ammoCost) {
-            if (time >= this.lastEmptyAmmoCue) {
-                playSfx(this, 'emptyAmmo', { volume: 0.65 });
-                this.lastEmptyAmmoCue = time + 420;
-            }
-            return;
-        }
-        let fired = 0;
-        weapon.projectiles.forEach(projectile => {
-            const bullet = this.bullets.get();
-            if (!bullet) return;
-            bullet.fire(this.ship, weapon, projectile);
-            fired += 1;
-        });
-        if (fired === 0) return;
-        this.totalBullets -= weapon.ammoCost;
-        this.lastFired = time + this.effects.fireCooldown * weapon.cooldownMultiplier;
-        if (this.weaponShotsRemaining > 0) {
-            this.weaponShotsRemaining -= 1;
-            if (this.weaponShotsRemaining === 0) {
-                this.activeWeaponId = this.nativeWeaponId;
-                showToast(this, `${getWeapon(this.nativeWeaponId).name} restored`, getWeapon(this.nativeWeaponId).color);
-            }
-        }
-        playSfx(this, `pew${Phaser.Math.Between(1, 3)}`, {
-            volume: 0.9,
-            rate: Phaser.Math.FloatBetween(0.94, 1.06),
-            detune: Phaser.Math.Between(-45, 45),
-        });
-        this.refreshHud();
     }
 
     createCoinTexture() {

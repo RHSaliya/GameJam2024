@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build native launch artwork from the game's source visuals.
+"""Build branded game, launcher, and splash artwork from source visuals.
 
 Run this from the repository root after changing the brand art. Pillow is the
 only dependency; the script keeps every platform rendition visually aligned.
@@ -12,8 +12,24 @@ from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 ROOT = Path(__file__).resolve().parents[1]
 BACKGROUND = ROOT / "public/assets/menu-space-v2.png"
-CREST = ROOT / "public/assets/spacetitle.png"
+SHIP = ROOT / "public/assets/space/ship-classic.png"
 FONT = ROOT / "public/assets/fonts/caramel_3/Caramel.ttf"
+
+WEB_ICONS = {
+    "public/favicons/favicon-16x16.png": (16, 16),
+    "public/favicons/favicon-32x32.png": (32, 32),
+    "public/favicons/apple-touch-icon.png": (180, 180),
+    "public/favicons/android-chrome-192x192.png": (192, 192),
+    "public/favicons/android-chrome-512x512.png": (512, 512),
+}
+
+ANDROID_LAUNCHERS = {
+    "mdpi": (48, 108),
+    "hdpi": (72, 162),
+    "xhdpi": (96, 216),
+    "xxhdpi": (144, 324),
+    "xxxhdpi": (192, 432),
+}
 
 ANDROID_SPLASHES = {
     "android/app/src/main/res/drawable/splash.png": (480, 320),
@@ -35,6 +51,8 @@ IOS_SPLASHES = (
     "ios/App/App/Assets.xcassets/Splash.imageset/splash-2732x2732-2.png",
 )
 
+IOS_ICON = "ios/App/App/Assets.xcassets/AppIcon.appiconset/AppIcon-512@2x.png"
+
 
 def cover(image: Image.Image, size: tuple[int, int]) -> Image.Image:
     width, height = size
@@ -46,6 +64,68 @@ def cover(image: Image.Image, size: tuple[int, int]) -> Image.Image:
     left = (resized.width - width) // 2
     top = (resized.height - height) // 2
     return resized.crop((left, top, left + width, top + height)).convert("RGBA")
+
+
+def contain(image: Image.Image, size: tuple[int, int]) -> Image.Image:
+    scale = min(size[0] / image.width, size[1] / image.height)
+    return image.resize(
+        (max(1, round(image.width * scale)), max(1, round(image.height * scale))),
+        Image.Resampling.NEAREST,
+    )
+
+
+def add_ship_glow(canvas: Image.Image, ship: Image.Image, position: tuple[int, int], radius: int) -> None:
+    glow_alpha = Image.new("L", canvas.size)
+    glow_alpha.paste(ship.getchannel("A"), position)
+    glow_alpha = glow_alpha.filter(ImageFilter.GaussianBlur(max(2, radius)))
+    glow_alpha = glow_alpha.point(lambda value: round(value * 0.26))
+    glow = Image.new("RGBA", canvas.size, (92, 225, 230, 0))
+    glow.putalpha(glow_alpha)
+    canvas.alpha_composite(glow)
+
+
+def render_ship_mark(size: tuple[int, int] = (400, 500)) -> Image.Image:
+    canvas = Image.new("RGBA", size)
+    ship = contain(Image.open(SHIP).convert("RGBA"), (round(size[0] * 0.90), round(size[1] * 0.90)))
+    position = ((size[0] - ship.width) // 2, (size[1] - ship.height) // 2)
+    add_ship_glow(canvas, ship, position, round(min(size) * 0.035))
+    canvas.alpha_composite(ship, position)
+    return canvas
+
+
+def render_icon(size: tuple[int, int]) -> Image.Image:
+    width, height = size
+    icon = cover(Image.open(BACKGROUND), size)
+    icon.alpha_composite(Image.new("RGBA", size, (5, 8, 27, 46)))
+
+    glow = Image.new("RGBA", size)
+    glow_draw = ImageDraw.Draw(glow)
+    glow_draw.ellipse(
+        (round(width * 0.16), round(height * 0.18), round(width * 0.84), round(height * 0.82)),
+        fill=(92, 225, 230, 54),
+    )
+    icon.alpha_composite(glow.filter(ImageFilter.GaussianBlur(max(2, width // 14))))
+
+    ship = contain(Image.open(SHIP).convert("RGBA"), (round(width * 0.62), round(height * 0.70)))
+    position = ((width - ship.width) // 2, (height - ship.height) // 2)
+    add_ship_glow(icon, ship, position, max(2, width // 38))
+    icon.alpha_composite(ship, position)
+    return icon.convert("RGB")
+
+
+def render_adaptive_foreground(size: int) -> Image.Image:
+    foreground = Image.new("RGBA", (size, size))
+    ship = contain(Image.open(SHIP).convert("RGBA"), (round(size * 0.50), round(size * 0.62)))
+    position = ((size - ship.width) // 2, (size - ship.height) // 2)
+    add_ship_glow(foreground, ship, position, max(2, size // 40))
+    foreground.alpha_composite(ship, position)
+    return foreground
+
+
+def render_icon_background(size: int) -> Image.Image:
+    background = cover(Image.open(BACKGROUND), (size, size))
+    background.alpha_composite(Image.new("RGBA", (size, size), (5, 8, 27, 38)))
+    return background.convert("RGB")
 
 
 def fit_font(draw: ImageDraw.ImageDraw, text: str, max_width: int, start: int) -> ImageFont.FreeTypeFont:
@@ -81,7 +161,7 @@ def render_splash(size: tuple[int, int]) -> Image.Image:
     glow = glow.filter(ImageFilter.GaussianBlur(max(4, short_side // 18)))
     background.alpha_composite(glow)
 
-    crest = Image.open(CREST).convert("RGBA")
+    crest = Image.open(SHIP).convert("RGBA")
     crest_max_width = round(short_side * (0.46 if height > width else 0.42))
     crest_max_height = round(height * (0.30 if height > width else 0.42))
     crest_scale = min(crest_max_width / crest.width, crest_max_height / crest.height)
@@ -130,7 +210,33 @@ def save_optimized_png(image: Image.Image, output: Path) -> None:
     optimized.save(output, optimize=True)
 
 
+def save_png(image: Image.Image, output: Path) -> None:
+    image.save(output, optimize=True)
+
+
 def main() -> None:
+    save_png(render_ship_mark(), ROOT / "public/assets/spacetitle.png")
+    save_png(Image.open(SHIP).convert("RGBA"), ROOT / "public/assets/space/Spaceship.png")
+
+    icon_master = render_icon((1024, 1024))
+    save_optimized_png(icon_master, ROOT / IOS_ICON)
+    for relative_path, size in WEB_ICONS.items():
+        save_optimized_png(icon_master.resize(size, Image.Resampling.LANCZOS), ROOT / relative_path)
+    icon_master.save(
+        ROOT / "public/favicons/favicon.ico",
+        format="ICO",
+        sizes=[(16, 16), (32, 32), (48, 48)],
+    )
+
+    for density, (legacy_size, adaptive_size) in ANDROID_LAUNCHERS.items():
+        directory = ROOT / f"android/app/src/main/res/mipmap-{density}"
+        launcher = render_icon((legacy_size, legacy_size))
+        save_optimized_png(launcher, directory / "ic_launcher.png")
+        save_optimized_png(launcher, directory / "ic_launcher_round.png")
+        save_png(render_adaptive_foreground(adaptive_size), directory / "ic_launcher_foreground.png")
+        save_optimized_png(render_icon_background(adaptive_size), directory / "ic_launcher_background.png")
+
+    save_optimized_png(render_splash((1024, 1024)), ROOT / "public/assets/splash.png")
     for relative_path, size in ANDROID_SPLASHES.items():
         output = ROOT / relative_path
         save_optimized_png(render_splash(size), output)

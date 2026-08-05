@@ -24,7 +24,15 @@ export function createDefaultProfile() {
         achievements: [],
         localScores: [],
         endlessScores: [],
-        settings: { masterVolume: 1, musicVolume: 0.55, sfxVolume: 0.75, vibration: true },
+        settings: {
+            masterVolume: 1,
+            musicVolume: 0.55,
+            sfxVolume: 0.75,
+            vibration: true,
+            autoFire: false,
+            aimAssist: true,
+            touchMode: 'joystick',
+        },
     };
 }
 
@@ -81,6 +89,9 @@ export function normalizeProfile(value = {}) {
             musicVolume: clampVolume(savedSettings.musicVolume, hasLegacyVolume ? 1 : defaults.settings.musicVolume),
             sfxVolume: clampVolume(savedSettings.sfxVolume, hasLegacyVolume ? 1 : defaults.settings.sfxVolume),
             vibration: savedSettings.vibration ?? defaults.settings.vibration,
+            autoFire: savedSettings.autoFire ?? defaults.settings.autoFire,
+            aimAssist: savedSettings.aimAssist ?? defaults.settings.aimAssist,
+            touchMode: ['joystick', 'buttons'].includes(savedSettings.touchMode) ? savedSettings.touchMode : defaults.settings.touchMode,
         },
     };
 }
