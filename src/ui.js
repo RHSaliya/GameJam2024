@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { GAME_CENTER_X, GAME_HEIGHT, GAME_WIDTH, RENDER_SCALE } from './config/layout';
+import { CAMERA_VIEW_HEIGHT, CAMERA_VIEW_WIDTH, GAME_CENTER_X, GAME_HEIGHT, GAME_WIDTH, RENDER_SCALE } from './config/layout';
 import { playMusic } from './services/AudioService';
 import { playerProfile } from './services/PlayerProfile';
 
@@ -16,26 +16,33 @@ export const COLORS = {
     muted: '#9ea9d1',
 };
 
-export const textStyle = (size = 28, color = '#ffffff') => ({
-    fontFamily: 'Caramel, "Arial Rounded MT Bold", Arial, sans-serif',
-    fontStyle: 'bold',
-    fontSize: `${size}px`,
-    color,
-    stroke: '#080a18',
-    strokeThickness: Math.max(2, Math.round(size / 16)),
-    resolution: RENDER_SCALE,
-});
+export const textStyle = (size = 28, color = '#ffffff') => {
+    const cssColor = typeof color === 'number'
+        ? `#${color.toString(16).padStart(6, '0')}`
+        : color;
+    return {
+        fontFamily: 'Caramel, "Arial Rounded MT Bold", Arial, sans-serif',
+        fontStyle: 'bold',
+        fontSize: `${size}px`,
+        color: cssColor,
+        stroke: '#080a18',
+        strokeThickness: Math.max(2, Math.round(size / 16)),
+        resolution: RENDER_SCALE,
+    };
+};
 
 export function addSpaceBackground(scene, key = 'menu', options = {}) {
     playMusic(scene, 'titleMusic', { volume: 0.42 });
     const width = GAME_WIDTH;
     const height = GAME_HEIGHT;
+    const backgroundExtent = Math.max(CAMERA_VIEW_WIDTH, CAMERA_VIEW_HEIGHT);
     const animated = options.animated === true;
     const bg = animated
-        ? scene.add.tileSprite(width / 2, height / 2, width, height, key)
+        ? scene.add.tileSprite(width / 2, height / 2, CAMERA_VIEW_WIDTH, CAMERA_VIEW_HEIGHT, key)
             .setTileScale(Math.max(width / 1024, height / 1024) * 1.08)
             .setAlpha(0.78)
-        : scene.add.image(width / 2, height / 2, key).setDisplaySize(width, width).setAlpha(0.78);
+        : scene.add.image(width / 2, height / 2, key)
+            .setDisplaySize(backgroundExtent, backgroundExtent).setAlpha(0.78);
     bg.setDepth(-2);
 
     if (animated) {
@@ -50,7 +57,7 @@ export function addSpaceBackground(scene, key = 'menu', options = {}) {
         });
     }
 
-    scene.add.rectangle(width / 2, height / 2, width, height, COLORS.navy, 0.35).setDepth(-1);
+    scene.add.rectangle(width / 2, height / 2, CAMERA_VIEW_WIDTH, CAMERA_VIEW_HEIGHT, COLORS.navy, 0.35).setDepth(-1);
     return bg;
 }
 
@@ -116,6 +123,7 @@ export function addButton(scene, x, y, label, onPress, options = {}) {
     const height = options.height || 50;
     const accentColor = options.accent || COLORS.cyan;
     const container = scene.add.container(x, y);
+    let selected = false;
 
     const bgGraphics = scene.add.graphics();
     const drawButton = (hovered = false, pressed = false) => {
@@ -136,8 +144,8 @@ export function addButton(scene, x, y, label, onPress, options = {}) {
         bgGraphics.fillRoundedRect(-width / 2, -height / 2, width, height, radius);
 
         const strokeColor = options.disabled ? 0x3a4263 : accentColor;
-        const strokeAlpha = options.disabled ? 0.3 : hovered ? 0.95 : 0.65;
-        const strokeWidth = hovered ? 3 : 2;
+        const strokeAlpha = options.disabled ? 0.3 : (hovered || selected) ? 0.95 : 0.65;
+        const strokeWidth = (hovered || selected) ? 3 : 2;
         bgGraphics.lineStyle(strokeWidth, strokeColor, strokeAlpha);
         bgGraphics.strokeRoundedRect(-width / 2, -height / 2, width, height, radius);
     };
@@ -178,6 +186,11 @@ export function addButton(scene, x, y, label, onPress, options = {}) {
 
     container.background = bgGraphics;
     container.label = labelText;
+    container.setSelected = value => {
+        selected = Boolean(value);
+        drawButton();
+        return container;
+    };
     return container;
 }
 

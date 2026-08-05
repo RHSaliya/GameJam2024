@@ -34,8 +34,8 @@ export default class HangarScene extends Phaser.Scene {
         this.clearDynamic();
         this.refreshCredits();
         this.activeTab = tab;
-        this.tabUpgrades.background.setStrokeStyle(tab === 'upgrades' ? 3 : 1.5, COLORS.cyan, tab === 'upgrades' ? 0.95 : 0.4);
-        this.tabShips.background.setStrokeStyle(tab === 'skins' ? 3 : 1.5, COLORS.yellow, tab === 'skins' ? 0.95 : 0.4);
+        this.tabUpgrades.setSelected(tab === 'upgrades');
+        this.tabShips.setSelected(tab === 'skins');
 
         if (tab === 'upgrades') this.renderUpgrades(); else this.renderSkins();
     }

@@ -1,14 +1,11 @@
+export const GAME_WIDTH = 1280;
 export const GAME_HEIGHT = 600;
 
 const pixelRatio = window.devicePixelRatio || 1;
 const viewportLongSide = Math.max(window.screen.width, window.screen.height);
 const viewportShortSide = Math.min(window.screen.width, window.screen.height);
-const viewportAspect = viewportLongSide / Math.max(1, viewportShortSide);
-
-// Logical coordinates stay stable for gameplay while following the display ratio.
-export const GAME_WIDTH = Math.round(
-    GAME_HEIGHT * Math.min(20 / 9, Math.max(16 / 9, viewportAspect)),
-);
+// Every scene is authored on this stable 1280x600 logical canvas. Physical
+// displays may reveal extra background around it, but never shrink or crop UI.
 export const GAME_CENTER_X = GAME_WIDTH / 2;
 export const GAME_CENTER_Y = GAME_HEIGHT / 2;
 export const SAFE_EDGE = 84;
@@ -17,6 +14,10 @@ export const SAFE_EDGE = 84;
 export const RENDER_WIDTH = Math.round(viewportLongSide * pixelRatio);
 export const RENDER_HEIGHT = Math.round(viewportShortSide * pixelRatio);
 export const RENDER_SCALE = Math.min(RENDER_WIDTH / GAME_WIDTH, RENDER_HEIGHT / GAME_HEIGHT);
+// Tablets expose extra height while ultrawide phones expose extra width.
+// Background layers cover the complete camera without changing UI coordinates.
+export const CAMERA_VIEW_WIDTH = RENDER_WIDTH / RENDER_SCALE;
+export const CAMERA_VIEW_HEIGHT = RENDER_HEIGHT / RENDER_SCALE;
 
 export function getPhysicalViewport() {
     const longSide = Math.max(window.innerWidth, window.innerHeight);

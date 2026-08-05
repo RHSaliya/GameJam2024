@@ -12,7 +12,7 @@ import {
 } from '../config/gameData';
 import { playerProfile } from '../services/PlayerProfile';
 import { COLORS, showToast, textStyle } from '../ui';
-import { configureSharpCamera, GAME_CENTER_X, GAME_CENTER_Y, GAME_HEIGHT, GAME_WIDTH } from '../config/layout';
+import { CAMERA_VIEW_HEIGHT, CAMERA_VIEW_WIDTH, configureSharpCamera, GAME_CENTER_X, GAME_CENTER_Y, GAME_HEIGHT, GAME_WIDTH } from '../config/layout';
 import { playMusic, playSfx, preloadAudio, stopMusic } from '../services/AudioService';
 import { generateEdgeSpawn } from '../services/SpaceGenerator';
 
@@ -254,13 +254,13 @@ export default class PlayScene extends Phaser.Scene {
         this.createStarTexture('stars-near-generated', 52, 0.9, 2.15, ['0x5ce1e6', '0xffffff', '0xffd166']);
         // Keep the base free of baked-in stars. Every visible point of light is
         // part of a parallax layer below, so nothing appears pinned to screen.
-        this.bg = this.add.rectangle(GAME_CENTER_X, GAME_CENTER_Y, GAME_WIDTH, GAME_HEIGHT, 0x080b1e, 1)
+        this.bg = this.add.rectangle(GAME_CENTER_X, GAME_CENTER_Y, CAMERA_VIEW_WIDTH, CAMERA_VIEW_HEIGHT, 0x080b1e, 1)
             .setDepth(-40);
-        const far = this.add.tileSprite(GAME_CENTER_X, GAME_CENTER_Y, GAME_WIDTH, GAME_HEIGHT, 'stars-far-generated')
+        const far = this.add.tileSprite(GAME_CENTER_X, GAME_CENTER_Y, CAMERA_VIEW_WIDTH, CAMERA_VIEW_HEIGHT, 'stars-far-generated')
             .setDepth(-30).setAlpha(0.7).setTileScale(0.9);
-        const middle = this.add.tileSprite(GAME_CENTER_X, GAME_CENTER_Y, GAME_WIDTH, GAME_HEIGHT, 'stars')
+        const middle = this.add.tileSprite(GAME_CENTER_X, GAME_CENTER_Y, CAMERA_VIEW_WIDTH, CAMERA_VIEW_HEIGHT, 'stars')
             .setDepth(-25).setAlpha(0.46).setTileScale(1.05);
-        const near = this.add.tileSprite(GAME_CENTER_X, GAME_CENTER_Y, GAME_WIDTH, GAME_HEIGHT, 'stars-near-generated')
+        const near = this.add.tileSprite(GAME_CENTER_X, GAME_CENTER_Y, CAMERA_VIEW_WIDTH, CAMERA_VIEW_HEIGHT, 'stars-near-generated')
             .setDepth(-20).setAlpha(0.72).setTileScale(1.15);
         this.spaceLayers = [
             { sprite: far, parallax: 0.22, drift: 0.002 },
@@ -506,7 +506,7 @@ export default class PlayScene extends Phaser.Scene {
             this.setThrustAudio(false, true);
             this.thrustEmitter.stop();
             this.pauseOverlay = this.add.container(GAME_CENTER_X, GAME_CENTER_Y).setDepth(5000);
-            const bg = this.add.rectangle(0, 0, GAME_WIDTH, GAME_HEIGHT, 0x090c1a, 0.82).setInteractive();
+            const bg = this.add.rectangle(0, 0, CAMERA_VIEW_WIDTH, CAMERA_VIEW_HEIGHT, 0x090c1a, 0.82).setInteractive();
             const title = this.add.text(0, -80, 'PAUSED', textStyle(44)).setOrigin(0.5);
             const resume = this.add.text(0, 0, 'RESUME', textStyle(30, '#7ae582')).setOrigin(0.5).setPadding(25).setInteractive({ useHandCursor: true }).on('pointerdown', () => this.togglePause());
             const quitLabel = this.mode === 'endless' ? 'QUIT RUN' : 'QUIT MISSION';
