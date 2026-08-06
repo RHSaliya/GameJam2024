@@ -8,7 +8,9 @@
 		"build": "vite build",
 		"preview": "vite preview",
 		"test": "node --test",
-		"mobile:sync": "npm run build && cap sync",
+		"lint": "eslint src scripts test",
+		"version:native": "node scripts/sync-native-version.mjs",
+		"mobile:sync": "npm run build && npm run version:native && cap sync",
 		"mobile:android": "npm run mobile:sync && cap open android",
 		"mobile:ios": "npm run mobile:sync && cap open ios"
 	},

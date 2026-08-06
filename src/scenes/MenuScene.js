@@ -5,6 +5,7 @@ import { addBrandTitle, addButton, addSpaceBackground, formatNumber, showToast, 
 import { configureSharpCamera, GAME_CENTER_X, GAME_WIDTH, watchResponsiveLayout } from '../config/layout';
 import { preloadAudio } from '../services/AudioService';
 import { leaderboardService } from '../services/LeaderboardService';
+import { VERSION_LABEL } from '../config/version';
 
 export default class MenuScene extends Phaser.Scene {
     constructor() { super('menu'); }
@@ -51,7 +52,7 @@ export default class MenuScene extends Phaser.Scene {
         addButton(this, centerX, 512, 'HOW TO PLAY', () => go('instructions'), { width: 360 });
 
         const pilotText = this.add.text(28, 564, `PILOT • ${profile.displayName}`, textStyle(22, '#ffffff')).setOrigin(0, 1);
-        const versionText = this.add.text(GAME_WIDTH - 20, 585, 'v2.1', textStyle(14, '#7781a4')).setOrigin(1);
+        const versionText = this.add.text(GAME_WIDTH - 20, 585, VERSION_LABEL, textStyle(14, '#7781a4')).setOrigin(1);
         watchResponsiveLayout(this, layout => {
             bestText.setPosition(layout.safeLeft, layout.cameraTop + 20);
             creditsText.setPosition(layout.safeRight, layout.cameraTop + 20);
