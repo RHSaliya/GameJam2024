@@ -1,13 +1,14 @@
-import Phaser from 'phaser';
 import { GAME_HEIGHT, watchResponsiveLayout } from '../config/layout.js';
 import { playerProfile } from '../services/PlayerProfile.js';
 import { COLORS } from './theme.js';
 import { textStyle } from './text.js';
 import { fadeToScene } from './transitions.js';
+import { resolveButtonSize, resolveButtonStyle } from './variants.js';
 
 export function addButton(scene, x, y, label, onPress, options = {}) {
-    const width = options.width || 220;
-    const height = options.height || 50;
+    const defaults = resolveButtonSize(options.size);
+    const width = options.width || defaults.width;
+    const height = options.height || defaults.height;
     const accentColor = options.accent || COLORS.cyan;
     const container = scene.add.container(x, y);
     let selected = false;
@@ -15,32 +16,22 @@ export function addButton(scene, x, y, label, onPress, options = {}) {
     const bgGraphics = scene.add.graphics();
     const drawButton = (hovered = false, pressed = false) => {
         bgGraphics.clear();
-        const radius = 10;
-        const fill = options.disabled
-            ? 0x12162b
-            : hovered
-            ? Phaser.Display.Color.Interpolate.ColorWithColor(
-                Phaser.Display.Color.ValueToColor(COLORS.panel),
-                Phaser.Display.Color.ValueToColor(accentColor),
-                100, 30
-              ).color
-            : (options.fill ?? COLORS.panel);
-
-        const fillAlpha = options.disabled ? 0.4 : pressed ? 0.98 : 0.92;
-        bgGraphics.fillStyle(fill, fillAlpha);
-        bgGraphics.fillRoundedRect(-width / 2, -height / 2, width, height, radius);
-
-        const strokeColor = options.disabled ? 0x3a4263 : accentColor;
-        const strokeAlpha = options.disabled ? 0.3 : (hovered || selected) ? 0.95 : 0.65;
-        const strokeWidth = (hovered || selected) ? 3 : 2;
-        bgGraphics.lineStyle(strokeWidth, strokeColor, strokeAlpha);
-        bgGraphics.strokeRoundedRect(-width / 2, -height / 2, width, height, radius);
+        const style = resolveButtonStyle({
+            variant: options.variant, accent: accentColor, fill: options.fill,
+            disabled: options.disabled, hovered, pressed, selected,
+        });
+        bgGraphics.fillStyle(style.fill, style.fillAlpha);
+        bgGraphics.fillRoundedRect(-width / 2, -height / 2, width, height, 10);
+        bgGraphics.lineStyle(style.strokeWidth, style.stroke, style.strokeAlpha);
+        bgGraphics.strokeRoundedRect(-width / 2, -height / 2, width, height, 10);
     };
 
     drawButton();
 
-    const labelColor = options.disabled ? '#5a6385' : '#ffffff';
-    const labelText = scene.add.text(0, 0, label, textStyle(options.fontSize || 24, labelColor))
+    const labelColor = resolveButtonStyle({
+        variant: options.variant, accent: accentColor, disabled: options.disabled,
+    }).labelColor;
+    const labelText = scene.add.text(0, 0, label, textStyle(options.fontSize || defaults.fontSize, labelColor))
         .setOrigin(0.5);
 
     container.add([bgGraphics, labelText]);

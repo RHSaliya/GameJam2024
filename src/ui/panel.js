@@ -1,14 +1,15 @@
-import { COLORS } from './theme.js';
+import { resolvePanelStyle } from './variants.js';
 
-export function addPanel(scene, x, y, width, height, alpha = 0.92) {
+export function addPanel(scene, x, y, width, height, alpha = 0.92, options = {}) {
     const container = scene.add.container(x, y);
+    const style = resolvePanelStyle({ ...options, alpha });
 
     // Dark semi-transparent backdrop panel
     const bg = scene.add.graphics();
-    bg.fillStyle(COLORS.panelDark, alpha);
-    bg.fillRoundedRect(-width / 2, -height / 2, width, height, 12);
-    bg.lineStyle(2, COLORS.cyan, 0.45);
-    bg.strokeRoundedRect(-width / 2, -height / 2, width, height, 12);
+    bg.fillStyle(style.fill, style.fillAlpha);
+    bg.fillRoundedRect(-width / 2, -height / 2, width, height, style.radius);
+    bg.lineStyle(style.strokeWidth, style.stroke, style.strokeAlpha);
+    bg.strokeRoundedRect(-width / 2, -height / 2, width, height, style.radius);
 
     // Inner subtle glass glow line at top edge
     const glow = scene.add.graphics();
