@@ -11,7 +11,7 @@ import LevelSelectScene from './scenes/LevelSelectScene'
 import HangarScene from './scenes/HangarScene'
 import AchievementsScene from './scenes/AchievementsScene'
 import LeaderboardScene from './scenes/LeaderboardScene'
-import { configureSharpCamera, getPhysicalViewport, RENDER_HEIGHT, RENDER_WIDTH } from './config/layout'
+import { applyResponsiveLayout, getPhysicalViewport, RENDER_HEIGHT, RENDER_WIDTH } from './config/layout'
 
 const config = {
 	type: Phaser.AUTO,
@@ -96,10 +96,17 @@ const syncPhysicalResolution = () => {
 		if (game.scale.width !== viewport.width || game.scale.height !== viewport.height) {
 			game.scale.setGameSize(viewport.width, viewport.height)
 		}
-		game.scene.getScenes(true).forEach(configureSharpCamera)
+		// Scale Manager updates camera viewports with the canvas size. Applying the
+		// logical layout on the following frame keeps pointer mapping, HUD anchors,
+		// backgrounds, and text resolution in sync with that new viewport.
+		window.requestAnimationFrame(() => {
+			game.scene.getScenes(true).forEach(scene => applyResponsiveLayout(scene, viewport.layout))
+		})
 	})
 }
 window.addEventListener('resize', syncPhysicalResolution)
+window.addEventListener('orientationchange', syncPhysicalResolution)
+window.visualViewport?.addEventListener('resize', syncPhysicalResolution)
 window.setTimeout(syncPhysicalResolution, 200)
 window.setTimeout(syncPhysicalResolution, 800)
 

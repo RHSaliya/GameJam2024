@@ -1,7 +1,7 @@
 import Phaser from 'phaser'
 import '../../public/font.css';
 import { addSpaceBackground } from '../ui';
-import { configureSharpCamera, GAME_CENTER_X, GAME_CENTER_Y, GAME_HEIGHT, RENDER_SCALE } from '../config/layout';
+import { configureSharpCamera, GAME_CENTER_X, GAME_CENTER_Y, GAME_HEIGHT, RENDER_SCALE, watchResponsiveLayout } from '../config/layout';
 export default class CreditScene extends Phaser.Scene {
     constructor() {
         super('credits');
@@ -48,6 +48,7 @@ export default class CreditScene extends Phaser.Scene {
     
         // Add a button to skip the credits animation and return to the main menu
         var skipButton = this.add.text(84, GAME_HEIGHT - 70, 'Skip', buttonStyle);
+        watchResponsiveLayout(this, layout => skipButton.setPosition(layout.safeLeft + 44, layout.safeBottom - 30));
         skipButton.setInteractive(); // Enable button interactivity
         skipButton.on('pointerover', () => skipButton.setStyle(buttonHoverStyle))
         skipButton.on('pointerout', () => skipButton.setStyle(buttonStyle))

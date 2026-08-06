@@ -12,7 +12,10 @@ import {
 } from '../config/gameData';
 import { playerProfile } from '../services/PlayerProfile';
 import { COLORS, showToast, textStyle } from '../ui';
-import { CAMERA_VIEW_HEIGHT, CAMERA_VIEW_WIDTH, configureSharpCamera, GAME_CENTER_X, GAME_CENTER_Y, GAME_HEIGHT, GAME_WIDTH } from '../config/layout';
+import {
+    CAMERA_VIEW_HEIGHT, CAMERA_VIEW_WIDTH, configureSharpCamera, GAME_CENTER_X, GAME_CENTER_Y,
+    GAME_HEIGHT, GAME_WIDTH, watchResponsiveLayout,
+} from '../config/layout';
 import { playMusic, playSfx, preloadAudio, stopMusic } from '../services/AudioService';
 import { generateEdgeSpawn } from '../services/SpaceGenerator';
 
@@ -118,19 +121,20 @@ export default class PlayScene extends Phaser.Scene {
         });
         this.touch = new TouchControls(this);
         this.createHud();
+        watchResponsiveLayout(this, layout => this.applyLayout(layout));
         this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.stopAudio());
     }
 
     createHud() {
         const topBarWidth = GAME_WIDTH - 80;
-        const hudBg = this.add.graphics().setDepth(1999);
-        hudBg.fillStyle(COLORS.panelDark, 0.72);
-        hudBg.fillRoundedRect(40, 10, topBarWidth, 75, 12);
-        hudBg.lineStyle(1.5, COLORS.cyan, 0.45);
-        hudBg.strokeRoundedRect(40, 10, topBarWidth, 75, 12);
+        this.hudBg = this.add.graphics().setDepth(1999);
+        this.hudBg.fillStyle(COLORS.panelDark, 0.72);
+        this.hudBg.fillRoundedRect(40, 10, topBarWidth, 75, 12);
+        this.hudBg.lineStyle(1.5, COLORS.cyan, 0.45);
+        this.hudBg.strokeRoundedRect(40, 10, topBarWidth, 75, 12);
 
         const runName = this.mode === 'endless' ? 'ENDLESS MODE' : `MISSION ${this.level.id} • ${this.level.name}`;
-        this.add.text(90, 48, runName, textStyle(16, '#9ea9d1')).setDepth(2000);
+        this.runNameText = this.add.text(90, 48, runName, textStyle(16, '#9ea9d1')).setDepth(2000);
         this.scoreText = this.add.text(GAME_WIDTH - 90, 20, 'SCORE 0', textStyle(24, '#ffffff')).setOrigin(1, 0).setDepth(2000);
         const objective = this.mode === 'endless' ? 'DESTROYED 0 • THREAT 1' : `TARGET 0/${this.level.targetKills}`;
         this.objectiveText = this.add.text(GAME_WIDTH - 90, 50, objective, textStyle(18, '#ffd166')).setOrigin(1, 0).setDepth(2000);
@@ -142,10 +146,37 @@ export default class PlayScene extends Phaser.Scene {
             .setDepth(3000)
             .setInteractive({ useHandCursor: true })
             .on('pointerdown', () => this.togglePause());
-        this.add.text(GAME_CENTER_X, 48, 'Ⅱ', textStyle(18, COLORS.cyan)).setOrigin(0.5).setDepth(3001);
+        this.pauseIcon = this.add.text(GAME_CENTER_X, 48, 'Ⅱ', textStyle(18, COLORS.cyan)).setOrigin(0.5).setDepth(3001);
 
         this.weaponText = this.add.text(GAME_CENTER_X, 95, '', textStyle(17, '#ffd166')).setOrigin(0.5).setDepth(2000);
         this.refreshHud();
+    }
+
+    applyLayout(layout) {
+        const top = layout.cameraTop;
+        const left = layout.cameraLeft;
+        const right = layout.cameraRight;
+        this.bg?.setSize(layout.cameraWidth, layout.cameraHeight);
+        this.spaceLayers?.forEach(layer => layer.sprite.setSize(layout.cameraWidth, layout.cameraHeight));
+        this.physics.world.setBounds(left, top, layout.cameraWidth, layout.cameraHeight);
+
+        if (this.hudBg) {
+            this.hudBg.clear();
+            this.hudBg.fillStyle(COLORS.panelDark, 0.72);
+            this.hudBg.fillRoundedRect(left + 40, top + 10, layout.cameraWidth - 80, 75, 12);
+            this.hudBg.lineStyle(1.5, COLORS.cyan, 0.45);
+            this.hudBg.strokeRoundedRect(left + 40, top + 10, layout.cameraWidth - 80, 75, 12);
+        }
+        this.healthBar?.setPosition(left + 84, top + 18);
+        this.runNameText?.setPosition(left + 90, top + 48);
+        this.scoreText?.setPosition(right - 90, top + 20);
+        this.objectiveText?.setPosition(right - 90, top + 50);
+        this.ammoText?.setPosition(GAME_CENTER_X - 105, top + 22);
+        this.coinText?.setPosition(GAME_CENTER_X + 115, top + 22);
+        this.pauseButton?.setPosition(GAME_CENTER_X, top + 48);
+        this.pauseIcon?.setPosition(GAME_CENTER_X, top + 48);
+        this.weaponText?.setPosition(GAME_CENTER_X, top + 95);
+        this.pauseBackdrop?.setSize(layout.cameraWidth, layout.cameraHeight);
     }
 
     update(time, delta) {
@@ -394,8 +425,10 @@ export default class PlayScene extends Phaser.Scene {
 
     generateSpawn(padding, forwardBias, targetSpread) {
         return generateEdgeSpawn({
-            width: GAME_WIDTH,
-            height: GAME_HEIGHT,
+            width: CAMERA_VIEW_WIDTH,
+            height: CAMERA_VIEW_HEIGHT,
+            centerX: GAME_CENTER_X,
+            centerY: GAME_CENTER_Y,
             padding,
             forwardBias,
             targetSpread,
@@ -507,6 +540,7 @@ export default class PlayScene extends Phaser.Scene {
             this.thrustEmitter.stop();
             this.pauseOverlay = this.add.container(GAME_CENTER_X, GAME_CENTER_Y).setDepth(5000);
             const bg = this.add.rectangle(0, 0, CAMERA_VIEW_WIDTH, CAMERA_VIEW_HEIGHT, 0x090c1a, 0.82).setInteractive();
+            this.pauseBackdrop = bg;
             const title = this.add.text(0, -80, 'PAUSED', textStyle(44)).setOrigin(0.5);
             const resume = this.add.text(0, 0, 'RESUME', textStyle(30, '#7ae582')).setOrigin(0.5).setPadding(25).setInteractive({ useHandCursor: true }).on('pointerdown', () => this.togglePause());
             const quitLabel = this.mode === 'endless' ? 'QUIT RUN' : 'QUIT MISSION';
@@ -519,6 +553,8 @@ export default class PlayScene extends Phaser.Scene {
             this.physics.world.resume();
             this.themeMusic.resume();
             this.pauseOverlay?.destroy();
+            this.pauseOverlay = undefined;
+            this.pauseBackdrop = undefined;
         }
     }
 

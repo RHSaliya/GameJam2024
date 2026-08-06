@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import { SKINS, UPGRADES } from '../config/gameData';
 import { playerProfile } from '../services/PlayerProfile';
 import { addBackButton, addButton, addPanel, addSpaceBackground, addTitle, COLORS, formatNumber, showToast, textStyle } from '../ui';
-import { configureSharpCamera } from '../config/layout';
+import { configureSharpCamera, watchResponsiveLayout } from '../config/layout';
 
 export default class HangarScene extends Phaser.Scene {
     constructor() { super('hangar'); }
@@ -17,6 +17,7 @@ export default class HangarScene extends Phaser.Scene {
         addSpaceBackground(this);
         addTitle(this, 'THE HANGAR', 'Upgrade equipment and customize your flight deck');
         this.creditText = this.add.text(1200, 30, '', textStyle(24, '#ffd166')).setOrigin(1, 0);
+        watchResponsiveLayout(this, layout => this.creditText.setPosition(layout.safeRight, layout.cameraTop + 30));
 
         this.tabUpgrades = addButton(this, 520, 105, 'UPGRADES', () => this.render('upgrades'), { width: 220, height: 42, accent: COLORS.cyan });
         this.tabShips = addButton(this, 760, 105, 'SHIPS', () => this.render('skins'), { width: 220, height: 42, accent: COLORS.yellow });

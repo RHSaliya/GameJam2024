@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { COLORS, textStyle } from '../ui';
-import { GAME_HEIGHT, GAME_WIDTH } from '../config/layout';
+import { GAME_HEIGHT, GAME_WIDTH, watchResponsiveLayout } from '../config/layout';
 import { playerProfile } from '../services/PlayerProfile';
 
 export default class TouchControls {
@@ -32,6 +32,7 @@ export default class TouchControls {
         scene.input.on('pointermove', this.onPointerMoveHandler);
         scene.input.on('gameout', () => this.reset());
         scene.events.once('shutdown', () => this.destroy());
+        watchResponsiveLayout(scene, layout => this.applyLayout(layout));
     }
 
     triggerHaptic() {
@@ -172,6 +173,50 @@ export default class TouchControls {
             return direction;
         }
         return graphics;
+    }
+
+    applyLayout(layout) {
+        const left = layout.cameraLeft;
+        const right = layout.cameraRight;
+        const bottom = layout.cameraBottom;
+        const controlY = bottom - 82;
+        const positions = {
+            LEFT: { x: left + 90, y: controlY },
+            RIGHT: { x: left + 220, y: controlY },
+            THRUST: { x: right - 250, y: controlY },
+            FIRE: { x: right - 78, y: controlY },
+        };
+        this.controls.forEach(control => {
+            const position = positions[control.action];
+            if (!position) return;
+            control.container.setPosition(position.x, position.y);
+            control.hitZone.setPosition(position.x, position.y);
+        });
+
+        if (!this.joystickElements) return;
+        const baseX = left + 155;
+        const baseY = bottom - 86;
+        const elements = this.joystickElements;
+        elements.halo.setPosition(baseX, baseY);
+        elements.baseCircle.setPosition(baseX, baseY);
+        elements.guideCircle.setPosition(baseX, baseY);
+        elements.stickShadow.setPosition(baseX, baseY + 4);
+        elements.stickCircle.setPosition(baseX, baseY);
+        elements.stickCore.setPosition(baseX, baseY - 3);
+        elements.label.setPosition(baseX, baseY + 52);
+        elements.hitZone.setPosition(baseX, baseY);
+        elements.baseX = baseX;
+        elements.baseY = baseY;
+        this.joystickState = {
+            ...this.joystickState,
+            active: false,
+            pointerId: null,
+            baseX,
+            baseY,
+            x: baseX,
+            y: baseY,
+            distance: 0,
+        };
     }
 
     releasePointer(pointerId) {

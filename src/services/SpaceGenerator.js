@@ -3,14 +3,14 @@ const TWO_PI = Math.PI * 2;
 export function generateEdgeSpawn({
     width,
     height,
+    centerX = width / 2,
+    centerY = height / 2,
     padding = 120,
     travelVelocity = { x: 0, y: 0 },
     forwardBias = 0.7,
     targetSpread = 0.22,
     random = Math.random,
 }) {
-    const centerX = width / 2;
-    const centerY = height / 2;
     const travelSpeed = Math.hypot(travelVelocity.x, travelVelocity.y);
     const biased = travelSpeed > 40 && random() < forwardBias;
     const angle = biased

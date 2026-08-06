@@ -201,6 +201,9 @@ export class PlayerProfile {
         const firstCompletion = campaignVictory && !this.data.completedLevels.includes(levelId);
         const creditsEarned = coins + Math.floor(score / 8) + kills * 3 + (firstCompletion ? level.reward : campaignVictory ? Math.floor(level.reward * 0.25) : 0);
 
+        const previousBest = mode === 'endless' ? this.data.endlessBestScore : this.data.bestScore;
+        const isNewBest = score > previousBest && score > 0;
+
         this.data.credits += creditsEarned;
         this.data.bestScore = Math.max(this.data.bestScore, score);
         if (mode === 'endless') this.data.endlessBestScore = Math.max(this.data.endlessBestScore, score);
@@ -221,7 +224,7 @@ export class PlayerProfile {
         }
         const unlocked = this.checkAchievements();
         this.save();
-        return { creditsEarned, firstCompletion, unlocked };
+        return { creditsEarned, firstCompletion, unlocked, isNewBest };
     }
 
     checkAchievements() {

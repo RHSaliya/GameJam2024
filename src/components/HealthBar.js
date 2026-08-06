@@ -7,7 +7,9 @@ export default class HealthBar {
         this.currentHealth = maxHealth;
         this.bgGraphics = scene.add.graphics().setDepth(2000);
         this.healthBar = scene.add.graphics().setDepth(2001);
-        this.hpText = scene.add.text(184, 27, '', textStyle(14, '#ffffff')).setOrigin(0.5).setDepth(2002);
+        this.x = 84;
+        this.y = 18;
+        this.hpText = scene.add.text(this.x + 100, this.y + 9, '', textStyle(14, '#ffffff')).setOrigin(0.5).setDepth(2002);
         this.updateHealthBar();
     }
 
@@ -16,8 +18,8 @@ export default class HealthBar {
     updateHealthBar() {
         const width = 200;
         const height = 18;
-        const x = 84;
-        const y = 18;
+        const x = this.x;
+        const y = this.y;
         const healthPercentage = Math.max(0, this.currentHealth / this.maxHealth);
         const color = healthPercentage > 0.6 ? 0x7ae582 : healthPercentage > 0.3 ? 0xffd166 : 0xff6b6b;
 
@@ -40,6 +42,13 @@ export default class HealthBar {
         }
 
         this.hpText.setText(`HP ${Math.ceil(this.currentHealth)}/${this.maxHealth}`);
+    }
+
+    setPosition(x, y) {
+        this.x = x;
+        this.y = y;
+        this.hpText.setPosition(x + 100, y + 9);
+        this.updateHealthBar();
     }
 
     decreaseHealth(amount) {

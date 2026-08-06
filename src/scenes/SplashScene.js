@@ -1,5 +1,5 @@
 import Phaser from 'phaser'
-import { CAMERA_VIEW_HEIGHT, CAMERA_VIEW_WIDTH, configureSharpCamera, GAME_CENTER_X, GAME_CENTER_Y, GAME_HEIGHT, GAME_WIDTH } from '../config/layout'
+import { CAMERA_VIEW_HEIGHT, CAMERA_VIEW_WIDTH, configureSharpCamera, GAME_CENTER_X, GAME_CENTER_Y, GAME_HEIGHT, GAME_WIDTH, watchResponsiveLayout } from '../config/layout'
 import { preloadAudio } from '../services/AudioService'
 import { addBrandTitle, textStyle } from '../ui'
 
@@ -22,6 +22,9 @@ export default class SplashScene extends Phaser.Scene {
         this.splashImage = this.add.tileSprite(GAME_CENTER_X, GAME_CENTER_Y, CAMERA_VIEW_WIDTH, CAMERA_VIEW_HEIGHT, 'background-splash');
         this.splashImage.alpha = 0.82;
         this.splashImage.setTileScale(Math.max(GAME_WIDTH / 1024, GAME_HEIGHT / 1024) * 1.08);
+        watchResponsiveLayout(this, layout => {
+            if (this.splashImage?.active) this.splashImage.setSize(layout.cameraWidth, layout.cameraHeight);
+        });
         // Calculate the center of the screen
         const centerX = GAME_CENTER_X;
         this.splashImage2 = this.add.sprite(centerX, 188, 'background-splash2').setScale(0.48);

@@ -1,3 +1,6 @@
+import { textStyle } from '../ui';
+import { getViewportLayout, watchResponsiveLayout } from '../config/layout';
+
 export default class PlayerScore {
     score = 0;
 
@@ -6,17 +9,8 @@ export default class PlayerScore {
         this.initScore();
     }
     initScore() {
-        const gameWidth = +this.scene.sys.game.config.width;
-        const fontSize = gameWidth * 45 / 800;
-
-        const buttonStyle = {
-            fontFamily: 'Caramel',
-            color: '#ffffff',
-            fontWeight: 800,
-            fontSize: `${fontSize}px`,
-        }
-
-        this.scoreText = this.scene.add.text(0, 0, `Score: ${this.score}`, buttonStyle);
+        this.scoreText = this.scene.add.text(0, 0, `Score: ${this.score}`, textStyle(34)).setOrigin(1, 0);
+        watchResponsiveLayout(this.scene, layout => this.scoreText.setPosition(layout.safeRight, layout.safeTop));
     }
 
     addScore(amount) {
@@ -28,14 +22,12 @@ export default class PlayerScore {
     }
 
     drawScore(label = "") {
-        const margin = 20;
-        const endX = +this.scene.sys.game.config.width - margin;
-
         if (label) {
             this.scoreText.setText(`${label}: ${this.getScore()}`);
         } else {
             this.scoreText.setText(`Score: ${this.getScore()}`);
         }
-        this.scoreText.setPosition(endX - this.scoreText.width, margin);
+        const layout = getViewportLayout();
+        this.scoreText.setPosition(layout.safeRight, layout.safeTop);
     }
 }

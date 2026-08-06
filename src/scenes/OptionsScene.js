@@ -21,9 +21,10 @@ export default class OptionsScene extends Phaser.Scene {
         this.createVolumeSlider('MUSIC', 'musicVolume', 205, updateMusicVolume);
         this.createVolumeSlider('SOUND EFFECTS', 'sfxVolume', 270);
 
-        this.input.on('drag', (_pointer, target, dragX) => {
+        this.input.on('drag', (pointer, target) => {
             if (!target.audioSlider) return;
-            this.setSliderVolume(target.audioSlider, dragX);
+            const worldPoint = pointer.positionToCamera(this.cameras.main);
+            this.setSliderVolume(target.audioSlider, worldPoint.x);
         });
 
         const toggleY1 = 330;
@@ -77,7 +78,10 @@ export default class OptionsScene extends Phaser.Scene {
         const handle = this.add.circle(315 + 650 * volume, y, 18, COLORS.white, 1).setInteractive({ draggable: true, useHandCursor: true });
         const slider = { fill, handle, valueText, setting, onChange };
         handle.audioSlider = slider;
-        track.on('pointerdown', pointer => this.setSliderVolume(slider, pointer.x));
+        track.on('pointerdown', pointer => {
+            const worldPoint = pointer.positionToCamera(this.cameras.main);
+            this.setSliderVolume(slider, worldPoint.x);
+        });
         this.input.setDraggable(handle);
     }
 

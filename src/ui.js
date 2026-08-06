@@ -1,5 +1,8 @@
 import Phaser from 'phaser';
-import { CAMERA_VIEW_HEIGHT, CAMERA_VIEW_WIDTH, GAME_CENTER_X, GAME_HEIGHT, GAME_WIDTH, RENDER_SCALE } from './config/layout';
+import {
+    CAMERA_VIEW_HEIGHT, CAMERA_VIEW_WIDTH, GAME_CENTER_X, GAME_HEIGHT, GAME_WIDTH,
+    RENDER_SCALE, watchResponsiveLayout,
+} from './config/layout';
 import { playMusic } from './services/AudioService';
 import { playerProfile } from './services/PlayerProfile';
 
@@ -57,7 +60,16 @@ export function addSpaceBackground(scene, key = 'menu', options = {}) {
         });
     }
 
-    scene.add.rectangle(width / 2, height / 2, CAMERA_VIEW_WIDTH, CAMERA_VIEW_HEIGHT, COLORS.navy, 0.35).setDepth(-1);
+    const veil = scene.add.rectangle(width / 2, height / 2, CAMERA_VIEW_WIDTH, CAMERA_VIEW_HEIGHT, COLORS.navy, 0.35).setDepth(-1);
+    watchResponsiveLayout(scene, layout => {
+        if (!bg.active) return;
+        if (animated) bg.setSize(layout.cameraWidth, layout.cameraHeight);
+        else {
+            const extent = Math.max(layout.cameraWidth, layout.cameraHeight);
+            bg.setDisplaySize(extent, extent);
+        }
+        veil.setSize(layout.cameraWidth, layout.cameraHeight);
+    });
     return bg;
 }
 
@@ -195,9 +207,13 @@ export function addButton(scene, x, y, label, onPress, options = {}) {
 }
 
 export function addBackButton(scene, target = 'menu', data) {
-    return addButton(scene, 92, GAME_HEIGHT - 36, '‹ BACK', () => scene.scene.start(target, data), {
+    const button = addButton(scene, 92, GAME_HEIGHT - 36, '‹ BACK', () => scene.scene.start(target, data), {
         width: 125, height: 42, fontSize: 22, accent: COLORS.yellow,
     });
+    watchResponsiveLayout(scene, layout => {
+        if (button.active) button.setPosition(layout.safeLeft + 52, layout.safeBottom + 4);
+    });
+    return button;
 }
 
 export function formatNumber(value) {
@@ -217,11 +233,14 @@ export function showToast(scene, message, color = COLORS.green) {
     const text = scene.add.text(0, 0, message, textStyle(21, '#ffffff')).setOrigin(0.5);
     toast.add([bg, text]);
     toast.setAlpha(0);
+    watchResponsiveLayout(scene, layout => {
+        if (toast.active) toast.setPosition(GAME_CENTER_X, layout.safeBottom - 25);
+    });
 
     scene.tweens.add({
         targets: toast,
         alpha: 1,
-        y: 512,
+        y: '-=23',
         duration: 220,
         ease: 'Back.out',
         yoyo: true,

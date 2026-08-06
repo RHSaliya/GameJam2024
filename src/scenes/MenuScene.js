@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import '../../public/font.css';
 import { cleanDisplayName, playerProfile } from '../services/PlayerProfile';
 import { addBrandTitle, addButton, addSpaceBackground, formatNumber, showToast, textStyle, COLORS } from '../ui';
-import { configureSharpCamera, GAME_CENTER_X, GAME_WIDTH } from '../config/layout';
+import { configureSharpCamera, GAME_CENTER_X, GAME_WIDTH, watchResponsiveLayout } from '../config/layout';
 import { preloadAudio } from '../services/AudioService';
 import { leaderboardService } from '../services/LeaderboardService';
 
@@ -36,8 +36,8 @@ export default class MenuScene extends Phaser.Scene {
     createMenuActions() {
         const profile = playerProfile.data;
         const centerX = GAME_CENTER_X;
-        this.add.text(28, 20, `ENDLESS BEST ${formatNumber(profile.endlessBestScore)}`, textStyle(24, '#ffffff'));
-        this.add.text(GAME_WIDTH - 28, 20, `◆ ${formatNumber(profile.credits)}`, textStyle(25, '#ffd166')).setOrigin(1, 0);
+        const bestText = this.add.text(28, 20, `ENDLESS BEST ${formatNumber(profile.endlessBestScore)}`, textStyle(24, '#ffffff'));
+        const creditsText = this.add.text(GAME_WIDTH - 28, 20, `◆ ${formatNumber(profile.credits)}`, textStyle(25, '#ffd166')).setOrigin(1, 0);
 
         const go = (scene, data) => this.scene.start(scene, data);
         const left = centerX - 200;
@@ -50,8 +50,14 @@ export default class MenuScene extends Phaser.Scene {
         addButton(this, right, 450, 'OPTIONS', () => go('options'), { width: 360 });
         addButton(this, centerX, 512, 'HOW TO PLAY', () => go('instructions'), { width: 360 });
 
-        this.add.text(28, 564, `PILOT • ${profile.displayName}`, textStyle(22, '#ffffff')).setOrigin(0, 1);
-        this.add.text(GAME_WIDTH - 20, 585, 'v2.1', textStyle(14, '#7781a4')).setOrigin(1);
+        const pilotText = this.add.text(28, 564, `PILOT • ${profile.displayName}`, textStyle(22, '#ffffff')).setOrigin(0, 1);
+        const versionText = this.add.text(GAME_WIDTH - 20, 585, 'v2.1', textStyle(14, '#7781a4')).setOrigin(1);
+        watchResponsiveLayout(this, layout => {
+            bestText.setPosition(layout.safeLeft, layout.cameraTop + 20);
+            creditsText.setPosition(layout.safeRight, layout.cameraTop + 20);
+            pilotText.setPosition(layout.safeLeft, layout.cameraBottom - 36);
+            versionText.setPosition(layout.safeRight, layout.cameraBottom - 15);
+        });
     }
 
     showPilotNameOnboarding() {

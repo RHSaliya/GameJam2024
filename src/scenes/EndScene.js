@@ -28,6 +28,7 @@ export default class EndScene extends Phaser.Scene {
             seconds: Math.max(0, Number(data.seconds) || 0),
             levelId: getLevel(data.levelId).id,
         };
+
         const rewards = playerProfile.recordRun(run);
         if (run.mode === 'endless') {
             leaderboardService.submitScore({ score: run.score, threat: run.threat })
@@ -37,43 +38,99 @@ export default class EndScene extends Phaser.Scene {
         addSpaceBackground(this);
         if (!run.victory) playMusic(this, 'deathTheme', { volume: 0.4, fade: 500 });
 
-        const resultTitle = run.mode === 'endless' ? 'ENDLESS RUN OVER' : run.victory ? 'MISSION COMPLETE' : 'SHIP LOST';
-        const runLabel = run.mode === 'endless' ? 'ENDLESS MODE' : `MISSION ${run.levelId} • ${getLevel(run.levelId).name}`;
-        this.add.text(640, 64, resultTitle, textStyle(46, run.victory ? '#7ae582' : '#ff6b6b')).setOrigin(0.5);
-        this.add.text(640, 105, runLabel, textStyle(21, COLORS.muted)).setOrigin(0.5);
-        addPanel(this, 640, 253, 900, run.speedBonus > 0 ? 270 : 240, 0.94);
+        // Outcome Header
+        const titleText = run.mode === 'endless'
+            ? 'ENDLESS RUN OVER'
+            : run.victory
+            ? '★ MISSION COMPLETE ★'
+            : '⚠ SHIP DESTROYED ⚠';
+        const titleColor = run.victory ? '#7ae582' : run.mode === 'endless' ? '#5ce1e6' : '#ff6b6b';
+        const runLabel = run.mode === 'endless'
+            ? `ENDLESS MODE • THREAT LEVEL ${run.threat}`
+            : `SECTOR 0${run.levelId} • ${getLevel(run.levelId).name.toUpperCase()}`;
 
-        const stats = [
-            ['SCORE', formatNumber(run.score)],
-            ...(run.speedBonus > 0 ? [['SPEED BONUS', `+${formatNumber(run.speedBonus)}`]] : []),
-            ['ENEMIES / RESCUES', `${run.kills} / ${run.rescues}`],
-            ['COINS COLLECTED', `◆ ${run.coins}`],
-            ['FLIGHT TIME', `${run.seconds}s`],
-            ['CREDITS EARNED', `◆ ${formatNumber(rewards.creditsEarned)}`],
-        ];
-        stats.forEach(([label, value], index) => {
-            const y = 140 + index * (run.speedBonus > 0 ? 37 : 42);
-            this.add.text(260, y, label, textStyle(21, COLORS.muted));
-            const valueColor = label === 'FLIGHT TIME' || label === 'SPEED BONUS' ? '#ffd166' : '#ffffff';
-            this.add.text(1020, y, String(value), textStyle(25, valueColor)).setOrigin(1, 0);
+        const headerTitle = this.add.text(640, 52, titleText, textStyle(44, titleColor)).setOrigin(0.5);
+        headerTitle.setShadow(0, 4, titleColor, 10, true, true);
+        this.add.text(640, 92, runLabel, textStyle(18, COLORS.muted)).setOrigin(0.5);
+
+        // Main Score Card Frame
+        addPanel(this, 640, 272, 960, 310, 0.94);
+
+        // --- Hero Score Banner (Top Center of Score Card) ---
+        this.add.text(640, 140, 'FINAL DEBRIEF SCORE', textStyle(16, COLORS.cyan)).setOrigin(0.5);
+
+        const heroScoreText = this.add.text(640, 175, '0', textStyle(44, '#ffffff'))
+            .setOrigin(0.5)
+            .setShadow(0, 3, 'rgba(92, 225, 230, 0.7)', 10, true, true);
+
+        // Animated Score Counter
+        let displayScore = 0;
+        const targetScore = run.score;
+        this.tweens.addCounter({
+            from: 0,
+            to: targetScore,
+            duration: 900,
+            ease: 'Cubic.out',
+            onUpdate: tween => {
+                displayScore = Math.floor(tween.getValue());
+                heroScoreText.setText(formatNumber(displayScore));
+            },
         });
 
-        if (rewards.unlocked.length) {
-            this.add.text(640, 391, `★ ACHIEVEMENT: ${rewards.unlocked.map(item => item.name).join(', ')}`, textStyle(19, '#ffd166')).setOrigin(0.5);
-        } else if (rewards.firstCompletion) {
-            this.add.text(640, 391, 'NEXT MISSION UNLOCKED', textStyle(19, '#7ae582')).setOrigin(0.5);
+        // New High Score Badge
+        if (rewards.isNewBest) {
+            const newRecordBadge = this.add.text(640, 212, '★ NEW HIGH SCORE! ★', textStyle(17, '#ffd166')).setOrigin(0.5);
+            this.tweens.add({
+                targets: newRecordBadge,
+                scale: 1.08,
+                duration: 650,
+                ease: 'Sine.easeInOut',
+                yoyo: true,
+                repeat: -1,
+            });
         }
 
+        // --- Grid Metric Cards (4 Stat Boxes) ---
+        const boxY = 300;
+        const boxWidth = 210;
+        const boxHeight = 72;
+        const boxes = [
+            { x: 260, label: 'ELIMINATED', value: `${run.kills} Targets`, icon: '🎯', color: '#ffffff' },
+            { x: 510, label: 'COINS COLLECTED', value: `◆ ${run.coins}`, icon: '🪙', color: '#ffd166' },
+            { x: 760, label: 'FLIGHT TIME', value: `${run.seconds}s ${run.speedBonus > 0 ? `(+${run.speedBonus} bonus)` : ''}`, icon: '⏱', color: '#5ce1e6' },
+            { x: 1010, label: 'CREDITS REWARD', value: `+◆ ${formatNumber(rewards.creditsEarned)}`, icon: '💎', color: '#7ae582' },
+        ];
+
+        boxes.forEach(box => {
+            const cardGraphics = this.add.graphics();
+            cardGraphics.fillStyle(COLORS.panel, 0.75);
+            cardGraphics.fillRoundedRect(box.x - boxWidth / 2, boxY - boxHeight / 2, boxWidth, boxHeight, 8);
+            cardGraphics.lineStyle(1.5, COLORS.cyan, 0.35);
+            cardGraphics.strokeRoundedRect(box.x - boxWidth / 2, boxY - boxHeight / 2, boxWidth, boxHeight, 8);
+
+            this.add.text(box.x, boxY - 18, `${box.icon} ${box.label}`, textStyle(14, COLORS.muted)).setOrigin(0.5);
+            this.add.text(box.x, boxY + 10, box.value, textStyle(19, box.color)).setOrigin(0.5);
+        });
+
+        // --- Achievement / Sector Unlock Alert ---
+        if (rewards.unlocked.length) {
+            const bannerText = `★ ACHIEVEMENT UNLOCKED: ${rewards.unlocked.map(item => item.name).join(', ')} ★`;
+            this.add.text(640, 396, bannerText, textStyle(18, '#ffd166')).setOrigin(0.5);
+        } else if (rewards.firstCompletion) {
+            this.add.text(640, 396, '★ NEXT SECTOR UNLOCKED ★', textStyle(18, '#7ae582')).setOrigin(0.5);
+        }
+
+        // --- Action Buttons ---
         const nextLevel = Math.min(LEVELS.length, run.levelId + 1);
         if (run.mode === 'endless') {
-            addButton(this, 450, 458, 'RETRY ENDLESS', () => this.go('play', { mode: 'endless', levelId: 1 }), { width: 320, accent: COLORS.green });
-            addButton(this, 830, 458, 'HANGAR', () => this.go('hangar'), { width: 320, accent: COLORS.yellow });
+            addButton(this, 450, 460, 'RETRY ENDLESS', () => this.go('play', { mode: 'endless', levelId: 1 }), { width: 320, accent: COLORS.green });
+            addButton(this, 830, 460, 'HANGAR', () => this.go('hangar'), { width: 320, accent: COLORS.yellow });
         } else if (run.victory && run.levelId < LEVELS.length) {
-            addButton(this, 450, 458, 'NEXT MISSION', () => this.go('play', { levelId: nextLevel }), { width: 320, accent: COLORS.green });
-            addButton(this, 830, 458, 'HANGAR', () => this.go('hangar'), { width: 320, accent: COLORS.yellow });
+            addButton(this, 450, 460, 'NEXT MISSION', () => this.go('play', { levelId: nextLevel }), { width: 320, accent: COLORS.green });
+            addButton(this, 830, 460, 'HANGAR', () => this.go('hangar'), { width: 320, accent: COLORS.yellow });
         } else {
-            addButton(this, 450, 458, 'RETRY', () => this.go('play', { levelId: run.levelId }), { width: 320, accent: COLORS.green });
-            addButton(this, 830, 458, 'HANGAR', () => this.go('hangar'), { width: 320, accent: COLORS.yellow });
+            addButton(this, 450, 460, 'RETRY MISSION', () => this.go('play', { levelId: run.levelId }), { width: 320, accent: COLORS.green });
+            addButton(this, 830, 460, 'HANGAR', () => this.go('hangar'), { width: 320, accent: COLORS.yellow });
         }
         addButton(this, 640, 528, run.mode === 'endless' ? 'MAIN MENU' : 'MISSION SELECT', () => this.go(run.mode === 'endless' ? 'menu' : 'levels'), { width: 320, height: 44, fontSize: 22 });
     }

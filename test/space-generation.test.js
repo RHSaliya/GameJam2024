@@ -29,3 +29,17 @@ test('space generation favors the direction of travel at speed', () => {
     assert.equal(spawn.targetX, 640);
     assert.equal(spawn.targetY, 300);
 });
+
+test('space generation can stay outside a tablet camera while targeting the centered ship', () => {
+    const spawn = generateEdgeSpawn({
+        width: 1280,
+        height: 960,
+        centerX: 640,
+        centerY: 300,
+        padding: 100,
+        random: () => 0.5,
+    });
+    assert.ok(spawn.x <= -100 || spawn.x >= 1380 || spawn.y <= -280 || spawn.y >= 880);
+    assert.equal(spawn.targetX, 640);
+    assert.equal(spawn.targetY, 300);
+});
