@@ -77,9 +77,9 @@ export function addTitle(scene, title, subtitle = '') {
     const titleText = scene.add.text(centerX, 38, title, textStyle(42, '#ffffff'))
         .setOrigin(0.5)
         .setShadow(0, 3, '#080a18', 6);
-    if (subtitle) {
-        scene.add.text(centerX, 75, subtitle, textStyle(19, COLORS.muted))
-            .setOrigin(0.5);
-    }
+    const subtitleText = subtitle
+        ? scene.add.text(centerX, 75, subtitle, textStyle(19, COLORS.muted)).setOrigin(0.5)
+        : undefined;
+    titleText.subtitle = subtitleText;
     return titleText;
 }
