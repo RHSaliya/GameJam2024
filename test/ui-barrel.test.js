@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 
 const barrel = readFileSync(new URL('../src/ui.js', import.meta.url), 'utf8');
 
-const SUBMODULES = ['theme', 'format', 'text', 'panel', 'button', 'background', 'toast', 'transitions', 'icons'];
+const SUBMODULES = ['theme', 'format', 'text', 'panel', 'button', 'background', 'toast', 'transitions', 'icons', 'variants'];
 
 test('the barrel re-exports every ui submodule', () => {
     SUBMODULES.forEach(name => {

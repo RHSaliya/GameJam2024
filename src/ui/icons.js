@@ -73,6 +73,7 @@ export function drawIcon(scene, name, x, y, size = 16, color = COLORS.white) {
     const graphics = scene.add.graphics({ x, y });
     const painter = PAINTERS[name];
     if (painter) painter(graphics, size / 2, color);
+    else console.warn(`drawIcon: unknown icon "${name}", drawing nothing`);
     return graphics;
 }
 

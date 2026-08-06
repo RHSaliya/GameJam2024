@@ -1,5 +1,6 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 const ANDROID_GRADLE = 'android/app/build.gradle';
 const IOS_PBXPROJ = 'ios/App/App.xcodeproj/project.pbxproj';
@@ -54,7 +55,7 @@ export async function syncNativeVersion(rootDir = process.cwd()) {
     return { versionName, versionCode, files };
 }
 
-if (import.meta.main) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
     const result = await syncNativeVersion();
     console.log(`Synced ${result.versionName} (code ${result.versionCode}) → ${result.files.join(', ') || 'no changes'}`);
 }

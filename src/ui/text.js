@@ -9,6 +9,9 @@ const toCssColor = color => (typeof color === 'number'
 // the scenes) or one of the six named scale tokens. Tokens additionally carry
 // letter-spacing; numeric callers get exactly the object they always got.
 export const textStyle = (sizeOrToken = 28, color = '#ffffff') => {
+    if (typeof sizeOrToken === 'string' && !TYPE[sizeOrToken]) {
+        console.warn(`textStyle: unknown size token "${sizeOrToken}", falling back to "body"`);
+    }
     const token = typeof sizeOrToken === 'string' ? (TYPE[sizeOrToken] || TYPE.body) : undefined;
     const size = token ? token.size : sizeOrToken;
     const style = {

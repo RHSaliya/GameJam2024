@@ -24,6 +24,10 @@ export default class SplashScene extends Phaser.Scene {
 
 
     create() {
+        // Phaser reuses this Scene instance across restarts, so the latch
+        // from a previous run must be cleared here or a restarted splash
+        // would wedge permanently and never reach the menu.
+        this.launching = false;
         configureSharpCamera(this);
         this.splashImage = this.add.tileSprite(GAME_CENTER_X, GAME_CENTER_Y, CAMERA_VIEW_WIDTH, CAMERA_VIEW_HEIGHT, 'background-splash');
         this.splashImage.alpha = 0.82;

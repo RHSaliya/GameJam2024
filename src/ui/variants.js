@@ -17,6 +17,10 @@ export function resolveButtonStyle({
     disabled = false, hovered = false, pressed = false, selected = false,
 } = {}) {
     if (disabled) {
+        // Intentional divergence from the pre-refactor button.js, which computed
+        // (hovered || selected) ? 3 : 2 even for disabled buttons. A disabled
+        // button ignores hover/selected state entirely here — do not "restore"
+        // the variable stroke width against git history for this branch.
         return {
             fill: 0x12162b, fillAlpha: 0.4,
             stroke: 0x3a4263, strokeAlpha: 0.3, strokeWidth: 2,

@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { addBackButton, addPanel, addSpaceBackground, addTitle, COLORS, textStyle } from '../ui';
-import { configureSharpCamera, watchResponsiveLayout } from '../config/layout';
+import { configureSharpCamera } from '../config/layout';
 
 export default class InstructionsScene extends Phaser.Scene {
     constructor() { super('instructions'); }
@@ -8,7 +8,7 @@ export default class InstructionsScene extends Phaser.Scene {
     create() {
         configureSharpCamera(this);
         addSpaceBackground(this);
-        const title = addTitle(this, 'HOW TO PLAY', 'Finish campaign targets quickly or survive as long as you can in Endless Mode');
+        addTitle(this, 'HOW TO PLAY', 'Finish campaign targets quickly or survive as long as you can in Endless Mode');
         addPanel(this, 640, 305, 1000, 430);
         const sections = [
             ['↺  ↻', 'ROTATE', 'Touch the left controls. Keyboard: A/D or arrow keys.'],
@@ -26,10 +26,6 @@ export default class InstructionsScene extends Phaser.Scene {
             this.add.text(290, y + 3, body, textStyle(18, COLORS.muted)).setWordWrapWidth(760);
         });
         this.add.text(640, 515, 'Campaign has no passive score — finish faster for a bigger bonus. Endless threat rises every 10 enemies.', textStyle(17, '#7ae582')).setOrigin(0.5);
-        watchResponsiveLayout(this, layout => {
-            title.setY(layout.cameraTop + 38);
-            title.subtitle?.setY(layout.cameraTop + 75);
-        });
         addBackButton(this);
     }
 }

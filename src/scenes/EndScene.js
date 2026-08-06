@@ -3,7 +3,7 @@ import { LEVELS, getLevel } from '../config/gameData';
 import { playerProfile } from '../services/PlayerProfile';
 import { leaderboardService } from '../services/LeaderboardService';
 import { addButton, addPanel, addSpaceBackground, COLORS, drawIcon, fadeToScene, formatNumber, textStyle } from '../ui';
-import { configureSharpCamera, GAME_CENTER_X, watchResponsiveLayout } from '../config/layout';
+import { configureSharpCamera } from '../config/layout';
 import { playMusic, preloadAudio } from '../services/AudioService';
 
 export default class EndScene extends Phaser.Scene {
@@ -51,7 +51,7 @@ export default class EndScene extends Phaser.Scene {
 
         const headerTitle = this.add.text(640, 52, titleText, textStyle(44, titleColor)).setOrigin(0.5);
         headerTitle.setShadow(0, 4, titleColor, 10, true, true);
-        const runLabelText = this.add.text(640, 92, runLabel, textStyle(18, COLORS.muted)).setOrigin(0.5);
+        this.add.text(640, 92, runLabel, textStyle(18, COLORS.muted)).setOrigin(0.5);
 
         // Main Score Card Frame
         addPanel(this, 640, 272, 960, 310, 0.94);
@@ -134,11 +134,6 @@ export default class EndScene extends Phaser.Scene {
             addButton(this, 830, 460, 'HANGAR', () => this.go('hangar'), { width: 320, accent: COLORS.yellow });
         }
         addButton(this, 640, 528, run.mode === 'endless' ? 'MAIN MENU' : 'MISSION SELECT', () => this.go(run.mode === 'endless' ? 'menu' : 'levels'), { width: 320, height: 44, fontSize: 22 });
-
-        watchResponsiveLayout(this, layout => {
-            headerTitle.setPosition(GAME_CENTER_X, layout.cameraTop + 52);
-            runLabelText.setPosition(GAME_CENTER_X, layout.cameraTop + 92);
-        });
     }
 
     go(scene, data) {
