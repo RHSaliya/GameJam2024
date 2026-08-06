@@ -7,6 +7,10 @@ export default class Coin extends Phaser.Physics.Arcade.Image {
     }
 
     show(x, y, value, ship) {
+        // A coin can be recycled while its expiry fade is still running. That
+        // tween would otherwise carry on and fade out — then disable — the coin
+        // it was just reused for.
+        this.scene.tweens.killTweensOf(this);
         this.value = value;
         this.ship = ship;
         this.spawnTime = this.scene.time.now;
@@ -41,6 +45,7 @@ export default class Coin extends Phaser.Physics.Arcade.Image {
     collect() {
         if (!this.active) return 0;
         const value = this.value;
+        this.scene.tweens.killTweensOf(this);
         this.disableBody(true, true);
         return value;
     }

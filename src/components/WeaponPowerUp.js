@@ -7,6 +7,10 @@ export default class WeaponPowerUp extends Phaser.Physics.Arcade.Image {
     }
 
     show(x, y, weapon, ship) {
+        // Only four cores exist in the pool, so one is often reused while its
+        // expiry fade is still mid-flight. Drop that tween or the fresh core
+        // fades out and disables itself seconds early.
+        this.scene.tweens.killTweensOf(this);
         this.weaponId = weapon.id;
         this.ship = ship;
         this.spawnTime = this.scene.time.now;
@@ -39,6 +43,7 @@ export default class WeaponPowerUp extends Phaser.Physics.Arcade.Image {
     collect() {
         if (!this.active) return undefined;
         const weaponId = this.weaponId;
+        this.scene.tweens.killTweensOf(this);
         this.disableBody(true, true);
         return weaponId;
     }

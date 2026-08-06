@@ -27,7 +27,13 @@ export default class HangarScene extends Phaser.Scene {
         this.render('upgrades');
     }
 
-    clearDynamic() { this.dynamic.forEach(item => item.destroy()); this.dynamic = []; }
+    // Destroying a game object does not stop tweens targeting it, and the
+    // equipped ship carries an infinite pulse tween — so every tab switch left
+    // another one running against a dead object.
+    clearDynamic() {
+        this.dynamic.forEach(item => { this.tweens.killTweensOf(item); item.destroy(); });
+        this.dynamic = [];
+    }
     keep(item) { this.dynamic.push(item); return item; }
     refreshCredits() { this.creditText.setText(`◆ ${formatNumber(playerProfile.data.credits)}`); }
 

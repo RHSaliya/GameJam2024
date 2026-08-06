@@ -233,7 +233,7 @@ export function showToast(scene, message, color = COLORS.green) {
     const text = scene.add.text(0, 0, message, textStyle(21, '#ffffff')).setOrigin(0.5);
     toast.add([bg, text]);
     toast.setAlpha(0);
-    watchResponsiveLayout(scene, layout => {
+    const stopWatchingLayout = watchResponsiveLayout(scene, layout => {
         if (toast.active) toast.setPosition(GAME_CENTER_X, layout.safeBottom - 25);
     });
 
@@ -245,6 +245,9 @@ export function showToast(scene, message, color = COLORS.green) {
         ease: 'Back.out',
         yoyo: true,
         hold: 1700,
-        onComplete: () => toast.destroy(),
+        onComplete: () => {
+            stopWatchingLayout();
+            toast.destroy();
+        },
     });
 }

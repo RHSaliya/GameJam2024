@@ -37,7 +37,10 @@ export default class SplashScene extends Phaser.Scene {
         this.splashImage.tilePositionY += diff * 0.009;
         if (this.splashImage.alpha < 1) {
             this.splashImage.alpha += 0.01;
-        } else if (time > 3000) {
+        } else if (time > 3000 && !this.launching) {
+            // The scene keeps updating until the switch completes, so without
+            // this latch the menu is started again on every remaining frame.
+            this.launching = true;
             this.scene.start('menu');
         }
     }

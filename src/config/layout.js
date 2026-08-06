@@ -101,12 +101,22 @@ export function getPhysicalViewport() {
     return { width: layout.renderWidth, height: layout.renderHeight, layout };
 }
 
+function applyTextResolution(children, resolution) {
+    children?.forEach(child => {
+        child.setResolution?.(resolution);
+        // Buttons, panels, and HUD groups nest their labels inside containers,
+        // so the sweep has to descend or that text keeps the stale resolution
+        // and turns blurry after a resize or orientation change.
+        if (Array.isArray(child.list)) applyTextResolution(child.list, resolution);
+    });
+}
+
 export function configureSharpCamera(scene, layout = currentLayout) {
     const camera = scene.cameras.main;
     camera.setZoom(layout.renderScale);
     camera.centerOn(GAME_CENTER_X, GAME_CENTER_Y);
     camera.roundPixels = true;
-    scene.children?.list?.forEach(child => child.setResolution?.(layout.textResolution));
+    applyTextResolution(scene.children?.list, layout.textResolution);
     return layout;
 }
 
@@ -116,10 +126,17 @@ export function applyResponsiveLayout(scene, layout = currentLayout) {
     return layout;
 }
 
+// Returns an unsubscribe function. Short-lived listeners (toasts and other
+// transient overlays) must call it, otherwise every one of them stays attached
+// to the scene until shutdown and keeps its destroyed display objects alive.
 export function watchResponsiveLayout(scene, callback) {
     const handler = layout => callback(layout);
+    const stop = () => {
+        scene.events.off(RESPONSIVE_LAYOUT_EVENT, handler);
+        scene.events.off('shutdown', stop);
+    };
     scene.events.on(RESPONSIVE_LAYOUT_EVENT, handler);
-    scene.events.once('shutdown', () => scene.events.off(RESPONSIVE_LAYOUT_EVENT, handler));
+    scene.events.once('shutdown', stop);
     callback(currentLayout);
-    return handler;
+    return stop;
 }

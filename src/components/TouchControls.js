@@ -27,10 +27,11 @@ export default class TouchControls {
 
         this.onPointerUpHandler = pointer => this.releasePointer(pointer.id);
         this.onPointerMoveHandler = pointer => this.updatePointer(pointer);
+        this.onGameOutHandler = () => this.reset();
         scene.input.on('pointerup', this.onPointerUpHandler);
         scene.input.on('pointerupoutside', this.onPointerUpHandler);
         scene.input.on('pointermove', this.onPointerMoveHandler);
-        scene.input.on('gameout', () => this.reset());
+        scene.input.on('gameout', this.onGameOutHandler);
         scene.events.once('shutdown', () => this.destroy());
         watchResponsiveLayout(scene, layout => this.applyLayout(layout));
     }
@@ -274,8 +275,14 @@ export default class TouchControls {
     }
 
     destroy() {
-        this.scene.input.off('gameout');
-        if (this.onPointerUpHandler) this.scene.input.off('pointerup', this.onPointerUpHandler);
+        // Detach exactly the handlers this instance registered — the bare
+        // off('gameout') removed every listener on the scene, and the
+        // pointerupoutside binding was never removed at all.
+        if (this.onGameOutHandler) this.scene.input.off('gameout', this.onGameOutHandler);
+        if (this.onPointerUpHandler) {
+            this.scene.input.off('pointerup', this.onPointerUpHandler);
+            this.scene.input.off('pointerupoutside', this.onPointerUpHandler);
+        }
         if (this.onPointerMoveHandler) this.scene.input.off('pointermove', this.onPointerMoveHandler);
         this.controls.forEach(item => { item.container.destroy(true); item.hitZone.destroy(); });
         this.controls = [];

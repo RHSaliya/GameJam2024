@@ -533,8 +533,9 @@ export default class PlayScene extends Phaser.Scene {
         if (this.ending) return;
         this.isPaused = !this.isPaused;
         if (this.isPaused) {
+            this.pausedAt = this.time.now;
             this.physics.world.pause();
-            this.themeMusic.pause();
+            this.themeMusic?.pause();
             this.touch.reset();
             this.setThrustAudio(false, true);
             this.thrustEmitter.stop();
@@ -550,8 +551,20 @@ export default class PlayScene extends Phaser.Scene {
             });
             this.pauseOverlay.add([bg, title, resume, quit]);
         } else {
+            // The scene clock keeps running behind the pause overlay, so every
+            // gameplay deadline has to be pushed forward by the paused span.
+            // Otherwise resuming instantly dumps a queued wave and the paused
+            // time is charged against the campaign speed bonus.
+            const pausedFor = Math.max(0, this.time.now - (this.pausedAt ?? this.time.now));
+            this.runStartedAt += pausedFor;
+            this.lastAsteroid += pausedFor;
+            this.nextAstronautAt += pausedFor;
+            this.lastScoreTick += pausedFor;
+            this.lastFired += pausedFor;
+            this.lastEmptyAmmoCue += pausedFor;
+            this.pausedAt = undefined;
             this.physics.world.resume();
-            this.themeMusic.resume();
+            this.themeMusic?.resume();
             this.pauseOverlay?.destroy();
             this.pauseOverlay = undefined;
             this.pauseBackdrop = undefined;

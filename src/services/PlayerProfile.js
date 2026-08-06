@@ -71,6 +71,15 @@ export function normalizeProfile(value = {}) {
         pilotNameLocked,
         pilotNameVersion: Number(value.pilotNameVersion) === 1 ? 1 : 0,
         credits: Math.max(0, Math.floor(Number(value.credits) || 0)),
+        // Lifetime counters feed achievement tests and the "new best" check. A
+        // single non-numeric value from a corrupt save would otherwise turn them
+        // into NaN, which compares false against every threshold forever.
+        bestScore: counter(value.bestScore),
+        totalScore: counter(value.totalScore),
+        totalKills: counter(value.totalKills),
+        totalCoins: counter(value.totalCoins),
+        totalRuns: counter(value.totalRuns),
+        longestRun: counter(value.longestRun),
         completedLevels: [...new Set(completedLevels)],
         unlockedLevel: Math.min(LEVELS.length, Math.max(1, Math.floor(Number(value.unlockedLevel) || 1))),
         upgrades: Object.fromEntries(Object.keys(UPGRADES).map(key => [key, Math.min(4, Math.max(0, Math.floor(Number(value.upgrades?.[key]) || 0)))])),
@@ -94,6 +103,10 @@ export function normalizeProfile(value = {}) {
             touchMode: ['joystick', 'buttons'].includes(savedSettings.touchMode) ? savedSettings.touchMode : defaults.settings.touchMode,
         },
     };
+}
+
+function counter(value) {
+    return Math.max(0, Math.floor(Number(value) || 0));
 }
 
 function clampVolume(value, fallback) {
@@ -134,7 +147,14 @@ export class PlayerProfile {
     }
 
     save() {
-        this.storage?.setItem(STORAGE_KEY, JSON.stringify(this.data));
+        // Storage writes throw on quota exhaustion and in private-browsing
+        // WebViews. A run's rewards are already applied in memory at this point,
+        // so a failed write must not take the debrief screen down with it.
+        try {
+            this.storage?.setItem(STORAGE_KEY, JSON.stringify(this.data));
+        } catch (error) {
+            console.warn('Could not persist the player profile.', error);
+        }
         return this.data;
     }
 

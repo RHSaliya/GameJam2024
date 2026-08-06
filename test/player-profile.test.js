@@ -124,3 +124,36 @@ test('only endless runs are stored in local leaderboard records', () => {
     assert.equal(profile.data.endlessScores[0].mode, 'endless');
     assert.equal(profile.data.endlessScores[0].threat, 2);
 });
+
+test('corrupt lifetime counters cannot poison progression checks', () => {
+    const profile = normalizeProfile({
+        bestScore: 'not-a-number',
+        totalKills: null,
+        totalCoins: undefined,
+        totalScore: {},
+        totalRuns: -4,
+        longestRun: Number.NaN,
+    });
+    assert.equal(profile.bestScore, 0);
+    assert.equal(profile.totalKills, 0);
+    assert.equal(profile.totalCoins, 0);
+    assert.equal(profile.totalScore, 0);
+    assert.equal(profile.totalRuns, 0);
+    assert.equal(profile.longestRun, 0);
+
+    // A run recorded on top of a repaired profile must still register a best.
+    const recorded = new PlayerProfile(new MemoryStorage());
+    recorded.data = profile;
+    assert.equal(recorded.recordRun({ mode: 'endless', score: 500, kills: 3, seconds: 12 }).isNewBest, true);
+    assert.equal(recorded.data.bestScore, 500);
+});
+
+test('a failing storage write never takes down the debrief', () => {
+    class FullStorage extends MemoryStorage {
+        setItem() { throw new DOMException('Quota exceeded', 'QuotaExceededError'); }
+    }
+    const profile = new PlayerProfile(new FullStorage());
+    const result = profile.recordRun({ mode: 'endless', score: 250, kills: 4, coins: 6, seconds: 20 });
+    assert.equal(result.creditsEarned > 0, true);
+    assert.equal(profile.data.bestScore, 250);
+});

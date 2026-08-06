@@ -22,7 +22,10 @@ const config = {
 		default: 'arcade',
 		arcade: {
 			debug: false,
-			gravity: { y: 200 },
+			// Nothing in this game falls: every body opts out individually. A
+			// non-zero world gravity only means a body that forgets to do so
+			// silently drifts off the playfield.
+			gravity: { y: 0 },
 		},
 	},
 	scale: {
@@ -55,15 +58,21 @@ game.scene.start(import.meta.env.VITE_START_SCENE || 'splash', { levelId: 1 })
 // apps. Only looping music that was playing before the transition is resumed;
 // one-shot effects and thrust audio are discarded.
 let audioSuspendedByLifecycle = false
+// Only sounds this handler paused may be resumed or stopped later. Anything the
+// game itself paused (the pause menu mutes the music that way) has to be left
+// exactly as it was, or resuming the run would find its music already stopped.
+const lifecyclePaused = new Set()
 const lifecycleMusic = new Set()
 
 const suspendGameAudio = () => {
 	if (audioSuspendedByLifecycle) return
 	audioSuspendedByLifecycle = true
+	lifecyclePaused.clear()
 	lifecycleMusic.clear()
 	game.sound.sounds.forEach(sound => {
 		if (!sound.isPlaying) return
 		if (sound.loop && !['accelerationSound', 'lowHealthAccelerationSound'].includes(sound.key)) lifecycleMusic.add(sound)
+		lifecyclePaused.add(sound)
 		sound.pause()
 	})
 }
@@ -71,11 +80,12 @@ const suspendGameAudio = () => {
 const resumeGameAudio = () => {
 	if (!audioSuspendedByLifecycle || document.visibilityState === 'hidden' || !document.hasFocus()) return
 	audioSuspendedByLifecycle = false
-	game.sound.sounds.forEach(sound => {
+	lifecyclePaused.forEach(sound => {
 		if (!sound.isPaused) return
 		if (lifecycleMusic.has(sound)) sound.resume()
 		else sound.stop()
 	})
+	lifecyclePaused.clear()
 	lifecycleMusic.clear()
 }
 

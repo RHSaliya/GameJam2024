@@ -9,6 +9,9 @@ export default class Asteroid extends Phaser.Physics.Arcade.Image {
     }
 
     show(ship, minSpeed = 100, levelId = 1, spawn) {
+        // Clear any damage-flash tween left over from this body's previous life
+        // in the pool so the respawned enemy cannot inherit its alpha.
+        this.scene.tweens.killTweensOf(this);
         this.exploding = false;
         this.ship = ship;
         this.enemyType = chooseEnemyType(levelId);
