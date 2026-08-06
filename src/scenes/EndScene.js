@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import { LEVELS, getLevel } from '../config/gameData';
 import { playerProfile } from '../services/PlayerProfile';
 import { leaderboardService } from '../services/LeaderboardService';
-import { addButton, addPanel, addSpaceBackground, COLORS, formatNumber, textStyle } from '../ui';
+import { addButton, addPanel, addSpaceBackground, COLORS, drawIcon, formatNumber, textStyle } from '../ui';
 import { configureSharpCamera } from '../config/layout';
 import { playMusic, preloadAudio } from '../services/AudioService';
 
@@ -95,10 +95,10 @@ export default class EndScene extends Phaser.Scene {
         const boxWidth = 210;
         const boxHeight = 72;
         const boxes = [
-            { x: 260, label: 'ELIMINATED', value: `${run.kills} Targets`, icon: '🎯', color: '#ffffff' },
-            { x: 510, label: 'COINS COLLECTED', value: `◆ ${run.coins}`, icon: '🪙', color: '#ffd166' },
-            { x: 760, label: 'FLIGHT TIME', value: `${run.seconds}s ${run.speedBonus > 0 ? `(+${run.speedBonus} bonus)` : ''}`, icon: '⏱', color: '#5ce1e6' },
-            { x: 1010, label: 'CREDITS REWARD', value: `+◆ ${formatNumber(rewards.creditsEarned)}`, icon: '💎', color: '#7ae582' },
+            { x: 260, label: 'ELIMINATED', value: `${run.kills} Targets`, icon: 'target', color: '#ffffff', iconColor: COLORS.white },
+            { x: 510, label: 'COINS COLLECTED', value: `◆ ${run.coins}`, icon: 'coin', color: '#ffd166', iconColor: COLORS.yellow },
+            { x: 760, label: 'FLIGHT TIME', value: `${run.seconds}s ${run.speedBonus > 0 ? `(+${run.speedBonus} bonus)` : ''}`, icon: 'clock', color: '#5ce1e6', iconColor: COLORS.cyan },
+            { x: 1010, label: 'CREDITS REWARD', value: `+◆ ${formatNumber(rewards.creditsEarned)}`, icon: 'gem', color: '#7ae582', iconColor: COLORS.green },
         ];
 
         boxes.forEach(box => {
@@ -108,7 +108,8 @@ export default class EndScene extends Phaser.Scene {
             cardGraphics.lineStyle(1.5, COLORS.cyan, 0.35);
             cardGraphics.strokeRoundedRect(box.x - boxWidth / 2, boxY - boxHeight / 2, boxWidth, boxHeight, 8);
 
-            this.add.text(box.x, boxY - 18, `${box.icon} ${box.label}`, textStyle(14, COLORS.muted)).setOrigin(0.5);
+            drawIcon(this, box.icon, box.x - boxWidth / 2 + 22, boxY - 18, 15, box.iconColor);
+            this.add.text(box.x + 8, boxY - 18, box.label, textStyle('label', COLORS.muted)).setOrigin(0.5);
             this.add.text(box.x, boxY + 10, box.value, textStyle(19, box.color)).setOrigin(0.5);
         });
 
