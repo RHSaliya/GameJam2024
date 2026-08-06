@@ -1,8 +1,11 @@
 import Phaser from 'phaser';
 import { leaderboardService } from '../services/LeaderboardService';
 import { playerProfile } from '../services/PlayerProfile';
-import { addBackButton, addPanel, addSpaceBackground, addTitle, COLORS, formatNumber, textStyle } from '../ui';
+import { addBackButton, addPanel, addSpaceBackground, addTitle, COLORS, drawIcon, formatNumber, textStyle } from '../ui';
 import { configureSharpCamera } from '../config/layout';
+
+// Gold, silver, bronze — used to tint the star icon beside the top 3 ranks.
+const MEDAL_COLORS = [0xffd166, 0xc8d2e8, 0xd08b52];
 
 export default class LeaderboardScene extends Phaser.Scene {
     constructor() { super('leaderboard'); }
@@ -34,7 +37,6 @@ export default class LeaderboardScene extends Phaser.Scene {
         this.status.setText(result.mode === 'firebase' ? 'GLOBAL NETWORK SCORES' : 'LOCAL NETWORK SCORES');
         const currentPilot = playerProfile.data.displayName;
 
-        const medalIcons = ['🥇', '🥈', '🥉'];
         result.scores.forEach((score, index) => {
             const y = 168 + index * 37;
             const isTop3 = index < 3;
@@ -49,10 +51,11 @@ export default class LeaderboardScene extends Phaser.Scene {
                 this.rows.push(rowBg);
             }
 
-            const rankStr = isTop3 ? `${index + 1} ${medalIcons[index]}` : `#${index + 1}`;
+            const rankStr = `#${index + 1}`;
             const color = isSelf ? '#ffd166' : isTop3 ? '#5ce1e6' : '#ffffff';
 
             this.rows.push(this.add.text(180, y, rankStr, textStyle(19, color)));
+            if (isTop3) this.rows.push(drawIcon(this, 'star', 214, y + 7, 14, MEDAL_COLORS[index]));
             this.rows.push(this.add.text(260, y, String(score.name || 'Anonymous Pilot').slice(0, 18), textStyle(19, color)));
             this.rows.push(this.add.text(970, y, formatNumber(score.score), textStyle(19, color)).setOrigin(1, 0));
             this.rows.push(this.add.text(1080, y, `T${score.threat || 1}`, textStyle(17, COLORS.muted)).setOrigin(1, 0));
