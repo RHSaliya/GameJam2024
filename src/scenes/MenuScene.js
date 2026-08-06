@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import '../../public/font.css';
 import { cleanDisplayName, playerProfile } from '../services/PlayerProfile';
-import { addBrandTitle, addButton, addSpaceBackground, formatNumber, showToast, textStyle, COLORS } from '../ui';
+import { addBrandTitle, addButton, addSpaceBackground, fadeToScene, formatNumber, showToast, textStyle, COLORS } from '../ui';
 import { configureSharpCamera, GAME_CENTER_X, GAME_WIDTH, watchResponsiveLayout } from '../config/layout';
 import { preloadAudio } from '../services/AudioService';
 import { leaderboardService } from '../services/LeaderboardService';
@@ -40,7 +40,7 @@ export default class MenuScene extends Phaser.Scene {
         const bestText = this.add.text(28, 20, `ENDLESS BEST ${formatNumber(profile.endlessBestScore)}`, textStyle(24, '#ffffff'));
         const creditsText = this.add.text(GAME_WIDTH - 28, 20, `◆ ${formatNumber(profile.credits)}`, textStyle(25, '#ffd166')).setOrigin(1, 0);
 
-        const go = (scene, data) => this.scene.start(scene, data);
+        const go = (scene, data) => fadeToScene(this, scene, data);
         const left = centerX - 200;
         const right = centerX + 200;
         addButton(this, left, 326, 'CAMPAIGN', () => go('levels'), { width: 360, accent: COLORS.green });

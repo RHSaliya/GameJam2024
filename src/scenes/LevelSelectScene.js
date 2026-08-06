@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { LEVELS } from '../config/gameData';
 import { playerProfile } from '../services/PlayerProfile';
-import { addBackButton, addButton, addPanel, addSpaceBackground, addTitle, COLORS, textStyle } from '../ui';
+import { addBackButton, addButton, addPanel, addSpaceBackground, addTitle, COLORS, fadeToScene, textStyle } from '../ui';
 import { configureSharpCamera } from '../config/layout';
 
 export default class LevelSelectScene extends Phaser.Scene {
@@ -31,7 +31,7 @@ export default class LevelSelectScene extends Phaser.Scene {
             this.add.text(x - 255, y - 10, unlocked ? level.subtitle : 'SECURITY LOCK ACTIVE', textStyle(17, unlocked ? COLORS.muted : '#565e7d'));
             this.add.text(x - 255, y + 21, unlocked ? `TARGET: ${level.targetKills} ENEMIES  •  REWARD: ◆ ${level.reward}` : 'Clear earlier sectors to bypass lock', textStyle(16, unlocked ? '#ffd166' : '#565e7d'));
 
-            addButton(this, x + 205, y + 24, complete ? 'REPLAY' : unlocked ? 'LAUNCH' : 'LOCKED', () => this.scene.start('play', { levelId: level.id }), {
+            addButton(this, x + 205, y + 24, complete ? 'REPLAY' : unlocked ? 'LAUNCH' : 'LOCKED', () => fadeToScene(this, 'play', { levelId: level.id }), {
                 width: 135, height: 40, fontSize: 18, disabled: !unlocked,
                 accent: complete ? COLORS.green : COLORS.cyan,
             });

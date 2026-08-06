@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import { LEVELS, getLevel } from '../config/gameData';
 import { playerProfile } from '../services/PlayerProfile';
 import { leaderboardService } from '../services/LeaderboardService';
-import { addButton, addPanel, addSpaceBackground, COLORS, drawIcon, formatNumber, textStyle } from '../ui';
+import { addButton, addPanel, addSpaceBackground, COLORS, drawIcon, fadeToScene, formatNumber, textStyle } from '../ui';
 import { configureSharpCamera } from '../config/layout';
 import { playMusic, preloadAudio } from '../services/AudioService';
 
@@ -137,6 +137,6 @@ export default class EndScene extends Phaser.Scene {
     }
 
     go(scene, data) {
-        this.scene.start(scene, data);
+        fadeToScene(this, scene, data);
     }
 }

@@ -42,6 +42,7 @@ export function addSpaceBackground(scene, key = 'menu', options = {}) {
         }
         veil.setSize(layout.cameraWidth, layout.cameraHeight);
     });
+    scene.cameras.main.fadeIn(180, 8, 11, 30);
     return bg;
 }
 

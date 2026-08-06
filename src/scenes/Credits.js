@@ -1,6 +1,6 @@
 import Phaser from 'phaser'
 import '../../public/font.css';
-import { addSpaceBackground } from '../ui';
+import { addSpaceBackground, fadeToScene } from '../ui';
 import { configureSharpCamera, GAME_CENTER_X, GAME_CENTER_Y, GAME_HEIGHT, RENDER_SCALE, watchResponsiveLayout } from '../config/layout';
 export default class CreditScene extends Phaser.Scene {
     constructor() {
@@ -54,7 +54,7 @@ export default class CreditScene extends Phaser.Scene {
         skipButton.on('pointerout', () => skipButton.setStyle(buttonStyle))
         skipButton.on('pointerdown', function () {
             // Transition back to the main menu
-            this.scene.start('menu');
+            fadeToScene(this, 'menu');
         }, this);
     }
     

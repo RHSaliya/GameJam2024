@@ -3,6 +3,7 @@ import { GAME_HEIGHT, watchResponsiveLayout } from '../config/layout.js';
 import { playerProfile } from '../services/PlayerProfile.js';
 import { COLORS } from './theme.js';
 import { textStyle } from './text.js';
+import { fadeToScene } from './transitions.js';
 
 export function addButton(scene, x, y, label, onPress, options = {}) {
     const width = options.width || 220;
@@ -81,7 +82,7 @@ export function addButton(scene, x, y, label, onPress, options = {}) {
 }
 
 export function addBackButton(scene, target = 'menu', data) {
-    const button = addButton(scene, 92, GAME_HEIGHT - 36, '‹ BACK', () => scene.scene.start(target, data), {
+    const button = addButton(scene, 92, GAME_HEIGHT - 36, '‹ BACK', () => fadeToScene(scene, target, data), {
         width: 125, height: 42, fontSize: 22, accent: COLORS.yellow,
     });
     watchResponsiveLayout(scene, layout => {
