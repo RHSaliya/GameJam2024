@@ -12,6 +12,7 @@ export default [
                 process: 'readonly',
                 window: 'readonly',
                 DOMException: 'readonly',
+                URL: 'readonly',
             },
         },
         rules: {
