@@ -463,7 +463,11 @@ export default class PlayScene extends Phaser.Scene {
     }
 
     maybeSpawnWeaponPowerUp(x, y) {
-        if (this.kills % 6 !== 0 && Math.random() >= 0.08) return;
+        // A guaranteed core every twelfth kill keeps the pity timer the old
+        // `&&` short-circuit accidentally created, at half its rate, and the
+        // independent roll keeps drops feeling unscheduled in between.
+        const guaranteed = this.kills > 0 && this.kills % 12 === 0;
+        if (!guaranteed && Math.random() >= 0.08) return;
         const choices = getWeaponPickupChoices(this.nativeWeaponId);
         const weapon = Phaser.Utils.Array.GetRandom(choices);
         const powerUp = this.weaponPowerUps.get();

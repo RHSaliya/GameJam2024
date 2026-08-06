@@ -1,4 +1,4 @@
-import { ACHIEVEMENTS, LEVELS, SKINS, UPGRADES } from '../config/gameData.js';
+import { ACHIEVEMENTS, getLevel, LEVELS, SKINS, UPGRADES } from '../config/gameData.js';
 
 const STORAGE_KEY = 'quarrel-profile-v2';
 
@@ -217,7 +217,7 @@ export class PlayerProfile {
         const mode = run.mode === 'endless' ? 'endless' : 'campaign';
         const campaignVictory = mode === 'campaign' && Boolean(run.victory);
         const threat = Math.min(6, Math.max(1, Math.floor(Number(run.threat) || 1)));
-        const level = LEVELS[levelId - 1];
+        const level = getLevel(levelId);
         const firstCompletion = campaignVictory && !this.data.completedLevels.includes(levelId);
         const creditsEarned = coins + Math.floor(score / 8) + kills * 3 + (firstCompletion ? level.reward : campaignVictory ? Math.floor(level.reward * 0.25) : 0);
 
