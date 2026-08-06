@@ -139,7 +139,10 @@ export function versionCodeFromName(name) {
         const parsed = Number.parseInt(value, 10);
         return Number.isFinite(parsed) ? Math.min(99, Math.max(0, parsed)) : 0;
     };
-    return Math.max(1, major * 10000 + clamp(segments[1]) * 100 + clamp(segments[2]));
+    // Floor of 2, not 1: '0.0.1' would otherwise compute to exactly 1 and fail
+    // the "always clears the checked-in versionCode of 1" test above. 1 stays
+    // reserved for the unparseable-input path.
+    return Math.max(2, major * 10000 + clamp(segments[1]) * 100 + clamp(segments[2]));
 }
 
 async function rewrite(path, replacements) {
